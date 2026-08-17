@@ -104,28 +104,44 @@ export default function AssignmentModal({
                 Assigned Staff
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {currentShifts.map(shift => (
-                  <div key={shift.id} style={{ 
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)',
-                    backgroundColor: 'var(--background)'
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: 500, color: 'var(--primary)' }}>{shift.user.abbreviation}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{shift.user.fullName}</div>
-                      {shift.remarks && (
-                        <div style={{ fontSize: '0.75rem', marginTop: '0.25rem', fontStyle: 'italic' }}>Note: {shift.remarks}</div>
-                      )}
+                {currentShifts.map(shift => {
+                  const hash = shift.user.abbreviation.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+                  const hue = Math.abs(hash) % 360;
+                  return (
+                    <div key={shift.id} style={{ 
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)',
+                      backgroundColor: 'var(--background)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ 
+                          backgroundColor: `hsl(${hue}, 70%, 45%)`,
+                          color: 'white', 
+                          padding: '4px 8px',
+                          borderRadius: '9999px',
+                          fontSize: '0.75rem', 
+                          textAlign: 'center', 
+                          fontWeight: 600
+                        }}>
+                          {shift.user.abbreviation}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>{shift.user.fullName}</div>
+                          {shift.remarks && (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Note: {shift.remarks}</div>
+                          )}
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => handleDelete(shift.id)}
+                        disabled={loading}
+                        style={{ color: 'var(--danger)', padding: '0.25rem' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => handleDelete(shift.id)}
-                      disabled={loading}
-                      style={{ color: 'var(--danger)', padding: '0.25rem' }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ) : (

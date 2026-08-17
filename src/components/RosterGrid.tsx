@@ -154,16 +154,26 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px', justifyContent: 'center' }}>
-                          {shifts.map(shift => (
-                            <div key={shift.id} style={{ 
-                              color: shift.userId === filterUserId ? 'var(--foreground)' : 'var(--primary)', 
-                              fontSize: '0.875rem', 
-                              textAlign: 'center', fontWeight: 600
-                            }}>
-                              {shift.user.abbreviation}
-                            </div>
-                          ))}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '30px', justifyContent: 'center' }}>
+                          {shifts.map(shift => {
+                            const hash = shift.user.abbreviation.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+                            const hue = Math.abs(hash) % 360;
+                            const isFiltered = shift.userId === filterUserId;
+                            return (
+                              <div key={shift.id} style={{ 
+                                backgroundColor: isFiltered ? 'var(--primary)' : `hsl(${hue}, 70%, 45%)`,
+                                color: 'white', 
+                                padding: '4px 6px',
+                                borderRadius: '9999px', // Pill shape
+                                fontSize: '0.75rem', 
+                                textAlign: 'center', 
+                                fontWeight: 600,
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                              }}>
+                                {shift.user.abbreviation}
+                              </div>
+                            );
+                          })}
                         </div>
                       </td>
                     );
@@ -184,16 +194,27 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px', justifyContent: 'center' }}>
-                          {shifts.map(shift => (
-                            <div key={shift.id} style={{ 
-                              color: 'var(--danger)', 
-                              fontSize: '0.875rem', 
-                              textAlign: 'center', fontWeight: 600
-                            }}>
-                              {shift.user.abbreviation}
-                            </div>
-                          ))}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '30px', justifyContent: 'center' }}>
+                          {shifts.map(shift => {
+                            const hash = shift.user.abbreviation.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+                            const hue = Math.abs(hash) % 360;
+                            const isFiltered = shift.userId === filterUserId;
+                            return (
+                              <div key={shift.id} style={{ 
+                                backgroundColor: isFiltered ? 'var(--danger)' : `hsl(${hue}, 70%, 45%)`,
+                                color: 'white', 
+                                padding: '4px 6px',
+                                borderRadius: '9999px',
+                                fontSize: '0.75rem', 
+                                textAlign: 'center', 
+                                fontWeight: 600,
+                                opacity: 0.8,
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                              }}>
+                                {shift.user.abbreviation}
+                              </div>
+                            );
+                          })}
                         </div>
                       </td>
                     );
