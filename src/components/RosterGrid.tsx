@@ -86,7 +86,7 @@ function getUserColor(abbreviation: string): { bg: string; text: string; border:
 
 export default function RosterGrid({ data, year, month, currentUser, filterUserId, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' | 'TimeOff' } | null>(null);
+  const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
 
   const daysInMonth = new Date(year, month, 0).getDate();
   const days = Array.from({ length: daysInMonth }, (_, i) => {
@@ -100,8 +100,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     stations: data.stations.filter(s => s.locationId === loc.id)
   })).filter(loc => loc.stations.length > 0);
 
-  // Define absence columns
-  const absences = ['Leave', 'MC', 'Off', 'TimeOff'] as const;
+  // Define absence columns — Off / Leave / MC only
+  const absences = ['Off', 'Leave', 'MC'] as const;
 
 
   // Parse station name into base name + optional time pill (e.g. "MRI 3T 830" → { base: "MRI 3T", time: "830" })
@@ -111,7 +111,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     return { base: name, time: null };
   };
 
-  const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off' | 'TimeOff') => {
+  const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off') => {
     if (currentUser.accessLevel !== 'MANAGER' && currentUser.accessLevel !== 'ADMIN') return;
     setSelectedCell({ date, station, status });
     setModalOpen(true);
@@ -174,7 +174,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   </th>
                 );
               })}
-              <th colSpan={4} style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: 'var(--danger)' }}>
+              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: 'var(--danger)' }}>
                 Absences
               </th>
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px', width: '28px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.58rem', color: 'var(--text-muted)' }}>
@@ -210,10 +210,9 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               })}
               {absences.map(abs => {
                 const absHeaderStyle: Record<string, { bg: string; color: string; label: string }> = {
-                  'Leave':   { bg: '#DBEAFE', color: '#1e40af', label: 'Leave' },
-                  'MC':      { bg: '#DCF5DC', color: '#166534', label: 'MC' },
-                  'Off':     { bg: '#FEE2E2', color: '#991B1B', label: 'Day Off' },
-                  'TimeOff': { bg: '#FEF3C7', color: '#92400e', label: 'Time Off' },
+                  'Off':   { bg: '#FEE2E2', color: '#991B1B', label: 'OFF' },
+                  'Leave': { bg: '#DBEAFE', color: '#1e40af', label: 'LEAVE' },
+                  'MC':    { bg: '#DCF5DC', color: '#166534', label: 'MC' },
                 };
                 const s = absHeaderStyle[abs] || absHeaderStyle['Off'];
                 return (
@@ -221,7 +220,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                     border: '1px solid var(--border)', padding: '2px 1px',
                     textAlign: 'center', fontSize: '0.58rem', fontWeight: 700,
                     backgroundColor: s.bg, color: s.color,
-                    whiteSpace: 'nowrap', width: '36px',
+                    whiteSpace: 'nowrap', width: '52px',
                   }}>
                     {s.label}
                   </th>
@@ -239,7 +238,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const rowBg = isPH ? '#FFE0E0' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
               
               // Total columns for PH colspan
-              const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 4 + 1; // stations + absences(4) + total
+              const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences(3) + total
 
               // Count staff for the day
               const dayShifts = data.shifts.filter(s => {
@@ -325,7 +324,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', justifyContent: 'center', padding: '1px 0' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1px', justifyContent: 'center', alignItems: 'center', padding: '1px 0' }}>
                           {(() => {
                             const grouped = groupByPeriod(shifts);
                             const hasAmPm = grouped.AM.length > 0 || grouped.PM.length > 0;
@@ -420,7 +419,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1px', justifyContent: 'center', alignItems: 'center' }}>
                           {shifts.map(shift => {
                             const isFiltered = filterUserId && shift.userId === filterUserId;
                             const isCancelled = shift.status === 'Cancelled';
