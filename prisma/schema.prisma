@@ -33,12 +33,13 @@ model Station {
 }
 
 model Shift {
-  id         String   @id @default(uuid())
-  date       DateTime
-  startTime  String?
-  endTime    String?
-  status     String   @default("Scheduled") // Scheduled, Leave, MC, Off
-  remarks    String?
+  id          String   @id @default(uuid())
+  date        DateTime
+  shiftPeriod String   @default("Full") // "Full" | "AM" | "PM"
+  startTime   String?
+  endTime     String?
+  status      String   @default("Scheduled") // Scheduled, Leave, MC, Off
+  remarks     String?
 
   userId     String
   user       User     @relation(fields: [userId], references: [id])

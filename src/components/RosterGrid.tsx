@@ -109,10 +109,9 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   const getCellShifts = (date: Date, stationId: string | null, status: string) => {
     return data.shifts.filter(s => {
       const shiftDate = new Date(s.date);
-      const isSameDate = shiftDate.getDate() === date.getDate() && 
-                         shiftDate.getMonth() === date.getMonth() && 
+      const isSameDate = shiftDate.getDate() === date.getDate() &&
+                         shiftDate.getMonth() === date.getMonth() &&
                          shiftDate.getFullYear() === date.getFullYear();
-      
       if (!isSameDate) return false;
       if (stationId) {
         return s.stationId === stationId && s.status === 'Scheduled';
@@ -121,6 +120,13 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
       }
     });
   };
+
+  // Group cell shifts by period for display
+  const groupByPeriod = (shifts: Shift[]) => ({
+    Full: shifts.filter(s => !s.shiftPeriod || s.shiftPeriod === 'Full'),
+    AM:   shifts.filter(s => s.shiftPeriod === 'AM'),
+    PM:   shifts.filter(s => s.shiftPeriod === 'PM'),
+  });
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -134,12 +140,12 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               {stationsByLocation.map(loc => (
                 <th key={loc.id} colSpan={loc.stations.length} style={{ 
                   border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
-                  fontWeight: 600, color: 'black', backgroundColor: LOCATION_COLORS[loc.name.toUpperCase()] || 'var(--header-bg)' 
+                  fontWeight: 700, color: 'black', backgroundColor: LOCATION_COLORS[loc.name.toUpperCase()] || 'var(--header-bg)' 
                 }}>
                   {loc.name}
                 </th>
               ))}
-              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 600, color: 'var(--danger)' }}>
+              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 700, color: 'var(--danger)' }}>
                 Absences
               </th>
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -152,7 +158,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 return (
                 <th key={station.id} style={{ 
                   border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
-                  fontSize: '0.75rem', fontWeight: 600, color: '#333',
+                  fontSize: '0.75rem', fontWeight: 700, color: '#333',
                   backgroundColor: getStationColor(station.name, locName),
                   whiteSpace: 'nowrap'
                 }}>
@@ -161,7 +167,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 );
               })}
               {absences.map(abs => (
-                <th key={abs} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-muted)' }}>
+                <th key={abs} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#555' }}>
                   {abs}
                 </th>
               ))}
@@ -170,10 +176,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
           <tbody>
             {days.map(date => {
               const dayOfWeek = date.getDay();
+              const isSunday = dayOfWeek === 0;
               const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
               const phName = getPhName(date);
               const isPH = !!phName;
-              const rowBg = isPH ? '#FFE0E0' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
+              const rowBg = isPH ? '#FFE0E0' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
               
               // Total columns for PH colspan
               const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences + total
@@ -188,8 +195,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const dateCell = (
                 <td style={{ 
                   border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
-                  fontWeight: isWeekend || isPH ? 700 : 400, 
-                  color: isPH ? '#cc0000' : isWeekend ? 'var(--primary)' : 'inherit',
+                  fontWeight: 700,
+                  color: isPH ? '#cc0000' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
                   position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
                   minWidth: '72px'
                 }}>
@@ -219,6 +226,28 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 );
               }
 
+              // Sunday row — grey "Centre Closed" banner
+              if (isSunday && !isPH) {
+                return (
+                  <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
+                    {dateCell}
+                    <td colSpan={totalCols} style={{
+                      border: '1px solid #D1D5DB',
+                      backgroundColor: '#F3F4F6',
+                      color: '#6B7280',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      padding: '0.6rem',
+                      fontSize: '0.875rem',
+                      letterSpacing: '0.05em',
+                      fontStyle: 'italic'
+                    }}>
+                      Centre Closed
+                    </td>
+                  </tr>
+                );
+              }
+
               return (
                 <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
                   {dateCell}
@@ -241,26 +270,63 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center' }}>
-                          {shifts.map(shift => {
-                            const isFiltered = filterUserId && shift.userId === filterUserId;
-                            const uc = getUserColor(shift.user.abbreviation);
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center', padding: '2px 0' }}>
+                          {(() => {
+                            const grouped = groupByPeriod(shifts);
+                            const hasAmPm = grouped.AM.length > 0 || grouped.PM.length > 0;
                             return (
-                              <div key={shift.id} style={{ 
-                                backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
-                                color: isFiltered ? 'white' : uc.text,
-                                border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
-                                padding: '2px 6px',
-                                borderRadius: '9999px',
-                                fontSize: '0.7rem', 
-                                textAlign: 'center', 
-                                fontWeight: 600,
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {shift.user.abbreviation}
-                              </div>
+                              <>
+                                {/* Full day pills */}
+                                {grouped.Full.map(shift => {
+                                  const isFiltered = filterUserId && shift.userId === filterUserId;
+                                  const uc = getUserColor(shift.user.abbreviation);
+                                  return (
+                                    <div key={shift.id} style={{
+                                      backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
+                                      color: isFiltered ? 'white' : uc.text,
+                                      border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
+                                      padding: '2px 5px', borderRadius: '9999px',
+                                      fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap'
+                                    }}>{shift.user.abbreviation}</div>
+                                  );
+                                })}
+                                {/* AM pills */}
+                                {grouped.AM.map(shift => {
+                                  const isFiltered = filterUserId && shift.userId === filterUserId;
+                                  const uc = getUserColor(shift.user.abbreviation);
+                                  return (
+                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                      <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#0369a1', backgroundColor: '#E0F2FE', padding: '0 3px', borderRadius: '3px', lineHeight: '1.4' }}>AM</span>
+                                      <div style={{
+                                        backgroundColor: isFiltered ? '#0369a1' : uc.bg,
+                                        color: isFiltered ? 'white' : uc.text,
+                                        border: `1px solid ${isFiltered ? '#0369a1' : uc.border}`,
+                                        padding: '1px 5px', borderRadius: '9999px',
+                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap'
+                                      }}>{shift.user.abbreviation}</div>
+                                    </div>
+                                  );
+                                })}
+                                {/* PM pills */}
+                                {grouped.PM.map(shift => {
+                                  const isFiltered = filterUserId && shift.userId === filterUserId;
+                                  const uc = getUserColor(shift.user.abbreviation);
+                                  return (
+                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                      <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#c2410c', backgroundColor: '#FFF7ED', padding: '0 3px', borderRadius: '3px', lineHeight: '1.4' }}>PM</span>
+                                      <div style={{
+                                        backgroundColor: isFiltered ? '#c2410c' : uc.bg,
+                                        color: isFiltered ? 'white' : uc.text,
+                                        border: `1px solid ${isFiltered ? '#c2410c' : uc.border}`,
+                                        padding: '1px 5px', borderRadius: '9999px',
+                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap'
+                                      }}>{shift.user.abbreviation}</div>
+                                    </div>
+                                  );
+                                })}
+                              </>
                             );
-                          })}
+                          })()}
                         </div>
                       </td>
                     );
@@ -326,6 +392,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
           station={selectedCell.station}
           statusType={selectedCell.status}
           currentShifts={getCellShifts(selectedCell.date, selectedCell.station?.id || null, selectedCell.status)}
+          allShifts={data.shifts}
           users={data.users}
           onClose={() => setModalOpen(false)}
           onRefresh={onRefresh}

@@ -30,6 +30,7 @@ export type Shift = {
   userId: string;
   stationId: string | null;
   status: string;
+  shiftPeriod: string;
   remarks: string | null;
   user: User;
   station: Station | null;

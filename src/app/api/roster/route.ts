@@ -52,30 +52,85 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, date, stationId, status = 'Scheduled', remarks = '' } = body;
+    const {
+      userId,
+      date,        // single day ISO string (used when dateFrom/dateTo not provided)
+      dateFrom,    // bulk range start ISO string
+      dateTo,      // bulk range end ISO string
+      stationId,
+      status = 'Scheduled',
+      shiftPeriod = 'Full',  // "Full" | "AM" | "PM"
+      remarks = '',
+      skipWeekends = true,
+      skipPublicHolidays = true,
+    } = body;
 
-    if (!userId || !date) {
-      return NextResponse.json({ error: 'userId and date are required' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    const shiftDate = new Date(date);
+    // Singapore 2026 public holiday dates (ISO YYYY-MM-DD)
+    const SG_PUBLIC_HOLIDAYS = new Set([
+      '2026-01-01','2026-02-17','2026-02-18','2026-03-21','2026-04-03',
+      '2026-05-01','2026-05-27','2026-06-01','2026-08-09','2026-08-10',
+      '2026-11-09','2026-12-25',
+    ]);
 
-    // Create a new shift
-    const shift = await prisma.shift.create({
-      data: {
-        userId,
-        date: shiftDate,
-        stationId: stationId || null,
-        status,
-        remarks
-      },
-      include: {
-        user: true,
-        station: true
+    function toLocalDateKey(d: Date) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    // Determine list of dates to assign
+    let datesToAssign: Date[] = [];
+
+    if (dateFrom && dateTo) {
+      // Bulk range
+      const start = new Date(dateFrom);
+      const end = new Date(dateTo);
+      start.setHours(12, 0, 0, 0);
+      end.setHours(12, 0, 0, 0);
+      const cur = new Date(start);
+      while (cur <= end) {
+        const dow = cur.getDay();
+        const key = toLocalDateKey(cur);
+        const isSunday = dow === 0;
+        const isSat = dow === 6;
+        const isPH = SG_PUBLIC_HOLIDAYS.has(key);
+        if (skipWeekends && (isSunday || isSat)) { cur.setDate(cur.getDate() + 1); continue; }
+        if (skipPublicHolidays && isPH) { cur.setDate(cur.getDate() + 1); continue; }
+        datesToAssign.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
       }
-    });
+    } else if (date) {
+      // Single day
+      const d = new Date(date);
+      d.setHours(12, 0, 0, 0);
+      datesToAssign = [d];
+    } else {
+      return NextResponse.json({ error: 'date or dateFrom/dateTo is required' }, { status: 400 });
+    }
 
-    return NextResponse.json(shift);
+    // Bulk insert all shifts in a transaction
+    const created = await prisma.$transaction(
+      datesToAssign.map(d =>
+        prisma.shift.create({
+          data: {
+            userId,
+            date: d,
+            stationId: stationId || null,
+            status,
+            shiftPeriod,
+            remarks: remarks || null,
+          },
+          include: { user: true, station: true }
+        })
+      )
+    );
+
+    return NextResponse.json({ created: created.length, shifts: created });
   } catch (error) {
     console.error('Error creating shift:', error);
     return NextResponse.json({ error: 'Failed to create shift' }, { status: 500 });
