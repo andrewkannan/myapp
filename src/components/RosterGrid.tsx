@@ -86,7 +86,7 @@ function getUserColor(abbreviation: string): { bg: string; text: string; border:
 
 export default function RosterGrid({ data, year, month, currentUser, filterUserId, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
+  const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' | 'TimeOff' } | null>(null);
 
   const daysInMonth = new Date(year, month, 0).getDate();
   const days = Array.from({ length: daysInMonth }, (_, i) => {
@@ -101,7 +101,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   })).filter(loc => loc.stations.length > 0);
 
   // Define absence columns
-  const absences = ['Leave', 'MC', 'Off'] as const;
+  const absences = ['Leave', 'MC', 'Off', 'TimeOff'] as const;
+
 
   // Parse station name into base name + optional time pill (e.g. "MRI 3T 830" → { base: "MRI 3T", time: "830" })
   const parseStationDisplay = (name: string): { base: string; time: string | null } => {
@@ -110,10 +111,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     return { base: name, time: null };
   };
 
-  const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off') => {
-    // Only allow MANAGERs or ADMINs to edit
+  const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off' | 'TimeOff') => {
     if (currentUser.accessLevel !== 'MANAGER' && currentUser.accessLevel !== 'ADMIN') return;
-    
     setSelectedCell({ date, station, status });
     setModalOpen(true);
   };
@@ -174,8 +173,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   </th>
                 );
               })}
-              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 700, color: 'var(--danger)' }}>
-                Absences
+              <th colSpan={4} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 700, color: 'var(--danger)' }}>
+                Absences / Leave
               </th>
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 Total<br/>Staff
@@ -209,11 +208,25 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 </th>
                 );
               })}
-              {absences.map(abs => (
-                <th key={abs} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#555' }}>
-                  {abs}
-                </th>
-              ))}
+              {absences.map(abs => {
+                const absHeaderStyle: Record<string, { bg: string; color: string; label: string }> = {
+                  'Leave':   { bg: '#DBEAFE', color: '#1e40af', label: 'Leave' },
+                  'MC':      { bg: '#DCF5DC', color: '#166534', label: 'MC' },
+                  'Off':     { bg: '#FEE2E2', color: '#991B1B', label: 'Day Off' },
+                  'TimeOff': { bg: '#FEF3C7', color: '#92400e', label: 'Time Off' },
+                };
+                const s = absHeaderStyle[abs] || absHeaderStyle['Off'];
+                return (
+                  <th key={abs} style={{
+                    border: '1px solid var(--border)', padding: '0.4rem 0.3rem',
+                    textAlign: 'center', fontSize: '0.72rem', fontWeight: 700,
+                    backgroundColor: s.bg, color: s.color,
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {s.label}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -226,7 +239,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const rowBg = isPH ? '#FFE0E0' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
               
               // Total columns for PH colspan
-              const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences + total
+              const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 4 + 1; // stations + absences(4) + total
 
               // Count staff for the day
               const dayShifts = data.shifts.filter(s => {
@@ -322,17 +335,19 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 {/* Full day pills */}
                                 {grouped.Full.map(shift => {
                                   const isFiltered = filterUserId && shift.userId === filterUserId;
+                                  const isCancelled = shift.status === 'Cancelled';
                                   const uc = getUserColor(shift.user.abbreviation);
                                   return (
                                     <div key={shift.id}>
                                       <div
                                         title={shift.user.fullName || shift.user.abbreviation}
                                         style={{
-                                        backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
-                                        color: isFiltered ? 'white' : uc.text,
-                                        border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
+                                        backgroundColor: isCancelled ? '#F3F4F6' : isFiltered ? '#1d4ed8' : uc.bg,
+                                        color: isCancelled ? '#9CA3AF' : isFiltered ? 'white' : uc.text,
+                                        border: `1px solid ${isCancelled ? '#D1D5DB' : isFiltered ? '#1d4ed8' : uc.border}`,
                                         padding: '2px 5px', borderRadius: '9999px',
                                         fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap',
+                                        textDecoration: isCancelled ? 'line-through' : 'none',
                                         cursor: 'default',
                                       }}>{shift.user.abbreviation}</div>
                                       {shift.remarks && (
@@ -409,18 +424,27 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center' }}>
                           {shifts.map(shift => {
                             const isFiltered = filterUserId && shift.userId === filterUserId;
-                            const uc = getUserColor(shift.user.abbreviation);
+                            const isCancelled = shift.status === 'Cancelled';
+                            const absColor: Record<string, { bg: string; text: string; border: string }> = {
+                              'Leave':   { bg: '#DBEAFE', text: '#1e40af', border: '#93C5FD' },
+                              'MC':      { bg: '#DCF5DC', text: '#166534', border: '#86efac' },
+                              'Off':     { bg: '#FEE2E2', text: '#991B1B', border: '#FCA5A5' },
+                              'TimeOff': { bg: '#FEF3C7', text: '#92400e', border: '#FCD34D' },
+                            };
+                            const col = absColor[abs] || absColor['Off'];
                             return (
-                              <div key={shift.id} style={{ 
-                                backgroundColor: isFiltered ? '#dc2626' : '#FEE2E2',
-                                color: isFiltered ? 'white' : '#991B1B',
-                                border: `1px solid ${isFiltered ? '#dc2626' : '#FCA5A5'}`,
+                              <div key={shift.id} title={shift.user.fullName || shift.user.abbreviation} style={{ 
+                                backgroundColor: isFiltered ? col.text : isCancelled ? '#F3F4F6' : col.bg,
+                                color: isFiltered ? 'white' : isCancelled ? '#9CA3AF' : col.text,
+                                border: `1px solid ${isFiltered ? col.text : isCancelled ? '#D1D5DB' : col.border}`,
                                 padding: '2px 6px',
                                 borderRadius: '9999px',
                                 fontSize: '0.7rem', 
                                 textAlign: 'center', 
                                 fontWeight: 600,
-                                whiteSpace: 'nowrap'
+                                whiteSpace: 'nowrap',
+                                textDecoration: isCancelled ? 'line-through' : 'none',
+                                cursor: 'default',
                               }}>
                                 {shift.user.abbreviation}
                               </div>

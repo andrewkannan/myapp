@@ -2,15 +2,15 @@
 
 import { useState, useMemo } from 'react';
 import { User, Shift, Station } from '@/app/page';
-import { X, Trash2, Calendar, Clock, CalendarRange } from 'lucide-react';
+import { X, Trash2, Calendar, Clock, CalendarRange, Ban, RotateCcw } from 'lucide-react';
 import StaffPicker from './StaffPicker';
 
 interface AssignmentModalProps {
   date: Date;
   station: Station | null;
-  statusType: 'Scheduled' | 'Leave' | 'MC' | 'Off';
+  statusType: 'Scheduled' | 'Leave' | 'MC' | 'Off' | 'TimeOff';
   currentShifts: Shift[];
-  allShifts: Shift[]; // all shifts for the month for conflict detection
+  allShifts: Shift[];
   users: User[];
   onClose: () => void;
   onRefresh: () => void;
@@ -27,10 +27,20 @@ function toInputDate(d: Date) {
 }
 
 const PERIOD_LABELS: Record<Period, { label: string; color: string; bg: string }> = {
-  Full:  { label: 'Full Day', color: '#1d4ed8', bg: '#EFF6FF' },
-  AM:    { label: 'AM Only',  color: '#0369a1', bg: '#E0F2FE' },
-  PM:    { label: 'PM Only',  color: '#c2410c', bg: '#FFF7ED' },
+  Full: { label: 'Full Day', color: '#1d4ed8', bg: '#EFF6FF' },
+  AM:   { label: 'AM Only',  color: '#0369a1', bg: '#E0F2FE' },
+  PM:   { label: 'PM Only',  color: '#c2410c', bg: '#FFF7ED' },
 };
+
+function getUserColor(abbreviation: string) {
+  const hash = abbreviation.split('').reduce((acc, c) => c.charCodeAt(0) + ((acc << 5) - acc), 0);
+  const hue = Math.abs(hash) % 360;
+  return {
+    bg: `hsl(${hue}, 55%, 92%)`,
+    text: `hsl(${hue}, 60%, 28%)`,
+    border: `hsl(${hue}, 55%, 70%)`,
+  };
+}
 
 export default function AssignmentModal({
   date, station, statusType, currentShifts, allShifts, users, onClose, onRefresh
@@ -46,7 +56,6 @@ export default function AssignmentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Detect staff working elsewhere on the selected date (conflict detection)
   const conflictUserIds = useMemo(() => {
     return allShifts
       .filter(s => {
@@ -60,7 +69,6 @@ export default function AssignmentModal({
       .map(s => s.userId);
   }, [allShifts, date, station]);
 
-  // Estimate days for bulk range
   const estimatedDays = useMemo(() => {
     if (mode === 'single') return 1;
     const start = new Date(dateFrom);
@@ -88,7 +96,6 @@ export default function AssignmentModal({
     setError('');
     setLoading(true);
     try {
-      // Post one request per selected user
       const promises = selectedUserIds.map(userId =>
         fetch('/api/roster', {
           method: 'POST',
@@ -109,8 +116,7 @@ export default function AssignmentModal({
         })
       );
       const results = await Promise.all(promises);
-      const allOk = results.every(r => r.ok);
-      if (allOk) {
+      if (results.every(r => r.ok)) {
         onRefresh();
         setSelectedUserIds([]);
         setRemarks('');
@@ -127,13 +133,35 @@ export default function AssignmentModal({
   const handleDelete = async (shiftId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/roster?id=${shiftId}`, { method: 'DELETE' });
-      if (res.ok) onRefresh();
-    } catch {}
-    finally { setLoading(false); }
+      await fetch(`/api/roster?id=${shiftId}`, { method: 'DELETE' });
+      onRefresh();
+    } finally { setLoading(false); }
+  };
+
+  // Cancel = keep record, mark as Cancelled (shows strikethrough in grid)
+  const handleCancel = async (shift: Shift) => {
+    const isCancelled = shift.status === 'Cancelled';
+    setLoading(true);
+    try {
+      await fetch(`/api/roster?id=${shift.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: isCancelled ? 'Scheduled' : 'Cancelled',
+        })
+      });
+      onRefresh();
+    } finally { setLoading(false); }
   };
 
   const periodInfo = PERIOD_LABELS[period];
+
+  const headerLabel =
+    statusType === 'TimeOff' ? 'Time Off' :
+    statusType === 'Leave'   ? 'Annual Leave' :
+    statusType === 'MC'      ? 'Medical Leave' :
+    statusType === 'Off'     ? 'Day Off' :
+    station?.name || 'Scheduled';
 
   return (
     <div style={{
@@ -145,12 +173,9 @@ export default function AssignmentModal({
       <div style={{
         backgroundColor: 'var(--surface)',
         borderRadius: '14px',
-        width: '100%',
-        maxWidth: '520px',
-        maxHeight: '92vh',
+        width: '100%', maxWidth: '520px', maxHeight: '92vh',
         boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
       }}>
         {/* Header */}
@@ -158,12 +183,11 @@ export default function AssignmentModal({
           padding: '1rem 1.25rem',
           borderBottom: '1px solid var(--border)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          flexShrink: 0,
-          backgroundColor: 'var(--header-bg)',
+          flexShrink: 0, backgroundColor: 'var(--header-bg)',
         }}>
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {station ? `${station.name}` : statusType}
+              {headerLabel}
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--foreground)' }}>
               {date.toLocaleDateString('default', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
@@ -185,32 +209,51 @@ export default function AssignmentModal({
                 {currentShifts.map(shift => {
                   const hash = shift.user.abbreviation.split('').reduce((acc, c) => c.charCodeAt(0) + ((acc << 5) - acc), 0);
                   const hue = Math.abs(hash) % 360;
+                  const isCancelled = shift.status === 'Cancelled';
                   const periodMeta = PERIOD_LABELS[shift.shiftPeriod as Period] || PERIOD_LABELS.Full;
                   return (
                     <div key={shift.id} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '0.5rem 0.75rem', borderRadius: '8px',
-                      border: '1px solid var(--border)', backgroundColor: 'var(--background)'
+                      border: `1px solid ${isCancelled ? '#FCA5A5' : 'var(--border)'}`,
+                      backgroundColor: isCancelled ? '#FEF2F2' : 'var(--background)',
+                      opacity: isCancelled ? 0.85 : 1,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                         <div style={{
-                          backgroundColor: `hsl(${hue}, 55%, 92%)`,
-                          color: `hsl(${hue}, 60%, 28%)`,
+                          backgroundColor: `hsl(${hue}, 55%, ${isCancelled ? '85%' : '92%'})`,
+                          color: `hsl(${hue}, 60%, ${isCancelled ? '40%' : '28%'})`,
                           border: `1px solid hsl(${hue}, 55%, 70%)`,
                           padding: '2px 8px', borderRadius: '9999px',
                           fontSize: '0.75rem', fontWeight: 700,
+                          textDecoration: isCancelled ? 'line-through' : 'none',
                         }}>
                           {shift.user.abbreviation}
                         </div>
                         <div>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{shift.user.fullName}</div>
+                          <div style={{
+                            fontSize: '0.8rem', fontWeight: 600,
+                            textDecoration: isCancelled ? 'line-through' : 'none',
+                            color: isCancelled ? 'var(--text-muted)' : 'var(--foreground)',
+                          }}>
+                            {shift.user.fullName}
+                          </div>
                           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '2px', alignItems: 'center' }}>
-                            <span style={{
-                              fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px',
-                              borderRadius: '4px', backgroundColor: periodMeta.bg, color: periodMeta.color
-                            }}>
-                              {periodMeta.label}
-                            </span>
+                            {!isCancelled ? (
+                              <span style={{
+                                fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px',
+                                borderRadius: '4px', backgroundColor: periodMeta.bg, color: periodMeta.color
+                              }}>
+                                {periodMeta.label}
+                              </span>
+                            ) : (
+                              <span style={{
+                                fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px',
+                                borderRadius: '4px', backgroundColor: '#FEE2E2', color: '#DC2626'
+                              }}>
+                                Cancelled
+                              </span>
+                            )}
                             {shift.remarks && (
                               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                                 {shift.remarks}
@@ -219,10 +262,31 @@ export default function AssignmentModal({
                           </div>
                         </div>
                       </div>
-                      <button onClick={() => handleDelete(shift.id)} disabled={loading}
-                        style={{ color: 'var(--danger)', padding: '0.25rem', borderRadius: '4px' }}>
-                        <Trash2 size={15} />
-                      </button>
+                      {/* Action buttons */}
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        {/* Cancel / Restore toggle */}
+                        <button
+                          onClick={() => handleCancel(shift)}
+                          disabled={loading}
+                          title={isCancelled ? 'Restore assignment' : 'Cancel assignment (keeps record)'}
+                          style={{
+                            color: isCancelled ? '#16a34a' : '#d97706',
+                            padding: '0.25rem', borderRadius: '4px',
+                            opacity: loading ? 0.5 : 1,
+                          }}
+                        >
+                          {isCancelled ? <RotateCcw size={15} /> : <Ban size={15} />}
+                        </button>
+                        {/* Delete */}
+                        <button
+                          onClick={() => handleDelete(shift.id)}
+                          disabled={loading}
+                          title="Remove from record entirely"
+                          style={{ color: 'var(--danger)', padding: '0.25rem', borderRadius: '4px', opacity: loading ? 0.5 : 1 }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -341,7 +405,7 @@ export default function AssignmentModal({
               </div>
             )}
 
-            {/* Confirm button */}
+            {/* Confirm */}
             <button onClick={handleAssign} disabled={selectedUserIds.length === 0 || loading} style={{
               width: '100%', padding: '0.75rem', borderRadius: '8px',
               backgroundColor: selectedUserIds.length > 0 && !loading ? 'var(--primary)' : 'var(--border)',
@@ -349,7 +413,7 @@ export default function AssignmentModal({
               fontWeight: 700, fontSize: '0.9rem',
               transition: 'all 0.15s',
             }}>
-              {loading ? 'Assigning...' :
+              {loading ? 'Working...' :
                 selectedUserIds.length === 0 ? 'Select staff to assign' :
                 mode === 'range' && estimatedDays > 1
                   ? `Assign ${selectedUserIds.length} staff × ${estimatedDays} days`

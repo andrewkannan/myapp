@@ -161,3 +161,34 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Failed to delete shift' }, { status: 500 });
   }
 }
+
+// PATCH — toggle a shift to Cancelled (or restore to Scheduled)
+export async function PATCH(request: Request) {
+  try {
+    const session = await getSession();
+    if (!session || session.accessLevel !== 'MANAGER' && session.accessLevel !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'Shift ID required' }, { status: 400 });
+
+    const body = await request.json();
+    const { status, remarks } = body;
+
+    const updated = await prisma.shift.update({
+      where: { id },
+      data: {
+        ...(status !== undefined ? { status } : {}),
+        ...(remarks !== undefined ? { remarks } : {}),
+      },
+      include: { user: true, station: true }
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error('Error updating shift:', error);
+    return NextResponse.json({ error: 'Failed to update shift' }, { status: 500 });
+  }
+}
