@@ -67,7 +67,9 @@ function getStationColor(stationName: string, locationName: string): string {
   const stUpper = stationName.toUpperCase();
   const locUpper = locationName.toUpperCase();
 
-  if (stUpper in STATION_COLORS) return STATION_COLORS[stUpper];
+  // MAM=pink and CT=purple only apply within OIC — other locations use their own band color
+  const oicOnly = new Set(['BMD', 'MAM', 'CT', 'PET', 'LUMA MRI', 'MRI 3T 830', 'MRI 3T 930', 'MRI 2 830', 'MRI 2 930', 'MRI 3 830', 'MRI 3 930', 'TUCKER']);
+  if (oicOnly.has(stUpper) && locUpper === 'OIC') return STATION_COLORS[stUpper] || LOCATION_COLORS['OIC'];
   return LOCATION_COLORS[locUpper] || '#F8F8F8';
 }
 
@@ -323,12 +325,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                   const uc = getUserColor(shift.user.abbreviation);
                                   return (
                                     <div key={shift.id}>
-                                      <div style={{
+                                      <div
+                                        title={shift.user.fullName || shift.user.abbreviation}
+                                        style={{
                                         backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
                                         color: isFiltered ? 'white' : uc.text,
                                         border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
                                         padding: '2px 5px', borderRadius: '9999px',
-                                        fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap'
+                                        fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap',
+                                        cursor: 'default',
                                       }}>{shift.user.abbreviation}</div>
                                       {shift.remarks && (
                                         <div style={{ fontSize: '0.55rem', color: '#666', textAlign: 'center', marginTop: '1px', whiteSpace: 'nowrap' }}>
@@ -345,12 +350,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                   return (
                                     <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                       <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#0369a1', backgroundColor: '#E0F2FE', padding: '0 3px', borderRadius: '3px', lineHeight: '1.4' }}>AM</span>
-                                      <div style={{
+                                      <div
+                                        title={shift.user.fullName || shift.user.abbreviation}
+                                        style={{
                                         backgroundColor: isFiltered ? '#0369a1' : uc.bg,
                                         color: isFiltered ? 'white' : uc.text,
                                         border: `1px solid ${isFiltered ? '#0369a1' : uc.border}`,
                                         padding: '1px 5px', borderRadius: '9999px',
-                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap'
+                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap',
+                                        cursor: 'default',
                                       }}>{shift.user.abbreviation}</div>
                                     </div>
                                   );
@@ -362,12 +370,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                   return (
                                     <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                       <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#c2410c', backgroundColor: '#FFF7ED', padding: '0 3px', borderRadius: '3px', lineHeight: '1.4' }}>PM</span>
-                                      <div style={{
+                                      <div
+                                        title={shift.user.fullName || shift.user.abbreviation}
+                                        style={{
                                         backgroundColor: isFiltered ? '#c2410c' : uc.bg,
                                         color: isFiltered ? 'white' : uc.text,
                                         border: `1px solid ${isFiltered ? '#c2410c' : uc.border}`,
                                         padding: '1px 5px', borderRadius: '9999px',
-                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap'
+                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap',
+                                        cursor: 'default',
                                       }}>{shift.user.abbreviation}</div>
                                     </div>
                                   );
