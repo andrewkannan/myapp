@@ -220,7 +220,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                     border: '1px solid var(--border)', padding: '2px 1px',
                     textAlign: 'center', fontSize: '0.58rem', fontWeight: 700,
                     backgroundColor: s.bg, color: s.color,
-                    whiteSpace: 'nowrap', width: '52px',
+                    whiteSpace: 'nowrap', minWidth: '72px',
                   }}>
                     {s.label}
                   </th>
@@ -324,7 +324,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1px', justifyContent: 'center', alignItems: 'center', padding: '1px 0' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '1px', justifyContent: 'center', alignItems: 'center', padding: '1px', overflow: 'hidden' }}>
                           {(() => {
                             const grouped = groupByPeriod(shifts);
                             const hasAmPm = grouped.AM.length > 0 || grouped.PM.length > 0;
@@ -419,7 +419,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1px', justifyContent: 'center', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '1px', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                           {shifts.map(shift => {
                             const isFiltered = filterUserId && shift.userId === filterUserId;
                             const isCancelled = shift.status === 'Cancelled';
