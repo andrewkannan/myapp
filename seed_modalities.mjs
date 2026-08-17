@@ -6,7 +6,7 @@ const db = new Database('dev.db');
 const locations = [
   {
     name: 'OIC',
-    stations: ['XR', 'BMD', 'MAM', 'US1', 'US2', 'US3', 'US4', 'MRI 3T', 'MRI 2', 'MRI 3', 'CT', 'PET', 'LUMA MRI']
+    stations: ['XR', 'BMD', 'MAM', 'US1', 'US2', 'US3', 'US4', 'MRI 3T', 'MRI 2', 'MRI 3', 'TUCKER', 'CT', 'LUMA MRI', 'PET']
   },
   {
     name: 'NOVENA',
