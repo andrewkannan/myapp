@@ -25,15 +25,18 @@ const LOCATION_COLORS: Record<string, string> = {
 
 // Station header colors — kept close to Excel but toned down
 const STATION_COLORS: Record<string, string> = {
-  'BMD':      '#F4FDC2', // pale yellow — kept as Excel
-  'MAM':      '#F2CAE6', // light pink — kept as Excel
-  'CT':       '#DDD9FF', // muted purple
-  'PET':      '#FFEEA0', // softer yellow
-  'LUMA MRI': '#EEEEEE',
-  'MRI 3T':   '#C8F5F8', // soft cyan
-  'MRI 2':    '#C8F5F8',
-  'MRI 3':    '#C8F5F8',
-  'TUCKER':   '#C8F5F8',
+  'BMD':        '#F4FDC2',
+  'MAM':        '#F2CAE6',
+  'CT':         '#DDD9FF',
+  'PET':        '#FFEEA0',
+  'LUMA MRI':   '#EEEEEE',
+  'MRI 3T 830': '#C8F5F8',
+  'MRI 3T 930': '#C8F5F8',
+  'MRI 2 830':  '#C8F5F8',
+  'MRI 2 930':  '#C8F5F8',
+  'MRI 3 830':  '#C8F5F8',
+  'MRI 3 930':  '#C8F5F8',
+  'TUCKER':     '#C8F5F8',
 };
 
 // Singapore 2026 Public Holidays
@@ -98,6 +101,13 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   // Define absence columns
   const absences = ['Leave', 'MC', 'Off'] as const;
 
+  // Parse station name into base name + optional time pill (e.g. "MRI 3T 830" → { base: "MRI 3T", time: "830" })
+  const parseStationDisplay = (name: string): { base: string; time: string | null } => {
+    const match = name.match(/^(.*?)\s+(830|930|1030|1230)$/);
+    if (match) return { base: match[1], time: match[2] };
+    return { base: name, time: null };
+  };
+
   const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off') => {
     // Only allow MANAGERs or ADMINs to edit
     if (currentUser.accessLevel !== 'MANAGER' && currentUser.accessLevel !== 'ADMIN') return;
@@ -155,14 +165,28 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
             <tr>
               {stationsByLocation.flatMap(loc => loc.stations).map(station => {
                 const locName = stationsByLocation.find(l => l.id === station.locationId)?.name || '';
+                const { base, time } = parseStationDisplay(station.name);
                 return (
                 <th key={station.id} style={{ 
-                  border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
-                  fontSize: '0.75rem', fontWeight: 700, color: '#333',
+                  border: '1px solid var(--border)', padding: '0.4rem 0.3rem', textAlign: 'center', 
+                  fontSize: '0.72rem', fontWeight: 700, color: '#333',
                   backgroundColor: getStationColor(station.name, locName),
                   whiteSpace: 'nowrap'
                 }}>
-                  {station.name}
+                  <div>{base}</div>
+                  {time && (
+                    <div style={{
+                      marginTop: '2px',
+                      display: 'inline-block',
+                      backgroundColor: '#1d4ed8',
+                      color: 'white',
+                      fontSize: '0.6rem',
+                      fontWeight: 800,
+                      padding: '1px 5px',
+                      borderRadius: '9999px',
+                      letterSpacing: '0.03em',
+                    }}>{time}</div>
+                  )}
                 </th>
                 );
               })}
@@ -281,13 +305,20 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                   const isFiltered = filterUserId && shift.userId === filterUserId;
                                   const uc = getUserColor(shift.user.abbreviation);
                                   return (
-                                    <div key={shift.id} style={{
-                                      backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
-                                      color: isFiltered ? 'white' : uc.text,
-                                      border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
-                                      padding: '2px 5px', borderRadius: '9999px',
-                                      fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap'
-                                    }}>{shift.user.abbreviation}</div>
+                                    <div key={shift.id}>
+                                      <div style={{
+                                        backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
+                                        color: isFiltered ? 'white' : uc.text,
+                                        border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
+                                        padding: '2px 5px', borderRadius: '9999px',
+                                        fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap'
+                                      }}>{shift.user.abbreviation}</div>
+                                      {shift.remarks && (
+                                        <div style={{ fontSize: '0.55rem', color: '#666', textAlign: 'center', marginTop: '1px', whiteSpace: 'nowrap' }}>
+                                          {shift.remarks}
+                                        </div>
+                                      )}
+                                    </div>
                                   );
                                 })}
                                 {/* AM pills */}
