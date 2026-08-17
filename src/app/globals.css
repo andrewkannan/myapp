@@ -14,24 +14,22 @@
   --header-bg: #f1f5f9;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f8fafc;
-    --surface: #1e293b;
-    --border: #334155;
-    --primary: #3b82f6;
-    --primary-hover: #60a5fa;
-    --primary-light: #1e3a8a;
-    --danger: #f87171;
-    --text-muted: #94a3b8;
-    --cell-hover: #334155;
-    
-    --weekend-bg: #0f172a;
-    --header-bg: #1e293b;
-  }
+/* Force light mode to maintain clean Excel-like visibility */
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+  --danger: #ef4444;
+  --text-muted: #64748b;
+  --cell-hover: rgba(0,0,0,0.05); /* Subtle dark overlay for hover */
+  
+  --weekend-bg: #f1f5f9;
+  --header-bg: #f8fafc;
 }
-
 * {
   box-sizing: border-box;
   padding: 0;

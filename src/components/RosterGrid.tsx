@@ -139,26 +139,27 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   
                   {stationsByLocation.flatMap(loc => loc.stations).map(station => {
                     const shifts = getCellShifts(date, station.id, 'Scheduled');
+                    const baseColor = STATION_COLORS[station.name.toUpperCase()] || LOCATION_COLORS[stationsByLocation.find(l => l.id === station.locationId)?.name.toUpperCase() || ''] || 'transparent';
+                    
                     return (
                       <td 
                         key={station.id} 
                         onClick={() => handleCellClick(date, station, 'Scheduled')}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'top',
+                          border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'middle',
                           minWidth: '60px', cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
-                          backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : ''
+                          backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor
                         }}
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : '' }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px', justifyContent: 'center' }}>
                           {shifts.map(shift => (
                             <div key={shift.id} style={{ 
-                              backgroundColor: shift.userId === filterUserId ? 'var(--primary)' : 'var(--primary-light)', 
-                              color: shift.userId === filterUserId ? 'white' : 'var(--primary)', 
-                              padding: '2px 4px', borderRadius: '4px', fontSize: '0.75rem', 
-                              textAlign: 'center', fontWeight: 500
+                              color: shift.userId === filterUserId ? 'var(--foreground)' : 'var(--primary)', 
+                              fontSize: '0.875rem', 
+                              textAlign: 'center', fontWeight: 600
                             }}>
                               {shift.user.abbreviation}
                             </div>
@@ -175,20 +176,20 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={abs} 
                         onClick={() => handleCellClick(date, null, abs)}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'top',
+                          border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'middle',
                           minWidth: '60px', cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
-                          transition: 'background-color 0.2s'
+                          transition: 'background-color 0.2s',
+                          backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '' }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px', justifyContent: 'center' }}>
                           {shifts.map(shift => (
                             <div key={shift.id} style={{ 
-                              backgroundColor: shift.userId === filterUserId ? 'var(--danger)' : '#fee2e2', 
-                              color: shift.userId === filterUserId ? 'white' : 'var(--danger)', 
-                              padding: '2px 4px', borderRadius: '4px', fontSize: '0.75rem', 
-                              textAlign: 'center', fontWeight: 500
+                              color: 'var(--danger)', 
+                              fontSize: '0.875rem', 
+                              textAlign: 'center', fontWeight: 600
                             }}>
                               {shift.user.abbreviation}
                             </div>
