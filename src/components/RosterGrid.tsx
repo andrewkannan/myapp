@@ -13,30 +13,30 @@ interface RosterGridProps {
   onRefresh: () => void;
 }
 
-// Soft, readable column colors matching Excel pastels
+// Location band colors — matched to Excel column groupings
 const LOCATION_COLORS: Record<string, string> = {
-  'OIC':    '#E8FBF8', // very light aqua
-  'NOVENA': '#EBF5EB', // very light green
-  'ICON':   '#F5F5F5', // off-white grey
-  'ANSON':  '#EEEEFF', // very light lavender
-  'CAMDEN': '#E6F7F1', // very light teal
-  'JURONG': '#EBF3FA', // very light blue
+  'OIC':    '#EAF9F7', // very light teal/aqua
+  'NOVENA': '#E8F5E9', // soft sage green
+  'ICON':   '#EDE7F6', // soft lavender/purple
+  'ANSON':  '#E8F5E9', // same soft green as NOVENA
+  'CAMDEN': '#EDE7F6', // same soft purple as ICON (matches Excel)
+  'JURONG': '#E0F7FA', // soft cyan-teal
 };
 
-// Station header colors — kept close to Excel but toned down
+// Station-level color overrides (applied regardless of location)
 const STATION_COLORS: Record<string, string> = {
-  'BMD':        '#F4FDC2',
-  'MAM':        '#F2CAE6',
-  'CT':         '#DDD9FF',
-  'PET':        '#FFEEA0',
-  'LUMA MRI':   '#EEEEEE',
-  'MRI 3T 830': '#C8F5F8',
-  'MRI 3T 930': '#C8F5F8',
-  'MRI 2 830':  '#C8F5F8',
-  'MRI 2 930':  '#C8F5F8',
-  'MRI 3 830':  '#C8F5F8',
-  'MRI 3 930':  '#C8F5F8',
-  'TUCKER':     '#C8F5F8',
+  'BMD':        '#F4FDC2', // pale yellow
+  'MAM':        '#F8D7EA', // soft pink — MAM is always pink across all locations
+  'CT':         '#E8E4FF', // soft violet — CT is always purple across all locations
+  'PET':        '#FFF3CC', // soft amber-yellow
+  'LUMA MRI':   '#F0F0F0', // neutral grey
+  'MRI 3T 830': '#D6F5F8', // soft cyan
+  'MRI 3T 930': '#D6F5F8',
+  'MRI 2 830':  '#D6F5F8',
+  'MRI 2 930':  '#D6F5F8',
+  'MRI 3 830':  '#D6F5F8',
+  'MRI 3 930':  '#D6F5F8',
+  'TUCKER':     '#D6F5F8',
 };
 
 // Singapore 2026 Public Holidays
@@ -147,14 +147,31 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '80px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20 }}>
                 Date
               </th>
-              {stationsByLocation.map(loc => (
-                <th key={loc.id} colSpan={loc.stations.length} style={{ 
-                  border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
-                  fontWeight: 700, color: 'black', backgroundColor: LOCATION_COLORS[loc.name.toUpperCase()] || 'var(--header-bg)' 
-                }}>
-                  {loc.name}
-                </th>
-              ))}
+              {stationsByLocation.map(loc => {
+                // Use a slightly more saturated version of the band color for the header
+                const bandColor: Record<string, string> = {
+                  'OIC':    '#B2EBE6',
+                  'NOVENA': '#C8E6C9',
+                  'ICON':   '#D1C4E9',
+                  'ANSON':  '#C8E6C9',
+                  'CAMDEN': '#D1C4E9',
+                  'JURONG': '#B2EBF2',
+                };
+                const bg = bandColor[loc.name.toUpperCase()] || 'var(--header-bg)';
+                return (
+                  <th key={loc.id} colSpan={loc.stations.length} style={{ 
+                    border: '1px solid var(--border)',
+                    borderBottom: '2px solid rgba(0,0,0,0.12)',
+                    padding: '0.5rem', textAlign: 'center', 
+                    fontWeight: 700, fontSize: '0.8rem',
+                    letterSpacing: '0.06em',
+                    color: '#1a1a1a',
+                    backgroundColor: bg
+                  }}>
+                    {loc.name}
+                  </th>
+                );
+              })}
               <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 700, color: 'var(--danger)' }}>
                 Absences
               </th>
@@ -178,11 +195,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                     <div style={{
                       marginTop: '2px',
                       display: 'inline-block',
-                      backgroundColor: '#1d4ed8',
+                      backgroundColor: time === '830' ? '#0d9488' : time === '930' ? '#d97706' : '#1d4ed8',
                       color: 'white',
                       fontSize: '0.6rem',
                       fontWeight: 800,
-                      padding: '1px 5px',
+                      padding: '1px 6px',
                       borderRadius: '9999px',
                       letterSpacing: '0.03em',
                     }}>{time}</div>
