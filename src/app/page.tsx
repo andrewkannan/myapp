@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
 import StaffDirectory from '@/components/StaffDirectory';
-import { ChevronLeft, ChevronRight, LogOut, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Users, Printer } from 'lucide-react';
 
 export type User = {
   id: string;
@@ -179,6 +179,20 @@ export default function Home() {
           >
             <Users size={18} />
             <span className="hidden-mobile">Directory</span>
+          </button>
+          <button
+            onClick={() => window.print()}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
+              backgroundColor: '#f0fdf4', color: '#166534',
+              borderRadius: '6px', fontWeight: 500, border: '1px solid transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#166534'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#f0fdf4'; e.currentTarget.style.color = '#166534'; }}
+          >
+            <Printer size={18} />
+            <span className="hidden-mobile">Print A3</span>
           </button>
           <button 
             onClick={handleLogout}

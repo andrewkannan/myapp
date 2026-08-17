@@ -142,11 +142,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1, overflow: 'auto' }}>
-        <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '1200px' }}>
+      <div className="roster-scroll" style={{ flex: 1, overflow: 'auto' }}>
+        <table id="roster-table" style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed', fontSize: '0.65rem' }}>
           <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--header-bg)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             <tr>
-              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '80px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20 }}>
+              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px 3px', width: '52px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20, fontSize: '0.6rem', fontWeight: 700 }}>
                 Date
               </th>
               {stationsByLocation.map(loc => {
@@ -163,10 +163,10 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 return (
                   <th key={loc.id} colSpan={loc.stations.length} style={{ 
                     border: '1px solid var(--border)',
-                    borderBottom: '2px solid rgba(0,0,0,0.12)',
-                    padding: '0.5rem', textAlign: 'center', 
-                    fontWeight: 700, fontSize: '0.8rem',
-                    letterSpacing: '0.06em',
+                    borderBottom: '2px solid rgba(0,0,0,0.15)',
+                    padding: '2px 2px', textAlign: 'center', 
+                    fontWeight: 700, fontSize: '0.62rem',
+                    letterSpacing: '0.04em',
                     color: '#1a1a1a',
                     backgroundColor: bg
                   }}>
@@ -174,11 +174,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   </th>
                 );
               })}
-              <th colSpan={4} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 700, color: 'var(--danger)' }}>
-                Absences / Leave
+              <th colSpan={4} style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: 'var(--danger)' }}>
+                Absences
               </th>
-              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Total<br/>Staff
+              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px', width: '28px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.58rem', color: 'var(--text-muted)' }}>
+                #
               </th>
             </tr>
             <tr>
@@ -187,23 +187,22 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 const { base, time } = parseStationDisplay(station.name);
                 return (
                 <th key={station.id} style={{ 
-                  border: '1px solid var(--border)', padding: '0.4rem 0.3rem', textAlign: 'center', 
-                  fontSize: '0.72rem', fontWeight: 700, color: '#333',
+                  border: '1px solid var(--border)', padding: '2px 1px', textAlign: 'center', 
+                  fontSize: '0.58rem', fontWeight: 700, color: '#333',
                   backgroundColor: getStationColor(station.name, locName),
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap', lineHeight: 1.2,
                 }}>
                   <div>{base}</div>
                   {time && (
                     <div style={{
-                      marginTop: '2px',
+                      marginTop: '1px',
                       display: 'inline-block',
                       backgroundColor: time === '830' ? '#0d9488' : time === '930' ? '#d97706' : '#1d4ed8',
                       color: 'white',
-                      fontSize: '0.6rem',
+                      fontSize: '0.5rem',
                       fontWeight: 800,
-                      padding: '1px 6px',
+                      padding: '0 4px',
                       borderRadius: '9999px',
-                      letterSpacing: '0.03em',
                     }}>{time}</div>
                   )}
                 </th>
@@ -219,10 +218,10 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 const s = absHeaderStyle[abs] || absHeaderStyle['Off'];
                 return (
                   <th key={abs} style={{
-                    border: '1px solid var(--border)', padding: '0.4rem 0.3rem',
-                    textAlign: 'center', fontSize: '0.72rem', fontWeight: 700,
+                    border: '1px solid var(--border)', padding: '2px 1px',
+                    textAlign: 'center', fontSize: '0.58rem', fontWeight: 700,
                     backgroundColor: s.bg, color: s.color,
-                    whiteSpace: 'nowrap',
+                    whiteSpace: 'nowrap', width: '36px',
                   }}>
                     {s.label}
                   </th>
@@ -251,14 +250,14 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
 
               const dateCell = (
                 <td style={{ 
-                  border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
+                  border: '1px solid var(--border)', padding: '1px 2px', textAlign: 'center', 
                   fontWeight: 700,
                   color: isPH ? '#cc0000' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
                   position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
-                  minWidth: '72px'
+                  width: '52px', lineHeight: 1.1,
                 }}>
-                  <div style={{ fontSize: '0.7rem', textTransform: 'uppercase' }}>{date.toLocaleDateString('default', { weekday: 'short' })}</div>
-                  <div style={{ fontSize: '1rem' }}>{date.getDate()}</div>
+                  <div style={{ fontSize: '0.55rem', textTransform: 'uppercase', opacity: 0.7 }}>{date.toLocaleDateString('default', { weekday: 'short' })}</div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 800 }}>{date.getDate()}</div>
                 </td>
               );
 
@@ -273,11 +272,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                       color: '#990000',
                       fontWeight: 700,
                       textAlign: 'center',
-                      padding: '0.6rem',
-                      fontSize: '0.9rem',
-                      letterSpacing: '0.05em'
+                      padding: '2px',
+                      fontSize: '0.62rem',
+                      letterSpacing: '0.04em'
                     }}>
-                      🇸🇬 PUBLIC HOLIDAY — {phName}
+                      PUBLIC HOLIDAY — {phName}
                     </td>
                   </tr>
                 );
@@ -292,11 +291,10 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                       border: '1px solid #D1D5DB',
                       backgroundColor: '#F3F4F6',
                       color: '#6B7280',
-                      fontWeight: 700,
+                      fontWeight: 600,
                       textAlign: 'center',
-                      padding: '0.6rem',
-                      fontSize: '0.875rem',
-                      letterSpacing: '0.05em',
+                      padding: '2px',
+                      fontSize: '0.6rem',
                       fontStyle: 'italic'
                     }}>
                       Centre Closed
@@ -319,15 +317,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={station.id} 
                         onClick={() => handleCellClick(date, station, 'Scheduled')}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'middle',
-                          minWidth: '60px', cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
+                          border: '1px solid var(--border)', padding: '1px', verticalAlign: 'middle',
+                          cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor
                         }}
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center', padding: '2px 0' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', justifyContent: 'center', padding: '1px 0' }}>
                           {(() => {
                             const grouped = groupByPeriod(shifts);
                             const hasAmPm = grouped.AM.length > 0 || grouped.PM.length > 0;
@@ -346,13 +344,13 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                         backgroundColor: isCancelled ? '#F3F4F6' : isFiltered ? '#1d4ed8' : uc.bg,
                                         color: isCancelled ? '#9CA3AF' : isFiltered ? 'white' : uc.text,
                                         border: `1px solid ${isCancelled ? '#D1D5DB' : isFiltered ? '#1d4ed8' : uc.border}`,
-                                        padding: '2px 5px', borderRadius: '9999px',
-                                        fontSize: '0.68rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap',
+                                        padding: '0 3px', borderRadius: '9999px',
+                                        fontSize: '0.6rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap',
                                         textDecoration: isCancelled ? 'line-through' : 'none',
-                                        cursor: 'default',
+                                        cursor: 'default', lineHeight: '1.5',
                                       }}>{shift.user.abbreviation}</div>
                                       {shift.remarks && (
-                                        <div style={{ fontSize: '0.55rem', color: '#666', textAlign: 'center', marginTop: '1px', whiteSpace: 'nowrap' }}>
+                                        <div style={{ fontSize: '0.48rem', color: '#666', textAlign: 'center', whiteSpace: 'nowrap', lineHeight: 1 }}>
                                           {shift.remarks}
                                         </div>
                                       )}
@@ -364,17 +362,17 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                   const isFiltered = filterUserId && shift.userId === filterUserId;
                                   const uc = getUserColor(shift.user.abbreviation);
                                   return (
-                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                      <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#0369a1', backgroundColor: '#E0F2FE', padding: '0 3px', borderRadius: '3px', lineHeight: '1.4' }}>AM</span>
+                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
+                                      <span style={{ fontSize: '0.46rem', fontWeight: 800, color: '#0369a1', backgroundColor: '#E0F2FE', padding: '0 2px', borderRadius: '2px', lineHeight: '1.4', flexShrink: 0 }}>AM</span>
                                       <div
                                         title={shift.user.fullName || shift.user.abbreviation}
                                         style={{
                                         backgroundColor: isFiltered ? '#0369a1' : uc.bg,
                                         color: isFiltered ? 'white' : uc.text,
                                         border: `1px solid ${isFiltered ? '#0369a1' : uc.border}`,
-                                        padding: '1px 5px', borderRadius: '9999px',
-                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap',
-                                        cursor: 'default',
+                                        padding: '0 3px', borderRadius: '9999px',
+                                        fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap',
+                                        cursor: 'default', lineHeight: '1.5',
                                       }}>{shift.user.abbreviation}</div>
                                     </div>
                                   );
@@ -384,17 +382,17 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                   const isFiltered = filterUserId && shift.userId === filterUserId;
                                   const uc = getUserColor(shift.user.abbreviation);
                                   return (
-                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                      <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#c2410c', backgroundColor: '#FFF7ED', padding: '0 3px', borderRadius: '3px', lineHeight: '1.4' }}>PM</span>
+                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
+                                      <span style={{ fontSize: '0.46rem', fontWeight: 800, color: '#c2410c', backgroundColor: '#FFF7ED', padding: '0 2px', borderRadius: '2px', lineHeight: '1.4', flexShrink: 0 }}>PM</span>
                                       <div
                                         title={shift.user.fullName || shift.user.abbreviation}
                                         style={{
                                         backgroundColor: isFiltered ? '#c2410c' : uc.bg,
                                         color: isFiltered ? 'white' : uc.text,
                                         border: `1px solid ${isFiltered ? '#c2410c' : uc.border}`,
-                                        padding: '1px 5px', borderRadius: '9999px',
-                                        fontSize: '0.68rem', fontWeight: 700, whiteSpace: 'nowrap',
-                                        cursor: 'default',
+                                        padding: '0 3px', borderRadius: '9999px',
+                                        fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap',
+                                        cursor: 'default', lineHeight: '1.5',
                                       }}>{shift.user.abbreviation}</div>
                                     </div>
                                   );
@@ -414,15 +412,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={abs} 
                         onClick={() => handleCellClick(date, null, abs)}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'middle',
-                          minWidth: '60px', cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
+                          border: '1px solid var(--border)', padding: '1px', verticalAlign: 'middle',
+                          cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', justifyContent: 'center' }}>
                           {shifts.map(shift => {
                             const isFiltered = filterUserId && shift.userId === filterUserId;
                             const isCancelled = shift.status === 'Cancelled';
@@ -438,14 +436,14 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 backgroundColor: isFiltered ? col.text : isCancelled ? '#F3F4F6' : col.bg,
                                 color: isFiltered ? 'white' : isCancelled ? '#9CA3AF' : col.text,
                                 border: `1px solid ${isFiltered ? col.text : isCancelled ? '#D1D5DB' : col.border}`,
-                                padding: '2px 6px',
+                                padding: '0 3px',
                                 borderRadius: '9999px',
-                                fontSize: '0.7rem', 
+                                fontSize: '0.6rem', 
                                 textAlign: 'center', 
                                 fontWeight: 600,
                                 whiteSpace: 'nowrap',
                                 textDecoration: isCancelled ? 'line-through' : 'none',
-                                cursor: 'default',
+                                cursor: 'default', lineHeight: '1.5',
                               }}>
                                 {shift.user.abbreviation}
                               </div>
@@ -458,8 +456,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   
                   {/* Daily Staff Count */}
                   <td style={{ 
-                    border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
-                    fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.875rem'
+                    border: '1px solid var(--border)', padding: '1px', textAlign: 'center', 
+                    fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.6rem'
                   }}>
                     {workingStaff}
                   </td>

@@ -75,3 +75,48 @@ input, select {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ─── A3 LANDSCAPE PRINT ─────────────────────────────────── */
+@media print {
+  @page {
+    size: A3 landscape;
+    margin: 6mm 8mm;
+  }
+
+  /* Hide everything except the roster table */
+  body > * { display: none !important; }
+  main { display: block !important; }
+  header { display: none !important; }
+  section { display: block !important; overflow: visible !important; height: auto !important; }
+  .roster-scroll { overflow: visible !important; height: auto !important; }
+
+  /* Preserve background colours when printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Remove sticky positioning — doesn't work on print */
+  thead { position: static !important; }
+  td, th { position: static !important; }
+
+  /* Make table fill the page */
+  #roster-table {
+    width: 100% !important;
+    font-size: 7pt !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+
+  #roster-table tr { page-break-inside: avoid; }
+
+  /* Tighten cells even further for print */
+  #roster-table td,
+  #roster-table th {
+    padding: 1pt 2pt !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Hide hover/interactive elements */
+  button { display: none !important; }
+}
