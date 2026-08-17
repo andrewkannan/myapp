@@ -13,31 +13,27 @@ interface RosterGridProps {
   onRefresh: () => void;
 }
 
-// Exact ARGB hex colors from Excel (stripped FF alpha prefix)
-// Theme index 4 = cyan-ish light blue used for OIC MRI/XR rows
-// Theme index 9 = light green used for NOVENA
-// Theme index 5 = grey-blue used for JURONG
+// Soft, readable column colors matching Excel pastels
 const LOCATION_COLORS: Record<string, string> = {
-  'OIC':    '#C3FDF6', // light aqua (FFC3FDF6)
-  'NOVENA': '#D4EDDA', // light green approximation of theme 9
-  'ICON':   '#E8E8E8', // light grey (no color in Excel - ICON cols had theme 0)
-  'ANSON':  '#CCCCFF', // lavender (FFCCCCFF)
-  'CAMDEN': '#99E6D4', // teal-green (FF99E6D4)
-  'JURONG': '#C8DDF0', // light blue-grey (theme 5)
+  'OIC':    '#E8FBF8', // very light aqua
+  'NOVENA': '#EBF5EB', // very light green
+  'ICON':   '#F5F5F5', // off-white grey
+  'ANSON':  '#EEEEFF', // very light lavender
+  'CAMDEN': '#E6F7F1', // very light teal
+  'JURONG': '#EBF3FA', // very light blue
 };
 
-// Station-level overrides to match Excel exactly
+// Station header colors — kept close to Excel but toned down
 const STATION_COLORS: Record<string, string> = {
-  'BMD':      '#F4FDC2', // pale yellow (FFF4FDC2)
-  'MAM':      '#F2CAE6', // light pink (FFF2CAE6)
-  'XR':       '#D9EAD3', // light green (theme 4 in OIC context = cyan #64E9F0-ish, but XR header used theme 4)
-  'CT':       '#BAB2FF', // soft purple (FFBAB2FF) - OIC CT specifically
-  'PET':      '#FFC900', // yellow (FFFFC900)
-  'LUMA MRI': '#E8E8E8', // neutral grey (theme 0)
-  'MRI 3T':   '#64E9F0', // bright cyan (FF64E9F0)
-  'MRI 2':    '#64E9F0',
-  'MRI 3':    '#64E9F0',
-  'TUCKER':   '#64E9F0',
+  'BMD':      '#F4FDC2', // pale yellow — kept as Excel
+  'MAM':      '#F2CAE6', // light pink — kept as Excel
+  'CT':       '#DDD9FF', // muted purple
+  'PET':      '#FFEEA0', // softer yellow
+  'LUMA MRI': '#EEEEEE',
+  'MRI 3T':   '#C8F5F8', // soft cyan
+  'MRI 2':    '#C8F5F8',
+  'MRI 3':    '#C8F5F8',
+  'TUCKER':   '#C8F5F8',
 };
 
 // Singapore 2026 Public Holidays
@@ -57,26 +53,30 @@ const SG_PUBLIC_HOLIDAYS: Record<string, string> = {
 };
 
 function getPhName(date: Date): string | null {
-  const key = date.toISOString().substring(0, 10);
-  return SG_PUBLIC_HOLIDAYS[key] || null;
+  // Use LOCAL date parts to avoid UTC offset shifting dates (Singapore is UTC+8)
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return SG_PUBLIC_HOLIDAYS[`${y}-${m}-${d}`] || null;
 }
 
 function getStationColor(stationName: string, locationName: string): string {
   const stUpper = stationName.toUpperCase();
   const locUpper = locationName.toUpperCase();
 
-  // Station-specific overrides first
-  if (stUpper === 'BMD') return '#F4FDC2';
-  if (stUpper === 'MAM') return '#F2CAE6';
-  if (stUpper === 'PET') return '#FFC900';
-  if (stUpper === 'CT' && locUpper === 'OIC') return '#BAB2FF'; // Only OIC CT is purple
-  if (['MRI 3T', 'MRI 2', 'MRI 3', 'TUCKER'].includes(stUpper)) return '#64E9F0';
+  if (stUpper in STATION_COLORS) return STATION_COLORS[stUpper];
+  return LOCATION_COLORS[locUpper] || '#F8F8F8';
+}
 
-  // For XR in OIC - use the OIC XR color
-  if (stUpper === 'XR' && locUpper === 'OIC') return '#D5E8D4';
-
-  // Fall back to location color
-  return LOCATION_COLORS[locUpper] || '#FFFFFF';
+// Generate a unique, soft pastel color per staff abbreviation (consistent across renders)
+function getUserColor(abbreviation: string): { bg: string; text: string; border: string } {
+  const hash = abbreviation.split('').reduce((acc, c) => c.charCodeAt(0) + ((acc << 5) - acc), 0);
+  const hue = Math.abs(hash) % 360;
+  return {
+    bg: `hsl(${hue}, 55%, 92%)`,      // Very light pastel background
+    text: `hsl(${hue}, 60%, 28%)`,    // Deep matching text
+    border: `hsl(${hue}, 55%, 70%)`,  // Mid-tone border
+  };
 }
 
 export default function RosterGrid({ data, year, month, currentUser, filterUserId, onRefresh }: RosterGridProps) {
@@ -241,21 +241,21 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '30px', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center' }}>
                           {shifts.map(shift => {
-                            const hash = shift.user.abbreviation.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-                            const hue = Math.abs(hash) % 360;
-                            const isFiltered = shift.userId === filterUserId;
+                            const isFiltered = filterUserId && shift.userId === filterUserId;
+                            const uc = getUserColor(shift.user.abbreviation);
                             return (
                               <div key={shift.id} style={{ 
-                                backgroundColor: isFiltered ? 'var(--primary)' : `hsl(${hue}, 70%, 45%)`,
-                                color: 'white', 
-                                padding: '4px 6px',
-                                borderRadius: '9999px', // Pill shape
-                                fontSize: '0.75rem', 
+                                backgroundColor: isFiltered ? '#1d4ed8' : uc.bg,
+                                color: isFiltered ? 'white' : uc.text,
+                                border: `1px solid ${isFiltered ? '#1d4ed8' : uc.border}`,
+                                padding: '2px 6px',
+                                borderRadius: '9999px',
+                                fontSize: '0.7rem', 
                                 textAlign: 'center', 
                                 fontWeight: 600,
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                whiteSpace: 'nowrap'
                               }}>
                                 {shift.user.abbreviation}
                               </div>
@@ -281,22 +281,21 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '30px', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minHeight: '30px', justifyContent: 'center' }}>
                           {shifts.map(shift => {
-                            const hash = shift.user.abbreviation.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-                            const hue = Math.abs(hash) % 360;
-                            const isFiltered = shift.userId === filterUserId;
+                            const isFiltered = filterUserId && shift.userId === filterUserId;
+                            const uc = getUserColor(shift.user.abbreviation);
                             return (
                               <div key={shift.id} style={{ 
-                                backgroundColor: isFiltered ? 'var(--danger)' : `hsl(${hue}, 70%, 45%)`,
-                                color: 'white', 
-                                padding: '4px 6px',
+                                backgroundColor: isFiltered ? '#dc2626' : '#FEE2E2',
+                                color: isFiltered ? 'white' : '#991B1B',
+                                border: `1px solid ${isFiltered ? '#dc2626' : '#FCA5A5'}`,
+                                padding: '2px 6px',
                                 borderRadius: '9999px',
-                                fontSize: '0.75rem', 
+                                fontSize: '0.7rem', 
                                 textAlign: 'center', 
                                 fontWeight: 600,
-                                opacity: 0.8,
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                whiteSpace: 'nowrap'
                               }}>
                                 {shift.user.abbreviation}
                               </div>
