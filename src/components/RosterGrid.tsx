@@ -125,9 +125,10 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                          shiftDate.getFullYear() === date.getFullYear();
       if (!isSameDate) return false;
       if (stationId) {
-        return s.stationId === stationId && s.status === 'Scheduled';
+        // Include both Scheduled and Cancelled so cancelled shows as strikethrough
+        return s.stationId === stationId && (s.status === 'Scheduled' || s.status === 'Cancelled');
       } else {
-        return s.status === status;
+        return s.status === status || s.status === 'Cancelled' && s.stationId === null && status !== 'Scheduled';
       }
     });
   };
