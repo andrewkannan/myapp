@@ -6,24 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "80:3000"
     environment:
-      - DATABASE_URL=postgresql://roster_user:roster_pass@db:5432/roster_db
-    depends_on:
-      - db
+      - DATABASE_URL=file:/app/dev.db
     restart: always
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: roster_user
-      POSTGRES_PASSWORD: roster_pass
-      POSTGRES_DB: roster_db
-    ports:
-      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    restart: always
-
-volumes:
-  pgdata:
+      - ./dev.db:/app/dev.db
