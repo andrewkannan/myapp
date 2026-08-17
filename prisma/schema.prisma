@@ -11,6 +11,8 @@ model User {
   abbreviation String  @unique
   fullName     String?
   role         String?
+  password     String  @default("password123") // Default password for new imports
+  accessLevel  String  @default("STAFF") // MANAGER or STAFF
   shifts       Shift[]
 }
 

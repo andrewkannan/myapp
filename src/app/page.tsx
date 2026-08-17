@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
-import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Users } from 'lucide-react';
 
 export type User = {
   id: string;
   abbreviation: string;
   fullName: string;
   role: string;
+  accessLevel?: string;
 };
 
 export type Location = {
@@ -41,19 +43,43 @@ export type RosterData = {
 };
 
 export default function Home() {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState<RosterData | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // New filter state
+  const [filterUserId, setFilterUserId] = useState<string>('');
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1; // 1-12
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const { user } = await res.json();
+          setCurrentUser(user);
+        } else {
+          router.push('/login');
+        }
+      } catch (err) {
+        router.push('/login');
+      }
+    }
+    checkAuth();
+  }, [router]);
 
   const fetchRoster = async (y: number, m: number) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/roster?year=${y}&month=${m}`);
-      const json = await res.json();
-      setData(json);
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -62,16 +88,22 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchRoster(year, month);
-  }, [year, month]);
+    if (currentUser) {
+      fetchRoster(year, month);
+    }
+  }, [year, month, currentUser]);
 
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(year, month - 2, 1));
+  const handlePrevMonth = () => setCurrentDate(new Date(year, month - 2, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(year, month, 1));
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/login';
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(year, month, 1));
-  };
+  if (!currentUser) {
+    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
+  }
 
   return (
     <main style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -106,21 +138,51 @@ export default function Home() {
               <ChevronRight size={18} />
             </button>
           </div>
+          
+          {/* Filter Dropdown */}
+          {data && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Filter:</span>
+              <select 
+                value={filterUserId}
+                onChange={(e) => setFilterUserId(e.target.value)}
+                style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.875rem' }}
+              >
+                <option value="">All Staff</option>
+                {data.users.map(u => (
+                  <option key={u.id} value={u.id}>{u.abbreviation} - {u.fullName}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
-        <button style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.5rem', 
-          padding: '0.5rem 1rem', 
-          backgroundColor: 'var(--primary-light)', 
-          color: 'var(--primary)',
-          borderRadius: '6px',
-          fontWeight: 500
-        }}>
-          <Users size={18} />
-          <span>Staff Directory</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ textAlign: 'right', marginRight: '0.5rem' }}>
+            <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{currentUser.fullName}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+              {currentUser.accessLevel}
+            </div>
+          </div>
+          <button style={{ 
+            display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
+            backgroundColor: 'var(--primary-light)', color: 'var(--primary)',
+            borderRadius: '6px', fontWeight: 500
+          }}>
+            <Users size={18} />
+            <span className="hidden-mobile">Directory</span>
+          </button>
+          <button 
+            onClick={handleLogout}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
+              backgroundColor: '#fee2e2', color: 'var(--danger)',
+              borderRadius: '6px', fontWeight: 500
+            }}>
+            <LogOut size={18} />
+            <span className="hidden-mobile">Logout</span>
+          </button>
+        </div>
       </header>
 
       <section style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
@@ -133,6 +195,8 @@ export default function Home() {
             data={data} 
             year={year} 
             month={month} 
+            currentUser={currentUser}
+            filterUserId={filterUserId}
             onRefresh={() => fetchRoster(year, month)}
           />
         ) : (

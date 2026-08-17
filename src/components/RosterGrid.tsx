@@ -1,17 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { RosterData, Shift, Station } from '@/app/page';
+import { RosterData, Shift, Station, User } from '@/app/page';
 import AssignmentModal from './AssignmentModal';
 
 interface RosterGridProps {
   data: RosterData;
   year: number;
   month: number;
+  currentUser: User;
+  filterUserId: string;
   onRefresh: () => void;
 }
 
-export default function RosterGrid({ data, year, month, onRefresh }: RosterGridProps) {
+const LOCATION_COLORS: Record<string, string> = {
+  'OIC': '#C3FDF6',
+  'NOVENA': '#FFE4E1', // Misty Rose
+  'ICON': '#FFF0F5',   // Lavender Blush
+  'ANSON': '#CCCCFF',
+  'CAMDEN': '#99E6D4',
+  'JURONG': '#E6E6FA'  // Lavender
+};
+
+const STATION_COLORS: Record<string, string> = {
+  'BMD': '#F4FDC2',
+  'MAM': '#F2CAE6',
+  'CT': '#BAB2FF',
+  'PET': '#FFC900'
+};
+
+export default function RosterGrid({ data, year, month, currentUser, filterUserId, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
 
@@ -31,6 +49,9 @@ export default function RosterGrid({ data, year, month, onRefresh }: RosterGridP
   const absences = ['Leave', 'MC', 'Off'] as const;
 
   const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off') => {
+    // Only allow MANAGERs or ADMINs to edit
+    if (currentUser.accessLevel !== 'MANAGER' && currentUser.accessLevel !== 'ADMIN') return;
+    
     setSelectedCell({ date, station, status });
     setModalOpen(true);
   };
@@ -61,17 +82,27 @@ export default function RosterGrid({ data, year, month, onRefresh }: RosterGridP
                 Date
               </th>
               {stationsByLocation.map(loc => (
-                <th key={loc.id} colSpan={loc.stations.length} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 600, color: 'var(--primary)' }}>
+                <th key={loc.id} colSpan={loc.stations.length} style={{ 
+                  border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
+                  fontWeight: 600, color: 'black', backgroundColor: LOCATION_COLORS[loc.name.toUpperCase()] || 'var(--header-bg)' 
+                }}>
                   {loc.name}
                 </th>
               ))}
               <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontWeight: 600, color: 'var(--danger)' }}>
                 Absences
               </th>
+              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Total<br/>Staff
+              </th>
             </tr>
             <tr>
               {stationsByLocation.flatMap(loc => loc.stations).map(station => (
-                <th key={station.id} style={{ border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', fontSize: '0.875rem', fontWeight: 500 }}>
+                <th key={station.id} style={{ 
+                  border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
+                  fontSize: '0.875rem', fontWeight: 500, color: 'black',
+                  backgroundColor: STATION_COLORS[station.name.toUpperCase()] || LOCATION_COLORS[stationsByLocation.find(l => l.id === station.locationId)?.name.toUpperCase() || ''] || 'var(--header-bg)'
+                }}>
                   {station.name}
                 </th>
               ))}
@@ -87,6 +118,13 @@ export default function RosterGrid({ data, year, month, onRefresh }: RosterGridP
               const dayOfWeek = date.getDay();
               const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
               const rowBg = isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
+              
+              // Count staff for the day
+              const dayShifts = data.shifts.filter(s => {
+                 const d = new Date(s.date);
+                 return d.getDate() === date.getDate() && d.getMonth() === date.getMonth();
+              });
+              const workingStaff = dayShifts.filter(s => s.status === 'Scheduled').length;
 
               return (
                 <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
@@ -107,16 +145,18 @@ export default function RosterGrid({ data, year, month, onRefresh }: RosterGridP
                         onClick={() => handleCellClick(date, station, 'Scheduled')}
                         style={{ 
                           border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'top',
-                          minWidth: '60px', cursor: 'pointer',
-                          transition: 'background-color 0.2s'
+                          minWidth: '60px', cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
+                          transition: 'background-color 0.2s',
+                          backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : ''
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--cell-hover)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+                        onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : '' }}
                       >
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px' }}>
                           {shifts.map(shift => (
                             <div key={shift.id} style={{ 
-                              backgroundColor: 'var(--primary-light)', color: 'var(--primary)', 
+                              backgroundColor: shift.userId === filterUserId ? 'var(--primary)' : 'var(--primary-light)', 
+                              color: shift.userId === filterUserId ? 'white' : 'var(--primary)', 
                               padding: '2px 4px', borderRadius: '4px', fontSize: '0.75rem', 
                               textAlign: 'center', fontWeight: 500
                             }}>
@@ -136,16 +176,17 @@ export default function RosterGrid({ data, year, month, onRefresh }: RosterGridP
                         onClick={() => handleCellClick(date, null, abs)}
                         style={{ 
                           border: '1px solid var(--border)', padding: '0.25rem', verticalAlign: 'top',
-                          minWidth: '60px', cursor: 'pointer',
+                          minWidth: '60px', cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s'
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--cell-hover)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+                        onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '' }}
                       >
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minHeight: '30px' }}>
                           {shifts.map(shift => (
                             <div key={shift.id} style={{ 
-                              backgroundColor: '#fee2e2', color: 'var(--danger)', 
+                              backgroundColor: shift.userId === filterUserId ? 'var(--danger)' : '#fee2e2', 
+                              color: shift.userId === filterUserId ? 'white' : 'var(--danger)', 
                               padding: '2px 4px', borderRadius: '4px', fontSize: '0.75rem', 
                               textAlign: 'center', fontWeight: 500
                             }}>
@@ -156,6 +197,14 @@ export default function RosterGrid({ data, year, month, onRefresh }: RosterGridP
                       </td>
                     );
                   })}
+                  
+                  {/* Daily Staff Count */}
+                  <td style={{ 
+                    border: '1px solid var(--border)', padding: '0.5rem', textAlign: 'center', 
+                    fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.875rem'
+                  }}>
+                    {workingStaff}
+                  </td>
                 </tr>
               );
             })}
