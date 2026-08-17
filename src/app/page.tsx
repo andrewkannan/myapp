@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
+import StaffDirectory from '@/components/StaffDirectory';
 import { ChevronLeft, ChevronRight, LogOut, Users } from 'lucide-react';
 
 export type User = {
@@ -50,8 +51,8 @@ export default function Home() {
   const [data, setData] = useState<RosterData | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // New filter state
   const [filterUserId, setFilterUserId] = useState<string>('');
+  const [directoryOpen, setDirectoryOpen] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1; // 1-12
@@ -165,11 +166,17 @@ export default function Home() {
               {currentUser.accessLevel}
             </div>
           </div>
-          <button style={{ 
-            display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
-            backgroundColor: 'var(--primary-light)', color: 'var(--primary)',
-            borderRadius: '6px', fontWeight: 500
-          }}>
+          <button
+            onClick={() => setDirectoryOpen(true)}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
+              backgroundColor: 'var(--primary-light)', color: 'var(--primary)',
+              borderRadius: '6px', fontWeight: 500, border: '1px solid transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--primary)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--primary-light)'; e.currentTarget.style.color = 'var(--primary)'; }}
+          >
             <Users size={18} />
             <span className="hidden-mobile">Directory</span>
           </button>
@@ -206,6 +213,13 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {directoryOpen && data && (
+        <StaffDirectory
+          users={data.users}
+          onClose={() => setDirectoryOpen(false)}
+        />
+      )}
     </main>
   );
 }
