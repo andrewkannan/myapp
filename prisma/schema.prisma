@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String  @id @default(uuid())
+  abbreviation String  @unique
+  fullName     String?
+  role         String?
+  shifts       Shift[]
+}
+
+model Location {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  stations Station[]
+}
+
+model Station {
+  id         String   @id @default(uuid())
+  name       String
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id])
+  shifts     Shift[]
+
+  @@unique([name, locationId])
+}
+
+model Shift {
+  id         String   @id @default(uuid())
+  date       DateTime
+  startTime  String?
+  endTime    String?
+  status     String   @default("Scheduled") // Scheduled, Leave, MC, Off
+  remarks    String?
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  stationId  String?
+  station    Station? @relation(fields: [stationId], references: [id])
+
+  @@index([date])
+}
