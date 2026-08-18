@@ -8,7 +8,7 @@ type DirectoryUser = {
   abbreviation: string;
   fullName: string | null;
   role: string | null;
-  accessLevel: string;
+  accessLevel?: string;
 };
 
 interface StaffDirectoryProps {
