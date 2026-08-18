@@ -316,7 +316,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={station.id} 
                         onClick={() => handleCellClick(date, station, 'Scheduled')}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '1px', verticalAlign: 'middle',
+                          border: '1px solid var(--border)', padding: '2px 2px', verticalAlign: 'middle',
+                          textAlign: 'center', lineHeight: 1.3,
                           cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor
@@ -324,82 +325,32 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '1px', justifyContent: 'center', alignItems: 'center', padding: '1px', overflow: 'hidden' }}>
-                          {(() => {
-                            const grouped = groupByPeriod(shifts);
-                            const hasAmPm = grouped.AM.length > 0 || grouped.PM.length > 0;
-                            return (
-                              <>
-                                {/* Full day pills */}
-                                {grouped.Full.map(shift => {
-                                  const isFiltered = filterUserId && shift.userId === filterUserId;
-                                  const isCancelled = shift.status === 'Cancelled';
-                                  const uc = getUserColor(shift.user.abbreviation);
-                                  return (
-                                    <div key={shift.id}>
-                                      <div
-                                        title={shift.user.fullName || shift.user.abbreviation}
-                                        style={{
-                                        backgroundColor: isCancelled ? '#F3F4F6' : isFiltered ? '#1d4ed8' : uc.bg,
-                                        color: isCancelled ? '#9CA3AF' : isFiltered ? 'white' : uc.text,
-                                        border: `1px solid ${isCancelled ? '#D1D5DB' : isFiltered ? '#1d4ed8' : uc.border}`,
-                                        padding: '0 3px', borderRadius: '9999px',
-                                        fontSize: '0.6rem', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap',
-                                        textDecoration: isCancelled ? 'line-through' : 'none',
-                                        cursor: 'default', lineHeight: '1.5',
-                                      }}>{shift.user.abbreviation}</div>
-                                      {shift.remarks && (
-                                        <div style={{ fontSize: '0.48rem', color: '#666', textAlign: 'center', whiteSpace: 'nowrap', lineHeight: 1 }}>
-                                          {shift.remarks}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                                {/* AM pills */}
-                                {grouped.AM.map(shift => {
-                                  const isFiltered = filterUserId && shift.userId === filterUserId;
-                                  const uc = getUserColor(shift.user.abbreviation);
-                                  return (
-                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
-                                      <span style={{ fontSize: '0.46rem', fontWeight: 800, color: '#0369a1', backgroundColor: '#E0F2FE', padding: '0 2px', borderRadius: '2px', lineHeight: '1.4', flexShrink: 0 }}>AM</span>
-                                      <div
-                                        title={shift.user.fullName || shift.user.abbreviation}
-                                        style={{
-                                        backgroundColor: isFiltered ? '#0369a1' : uc.bg,
-                                        color: isFiltered ? 'white' : uc.text,
-                                        border: `1px solid ${isFiltered ? '#0369a1' : uc.border}`,
-                                        padding: '0 3px', borderRadius: '9999px',
-                                        fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap',
-                                        cursor: 'default', lineHeight: '1.5',
-                                      }}>{shift.user.abbreviation}</div>
-                                    </div>
-                                  );
-                                })}
-                                {/* PM pills */}
-                                {grouped.PM.map(shift => {
-                                  const isFiltered = filterUserId && shift.userId === filterUserId;
-                                  const uc = getUserColor(shift.user.abbreviation);
-                                  return (
-                                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
-                                      <span style={{ fontSize: '0.46rem', fontWeight: 800, color: '#c2410c', backgroundColor: '#FFF7ED', padding: '0 2px', borderRadius: '2px', lineHeight: '1.4', flexShrink: 0 }}>PM</span>
-                                      <div
-                                        title={shift.user.fullName || shift.user.abbreviation}
-                                        style={{
-                                        backgroundColor: isFiltered ? '#c2410c' : uc.bg,
-                                        color: isFiltered ? 'white' : uc.text,
-                                        border: `1px solid ${isFiltered ? '#c2410c' : uc.border}`,
-                                        padding: '0 3px', borderRadius: '9999px',
-                                        fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap',
-                                        cursor: 'default', lineHeight: '1.5',
-                                      }}>{shift.user.abbreviation}</div>
-                                    </div>
-                                  );
-                                })}
-                              </>
-                            );
-                          })()}
-                        </div>
+                        {/* Plain text cell — Excel style */}
+                        {shifts.map(shift => {
+                          const isCancelled = shift.status === 'Cancelled';
+                          const isFiltered = filterUserId && shift.userId === filterUserId;
+                          const period = shift.shiftPeriod;
+                          return (
+                            <span
+                              key={shift.id}
+                              title={shift.user.fullName || shift.user.abbreviation}
+                              style={{
+                                display: 'inline-block',
+                                fontSize: '0.6rem',
+                                fontWeight: 700,
+                                color: isCancelled ? '#9CA3AF' : isFiltered ? '#1d4ed8' : '#111',
+                                textDecoration: isCancelled ? 'line-through' : 'none',
+                                marginRight: '2px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {period === 'AM' && <sup style={{ color: '#0369a1', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
+                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
+                              {shift.user.abbreviation}
+                              {shift.remarks && <sub style={{ color: '#888', fontSize: '0.44rem', marginLeft: '1px' }}>{shift.remarks}</sub>}
+                            </span>
+                          );
+                        })}
                       </td>
                     );
                   })}
@@ -411,7 +362,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={abs} 
                         onClick={() => handleCellClick(date, null, abs)}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '1px', verticalAlign: 'middle',
+                          border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'middle',
+                          textAlign: 'left', lineHeight: 1.3,
                           cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
@@ -419,36 +371,29 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '1px', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                          {shifts.map(shift => {
-                            const isFiltered = filterUserId && shift.userId === filterUserId;
-                            const isCancelled = shift.status === 'Cancelled';
-                            const absColor: Record<string, { bg: string; text: string; border: string }> = {
-                              'Leave':   { bg: '#DBEAFE', text: '#1e40af', border: '#93C5FD' },
-                              'MC':      { bg: '#DCF5DC', text: '#166534', border: '#86efac' },
-                              'Off':     { bg: '#FEE2E2', text: '#991B1B', border: '#FCA5A5' },
-                              'TimeOff': { bg: '#FEF3C7', text: '#92400e', border: '#FCD34D' },
-                            };
-                            const col = absColor[abs] || absColor['Off'];
-                            return (
-                              <div key={shift.id} title={shift.user.fullName || shift.user.abbreviation} style={{ 
-                                backgroundColor: isFiltered ? col.text : isCancelled ? '#F3F4F6' : col.bg,
-                                color: isFiltered ? 'white' : isCancelled ? '#9CA3AF' : col.text,
-                                border: `1px solid ${isFiltered ? col.text : isCancelled ? '#D1D5DB' : col.border}`,
-                                padding: '0 3px',
-                                borderRadius: '9999px',
-                                fontSize: '0.6rem', 
-                                textAlign: 'center', 
-                                fontWeight: 600,
-                                whiteSpace: 'nowrap',
+                        {/* Plain text absence cell — Excel style */}
+                        {shifts.map(shift => {
+                          const isCancelled = shift.status === 'Cancelled';
+                          const isFiltered = filterUserId && shift.userId === filterUserId;
+                          return (
+                            <span
+                              key={shift.id}
+                              title={shift.user.fullName || shift.user.abbreviation}
+                              style={{
+                                display: 'inline-block',
+                                fontSize: '0.6rem',
+                                fontWeight: 700,
+                                color: isCancelled ? '#9CA3AF' : isFiltered ? '#1d4ed8' : '#111',
                                 textDecoration: isCancelled ? 'line-through' : 'none',
-                                cursor: 'default', lineHeight: '1.5',
-                              }}>
-                                {shift.user.abbreviation}
-                              </div>
-                            );
-                          })}
-                        </div>
+                                marginRight: '2px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {shift.user.abbreviation}
+                              {shift.remarks && <sub style={{ color: '#888', fontSize: '0.44rem', marginLeft: '1px' }}>{shift.remarks}</sub>}
+                            </span>
+                          );
+                        })}
                       </td>
                     );
                   })}
