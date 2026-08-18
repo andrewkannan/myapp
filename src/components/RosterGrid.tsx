@@ -112,7 +112,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   };
 
   const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off') => {
-    if (currentUser.accessLevel !== 'MANAGER' && currentUser.accessLevel !== 'ADMIN') return;
+    if (!currentUser.permissions?.includes('ROSTER_EDIT')) return;
     setSelectedCell({ date, station, status });
     setModalOpen(true);
   };
@@ -318,11 +318,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         style={{ 
                           border: '1px solid var(--border)', padding: '2px 2px', verticalAlign: 'top',
                           textAlign: 'center', lineHeight: 1.1,
-                          cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
+                          cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : baseColor
                         }}
-                        onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
+                        onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : baseColor }}
                       >
                         {/* Plain text cell — Excel style */}
@@ -363,11 +363,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         style={{ 
                           border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'top',
                           textAlign: 'left', lineHeight: 1.1,
-                          cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
+                          cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
-                        onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
+                        onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
                         {/* Plain text absence cell — Excel style */}

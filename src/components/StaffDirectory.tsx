@@ -106,15 +106,14 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
           <div>
             <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Staff Directory</h2>
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-              {Object.entries(counts).map(([level, cnt]) => {
-                const meta = ACCESS_LABELS[level] || ACCESS_LABELS.STAFF;
+              {Object.entries(counts).map(([role, cnt]) => {
                 return (
-                  <span key={level} style={{
+                  <span key={role} style={{
                     fontSize: '0.7rem', fontWeight: 600,
                     padding: '2px 8px', borderRadius: '9999px',
-                    backgroundColor: meta.bg, color: meta.color,
+                    backgroundColor: 'var(--background)', color: 'var(--text-muted)', border: '1px solid var(--border)'
                   }}>
-                    {cnt} {meta.label}{cnt !== 1 ? 's' : ''}
+                    {cnt} {role}{cnt !== 1 ? 's' : ''}
                   </span>
                 );
               })}

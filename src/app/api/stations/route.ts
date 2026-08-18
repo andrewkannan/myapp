@@ -9,7 +9,7 @@ const prisma = new PrismaClient({ adapter });
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const { name, locationId } = await request.json();
     const station = await prisma.station.create({ data: { name, locationId } });
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

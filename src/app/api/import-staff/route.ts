@@ -272,7 +272,7 @@ export async function GET() {
         await prisma.user.update({ where: { id: existingUser.id }, data: { email, modality, fullName: existingUser.fullName || fullName, role: existingUser.role || role } });
         updated++;
       } else {
-        await prisma.user.create({ data: { abbreviation: abbr, fullName, role, email, modality, accessLevel: 'STAFF', password: 'password123' } });
+        await prisma.user.create({ data: { abbreviation: abbr, fullName, role, email, modality, password: 'password123' } });
         created++;
       }
     }
