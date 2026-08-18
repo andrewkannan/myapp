@@ -1,0 +1,169 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Pencil, Trash2, Plus, X } from 'lucide-react';
+
+export function StaffManager() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/users');
+      const data = await res.json();
+      setUsers(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleSave = async (user: any) => {
+    const url = isCreating ? '/api/users' : `/api/users?id=${user.id}`;
+    const method = isCreating ? 'POST' : 'PATCH';
+    
+    try {
+      await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      });
+      setEditingUser(null);
+      setIsCreating(false);
+      fetchUsers();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to save user.');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
+      fetchUsers();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (loading) return <div>Loading staff...</div>;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Staff Management</h2>
+        <button 
+          onClick={() => {
+            setEditingUser({ abbreviation: '', fullName: '', role: '', accessLevel: 'STAFF' });
+            setIsCreating(true);
+          }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
+        >
+          <Plus size={16} /> Add Staff
+        </button>
+      </div>
+
+      <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--surface)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead style={{ backgroundColor: 'var(--header-bg)', borderBottom: '1px solid var(--border)' }}>
+            <tr>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Abbr</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Full Name</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Role</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Access Level</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td style={{ padding: '0.75rem 1rem' }}>
+                  <span style={{ backgroundColor: 'var(--background)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.875rem' }}>{u.abbreviation}</span>
+                </td>
+                <td style={{ padding: '0.75rem 1rem' }}>{u.fullName || '-'}</td>
+                <td style={{ padding: '0.75rem 1rem' }}>{u.role || '-'}</td>
+                <td style={{ padding: '0.75rem 1rem' }}>
+                  <span style={{ 
+                    backgroundColor: u.accessLevel === 'ADMIN' ? '#FEE2E2' : u.accessLevel === 'MANAGER' ? '#FEF08A' : '#E0F2FE',
+                    color: u.accessLevel === 'ADMIN' ? '#DC2626' : u.accessLevel === 'MANAGER' ? '#A16207' : '#0369A1',
+                    padding: '2px 8px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600
+                  }}>
+                    {u.accessLevel}
+                  </span>
+                </td>
+                <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                  <button onClick={() => { setEditingUser(u); setIsCreating(false); }} style={{ padding: '0.4rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }}><Pencil size={16} /></button>
+                  <button onClick={() => handleDelete(u.id)} style={{ padding: '0.4rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--danger)' }}><Trash2 size={16} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {editingUser && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', width: '400px', maxWidth: '90%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>{isCreating ? 'Add Staff' : 'Edit Staff'}</h3>
+              <button onClick={() => { setEditingUser(null); setIsCreating(false); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Abbreviation</label>
+                <input 
+                  type="text" value={editingUser.abbreviation} 
+                  onChange={e => setEditingUser({ ...editingUser, abbreviation: e.target.value })}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Full Name</label>
+                <input 
+                  type="text" value={editingUser.fullName} 
+                  onChange={e => setEditingUser({ ...editingUser, fullName: e.target.value })}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Role</label>
+                <input 
+                  type="text" value={editingUser.role} 
+                  onChange={e => setEditingUser({ ...editingUser, role: e.target.value })}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Access Level</label>
+                <select 
+                  value={editingUser.accessLevel} 
+                  onChange={e => setEditingUser({ ...editingUser, accessLevel: e.target.value })}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                >
+                  <option value="STAFF">STAFF</option>
+                  <option value="MANAGER">MANAGER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                <button onClick={() => { setEditingUser(null); setIsCreating(false); }} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => handleSave(editingUser)} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: 'white', cursor: 'pointer', fontWeight: 500 }}>Save User</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

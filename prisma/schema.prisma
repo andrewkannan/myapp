@@ -14,6 +14,7 @@ model User {
   password     String  @default("password123") // Default password for new imports
   accessLevel  String  @default("STAFF") // MANAGER or STAFF
   shifts       Shift[]
+  auditLogs    AuditLog[]
 }
 
 model Location {
@@ -48,4 +49,13 @@ model Shift {
   station    Station? @relation(fields: [stationId], references: [id])
 
   @@index([date])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
 }

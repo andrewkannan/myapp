@@ -166,6 +166,18 @@ export default function Home() {
               {currentUser.accessLevel}
             </div>
           </div>
+          {currentUser.accessLevel === 'ADMIN' && (
+            <button 
+              onClick={() => window.location.href = '/admin'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
+                backgroundColor: 'var(--surface)', color: 'var(--foreground)', border: '1px solid var(--border)',
+                borderRadius: '6px', fontWeight: 500
+              }}>
+              <span className="hidden-mobile">⚙️ Admin Dashboard</span>
+            </button>
+          )}
+
           <button
             onClick={() => setDirectoryOpen(true)}
             style={{ 

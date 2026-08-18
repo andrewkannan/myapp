@@ -130,6 +130,10 @@ export async function POST(request: Request) {
       )
     );
 
+    await prisma.auditLog.create({
+      data: { userId: session.id, action: 'CREATE_SHIFTS', details: `Created ${created.length} shift(s)` }
+    });
+
     return NextResponse.json({ created: created.length, shifts: created });
   } catch (error) {
     console.error('Error creating shift:', error);
@@ -153,6 +157,10 @@ export async function DELETE(request: Request) {
 
     await prisma.shift.delete({
       where: { id }
+    });
+
+    await prisma.auditLog.create({
+      data: { userId: session.id, action: 'DELETE_SHIFT', details: `Deleted shift ${id}` }
     });
 
     return NextResponse.json({ success: true });
@@ -186,6 +194,10 @@ export async function PATCH(request: Request) {
         ...(userId !== undefined ? { userId } : {}),
       },
       include: { user: true, station: true }
+    });
+
+    await prisma.auditLog.create({
+      data: { userId: session.id, action: 'UPDATE_SHIFT', details: `Updated shift ${updated.id}` }
     });
 
     return NextResponse.json(updated);

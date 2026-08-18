@@ -38,6 +38,10 @@ export async function POST(request: Request) {
       maxAge: 24 * 60 * 60 // 1 day
     });
 
+    await prisma.auditLog.create({
+      data: { userId: user.id, action: 'LOGIN', details: 'User logged in successfully' }
+    });
+
     return NextResponse.json(sessionData);
   } catch (error) {
     console.error('Login error:', error);
