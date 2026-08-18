@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
 import StaffDirectory from '@/components/StaffDirectory';
@@ -51,7 +52,9 @@ export default function Home() {
   const [data, setData] = useState<RosterData | null>(null);
   const [loading, setLoading] = useState(true);
   
-  const [filterUserId, setFilterUserId] = useState<string>('');
+  const [filterUserIds, setFilterUserIds] = useState<string[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
   const [directoryOpen, setDirectoryOpen] = useState(false);
 
   const year = currentDate.getFullYear();
@@ -263,7 +266,7 @@ export default function Home() {
             year={year} 
             month={month} 
             currentUser={currentUser}
-            filterUserId={filterUserId}
+            filterUserIds={filterUserIds}
             onRefresh={() => fetchRoster(year, month, true)}
           />
         ) : (
