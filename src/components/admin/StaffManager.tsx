@@ -254,7 +254,7 @@ export function StaffManager() {
                           }}
                           style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                         />
-                        {mod}
+                        {modalityOption}
                       </label>
                     );
                   })}
