@@ -235,7 +235,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
               const phName = getPhName(date);
               const isPH = !!phName;
-              const rowBg = isPH ? '#FFE0E0' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
+              const rowBg = isPH ? '#FEF2F2' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
               
               // Total columns for PH colspan
               const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences(3) + total
@@ -251,7 +251,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 <td style={{ 
                   border: '1px solid var(--border)', padding: '2px 4px', textAlign: 'left', 
                   fontWeight: 700,
-                  color: isPH ? '#cc0000' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
+                  color: isPH ? '#DC2626' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
                   position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
                   width: '60px', whiteSpace: 'nowrap'
                 }}>
@@ -266,9 +266,9 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
                     {dateCell}
                     <td colSpan={totalCols} style={{
-                      border: '1px solid #ffaaaa',
-                      backgroundColor: '#FFCCCC',
-                      color: '#990000',
+                      border: '1px solid #FEE2E2',
+                      backgroundColor: '#FEF2F2',
+                      color: '#B91C1C',
                       fontWeight: 700,
                       textAlign: 'center',
                       padding: '2px',
