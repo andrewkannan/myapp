@@ -154,11 +154,24 @@ export default function AssignmentModal({
     } finally { setLoading(false); }
   };
 
+  const handleUpdateRemark = async (shiftId: string, newRemarks: string) => {
+    try {
+      await fetch(`/api/roster?id=${shiftId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ remarks: newRemarks })
+      });
+      onRefresh();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const periodInfo = PERIOD_LABELS[period];
 
   const headerLabel =
     statusType === 'TimeOff' ? 'Time Off' :
-    statusType === 'Leave'   ? 'Annual Leave' :
+    statusType === 'Leave'   ? 'Leave' :
     statusType === 'MC'      ? 'Medical Leave' :
     statusType === 'Off'     ? 'Day Off' :
     station?.name || 'Scheduled';
@@ -254,11 +267,25 @@ export default function AssignmentModal({
                                 Cancelled
                               </span>
                             )}
-                            {shift.remarks && (
-                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                                {shift.remarks}
-                              </span>
-                            )}
+                            <input
+                              type="text"
+                              defaultValue={shift.remarks || ''}
+                              onBlur={(e) => {
+                                if (e.target.value !== (shift.remarks || '')) {
+                                  handleUpdateRemark(shift.id, e.target.value);
+                                }
+                              }}
+                              placeholder="+ remark"
+                              list="remark-options"
+                              style={{
+                                fontSize: '0.65rem', padding: '2px 6px', width: '110px',
+                                border: '1px solid transparent', borderRadius: '4px',
+                                backgroundColor: 'rgba(0,0,0,0.04)', color: 'var(--text-muted)',
+                                outline: 'none', fontStyle: shift.remarks ? 'italic' : 'normal'
+                              }}
+                              onFocus={e => { e.target.style.backgroundColor = 'var(--surface)'; e.target.style.border = '1px solid var(--primary)'; }}
+                              onMouseLeave={e => { if (document.activeElement !== e.target) e.target.style.backgroundColor = 'rgba(0,0,0,0.04)'; }}
+                            />
                           </div>
                         </div>
                       </div>
@@ -387,16 +414,37 @@ export default function AssignmentModal({
 
             {/* Remarks */}
             <div>
-              <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.4rem' }}>
-                Time / Remarks <span style={{ fontWeight: 400 }}>(optional)</span>
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.4rem' }}>
+                <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block' }}>
+                  Time / Remarks <span style={{ fontWeight: 400 }}>(optional)</span>
+                </label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {['ML', 'UL', 'AL'].map(quick => (
+                    <button 
+                      key={quick}
+                      onClick={() => setRemarks(r => r ? `${r} ${quick}` : quick)}
+                      style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', cursor: 'pointer', color: 'var(--text-muted)' }}
+                    >
+                      {quick}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <input type="text" value={remarks} onChange={e => setRemarks(e.target.value)}
-                placeholder="e.g. 830–230, from 1030, until 1pm..."
+                placeholder="e.g. ML, UL, 830-230..."
+                list="remark-options"
                 style={{
                   width: '100%', padding: '0.5rem 0.75rem',
                   border: '1px solid var(--border)', borderRadius: '6px',
                   fontSize: '0.875rem', backgroundColor: 'var(--background)'
                 }} />
+              <datalist id="remark-options">
+                <option value="ML" />
+                <option value="UL" />
+                <option value="AL" />
+                <option value="am one staff" />
+                <option value="TO-2hrs" />
+              </datalist>
             </div>
 
             {error && (
