@@ -8,6 +8,8 @@ export function StaffManager() {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [systemRoles, setSystemRoles] = useState<string[]>([]);
+  const [systemModalities, setSystemModalities] = useState<string[]>([]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -15,6 +17,16 @@ export function StaffManager() {
       const res = await fetch('/api/users');
       const data = await res.json();
       setUsers(data);
+      
+      const listsRes = await fetch('/api/system-lists');
+      const listsData = await listsRes.json();
+      
+      const roles = (listsData.roles || []).map((r: any) => r.name);
+      if (!roles.includes('Scheduler')) roles.push('Scheduler');
+      if (!roles.includes('System Admin')) roles.push('System Admin');
+      setSystemRoles(roles);
+      
+      setSystemModalities((listsData.modalities || []).map((m: any) => m.name));
     } catch (e) {
       console.error(e);
     } finally {
@@ -147,7 +159,7 @@ export function StaffManager() {
                     <div>
                       <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Role & System Access</label>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                        {['Radiographer', 'Sonographer', 'Nurse', 'Doctor', 'Scheduler', 'System Admin'].map(roleOption => {
+                        {systemRoles.map(roleOption => {
                           const isChecked = currentRoles.includes(roleOption);
                           return (
                             <label key={roleOption} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
@@ -223,19 +235,19 @@ export function StaffManager() {
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Modality</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                  {['MRI', 'CT', 'US', 'X-Ray', 'PET/CT', 'Mammo'].map(mod => {
+                  {systemModalities.map(modalityOption => {
                     const currentMods = editingUser.modality ? editingUser.modality.split(',').map((m: string) => m.trim()).filter(Boolean) : [];
-                    const isChecked = currentMods.includes(mod);
+                    const isChecked = currentMods.includes(modalityOption);
                     return (
-                      <label key={mod} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
+                      <label key={modalityOption} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              if (!currentMods.includes(mod)) currentMods.push(mod);
+                              if (!currentMods.includes(modalityOption)) currentMods.push(modalityOption);
                             } else {
-                              const idx = currentMods.indexOf(mod);
+                              const idx = currentMods.indexOf(modalityOption);
                               if (idx > -1) currentMods.splice(idx, 1);
                             }
                             setEditingUser({ ...editingUser, modality: currentMods.join(', ') });

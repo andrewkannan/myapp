@@ -237,7 +237,7 @@ export default function Home() {
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    ⚙️ Admin Dashboard
+                    Admin Dashboard
                   </button>
                 )}
                 {['ADMIN', 'MANAGER'].includes(currentUser.accessLevel) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>}

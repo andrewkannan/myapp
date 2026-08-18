@@ -7,9 +7,10 @@ import { LogOut, ArrowLeft, Users, MapPin, Activity } from 'lucide-react';
 import { StaffManager } from '@/components/admin/StaffManager';
 import { FacilityManager } from '@/components/admin/FacilityManager';
 import { AuditViewer } from '@/components/admin/AuditViewer';
+import { SystemListManager } from '@/components/admin/SystemListManager';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'logs'>('staff');
+  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs'>('staff');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const router = useRouter();
 
@@ -87,6 +88,12 @@ export default function AdminDashboard() {
               label="Facilities"
             />
             <TabButton 
+              active={activeTab === 'lists'} 
+              onClick={() => setActiveTab('lists')}
+              icon={<List size={18} />}
+              label="System Lists"
+            />
+            <TabButton 
               active={activeTab === 'logs'} 
               onClick={() => setActiveTab('logs')}
               icon={<Activity size={18} />}
@@ -99,6 +106,7 @@ export default function AdminDashboard() {
         <section style={{ flex: 1, padding: '2rem', overflowY: 'auto', backgroundColor: 'var(--background)' }}>
           {activeTab === 'staff' && <StaffManager />}
           {activeTab === 'facilities' && <FacilityManager />}
+          {activeTab === 'lists' && <SystemListManager />}
           {activeTab === 'logs' && <AuditViewer />}
         </section>
       </div>

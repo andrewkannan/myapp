@@ -59,3 +59,13 @@ model AuditLog {
   details   String?
   user      User?    @relation(fields: [userId], references: [id])
 }
+
+model SystemRole {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model SystemModality {
+  id   String @id @default(uuid())
+  name String @unique
+}
