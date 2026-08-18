@@ -37,6 +37,7 @@ export async function POST(request: Request) {
         
         if (abbreviation) dataToSave.abbreviation = abbreviation;
         if (isActive !== undefined) dataToSave.isActive = isActive;
+        if (userData.ssoEnabled !== undefined) dataToSave.ssoEnabled = userData.ssoEnabled;
         if (password) dataToSave.password = password;
 
         if (id) {

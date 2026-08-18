@@ -87,7 +87,7 @@ export function StaffManager() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID', 'Abbreviation', 'FullName', 'Email', 'Role', 'Modality', 'Status', 'LastLoginAt'];
+    const headers = ['ID', 'Abbreviation', 'FullName', 'Email', 'SSO_Enabled', 'Role', 'Modality', 'Status', 'LastLoginAt'];
     const csvContent = [
       headers.join(','),
       ...filteredAndSortedUsers.map(u => [
@@ -95,6 +95,7 @@ export function StaffManager() {
         u.abbreviation || '', 
         `"${u.fullName || ''}"`, 
         u.email || '', 
+        u.ssoEnabled ? 'Yes' : 'No',
         `"${u.role || ''}"`, 
         `"${u.modality || ''}"`, 
         u.isActive ? 'Active' : 'Inactive',
@@ -132,6 +133,7 @@ export function StaffManager() {
         headers.forEach((header, idx) => {
           if (row[idx]) {
             if (header === 'status') userObj.isActive = row[idx].toLowerCase() === 'active';
+            else if (header === 'sso_enabled') userObj.ssoEnabled = row[idx].toLowerCase() === 'yes';
             else userObj[header] = row[idx];
           }
         });
@@ -333,7 +335,7 @@ export function StaffManager() {
               </th>
               <th onClick={() => requestSort('abbreviation')} style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Abbr {sortConfig.key === 'abbreviation' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th onClick={() => requestSort('fullName')} style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Full Name {sortConfig.key === 'fullName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Contact</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Contact & Auth</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Role & Modalities</th>
               <th onClick={() => requestSort('lastLoginAt')} style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Last Active {sortConfig.key === 'lastLoginAt' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Actions</th>
@@ -354,7 +356,14 @@ export function StaffManager() {
                     {u.fullName || '-'}
                   </div>
                 </td>
-                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{u.email || '-'}</td>
+                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>
+                  <div style={{ color: 'var(--foreground)', marginBottom: '0.25rem' }}>{u.email || '-'}</div>
+                  {u.ssoEnabled ? (
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, backgroundColor: '#DBEAFE', color: '#1E40AF', padding: '2px 6px', borderRadius: '4px' }}>✓ MS SSO</span>
+                  ) : (
+                    <span style={{ fontSize: '0.65rem', fontWeight: 600, backgroundColor: 'var(--background)', color: 'var(--text-muted)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border)' }}>Local Auth</span>
+                  )}
+                </td>
                 <td style={{ padding: '0.75rem 1rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                     {u.role ? (
@@ -445,7 +454,13 @@ export function StaffManager() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Email Address (Required for SSO)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.25rem' }}>
+                  <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>Email Address</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={editingUser.ssoEnabled || false} onChange={e => setEditingUser({ ...editingUser, ssoEnabled: e.target.checked })} style={{ cursor: 'pointer' }} />
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: editingUser.ssoEnabled ? '#1E40AF' : 'var(--text-muted)' }}>Microsoft SSO Activated</span>
+                  </label>
+                </div>
                 <input type="email" value={editingUser.email || ''} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }} />
               </div>
 

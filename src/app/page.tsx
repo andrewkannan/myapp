@@ -16,6 +16,7 @@ export type User = {
   email?: string;
   modality?: string;
   isActive?: boolean;
+  ssoEnabled?: boolean;
   lastLoginAt?: string | null;
 };
 
