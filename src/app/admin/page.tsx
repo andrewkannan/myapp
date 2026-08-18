@@ -14,7 +14,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetch('/api/auth/me')
       .then(res => res.json())
-      .then(user => {
+      .then(data => {
+        const user = data.user;
         if (!user || !['ADMIN', 'MANAGER'].includes(user.accessLevel)) {
           router.push('/');
         } else {

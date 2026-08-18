@@ -7,14 +7,14 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(uuid())
-  abbreviation String  @unique
+  id           String     @id @default(uuid())
+  abbreviation String     @unique
   fullName     String?
   role         String?
-  password     String  @default("password123") // Default password for new imports
-  accessLevel  String  @default("STAFF") // MANAGER or STAFF
-  shifts       Shift[]
+  password     String     @default("password123")
+  accessLevel  String     @default("STAFF")
   auditLogs    AuditLog[]
+  shifts       Shift[]
 }
 
 model Location {
@@ -27,8 +27,8 @@ model Station {
   id         String   @id @default(uuid())
   name       String
   locationId String
-  location   Location @relation(fields: [locationId], references: [id])
   shifts     Shift[]
+  location   Location @relation(fields: [locationId], references: [id])
 
   @@unique([name, locationId])
 }
@@ -36,17 +36,15 @@ model Station {
 model Shift {
   id          String   @id @default(uuid())
   date        DateTime
-  shiftPeriod String   @default("Full") // "Full" | "AM" | "PM"
+  shiftPeriod String   @default("Full")
   startTime   String?
   endTime     String?
-  status      String   @default("Scheduled") // Scheduled, Leave, MC, Off
+  status      String   @default("Scheduled")
   remarks     String?
-
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-
-  stationId  String?
-  station    Station? @relation(fields: [stationId], references: [id])
+  userId      String
+  stationId   String?
+  station     Station? @relation(fields: [stationId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 
   @@index([date])
 }
@@ -55,7 +53,7 @@ model AuditLog {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
   action    String
   details   String?
+  user      User?    @relation(fields: [userId], references: [id])
 }
