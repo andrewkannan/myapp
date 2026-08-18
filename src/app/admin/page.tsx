@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { LogOut, ArrowLeft, Users, MapPin, Activity } from 'lucide-react';
 
 import { StaffManager } from '@/components/admin/StaffManager';
+import { FacilityManager } from '@/components/admin/FacilityManager';
+import { AuditViewer } from '@/components/admin/AuditViewer';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'logs'>('staff');
@@ -96,8 +98,8 @@ export default function AdminDashboard() {
         {/* Content Area */}
         <section style={{ flex: 1, padding: '2rem', overflowY: 'auto', backgroundColor: 'var(--background)' }}>
           {activeTab === 'staff' && <StaffManager />}
-          {activeTab === 'facilities' && <div>Facilities Component goes here</div>}
-          {activeTab === 'logs' && <div>Audit Logs Component goes here</div>}
+          {activeTab === 'facilities' && <FacilityManager />}
+          {activeTab === 'logs' && <AuditViewer />}
         </section>
       </div>
     </main>
