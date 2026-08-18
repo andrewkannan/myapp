@@ -86,6 +86,10 @@ function InlineRemarkEditor({ shift, onUpdate }: { shift: Shift, onUpdate: (id: 
                 e.preventDefault(); // Prevents input from losing focus
                 setVal(v => v ? `${v} ${quick}` : quick);
               }}
+              onTouchStart={e => {
+                e.preventDefault();
+                setVal(v => v ? `${v} ${quick}` : quick);
+              }}
               style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '2px', border: 'none', backgroundColor: '#EFF6FF', color: '#1d4ed8', cursor: 'pointer', fontWeight: 600 }}
             >
               {quick}
@@ -459,6 +463,8 @@ export default function AssignmentModal({
                   {['ML', 'UL', 'AL'].map(quick => (
                     <button 
                       key={quick}
+                      onMouseDown={e => e.preventDefault()}
+                      onTouchStart={e => e.preventDefault()}
                       onClick={() => setRemarks(r => r ? `${r} ${quick}` : quick)}
                       style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', cursor: 'pointer', color: 'var(--text-muted)' }}
                     >
@@ -469,19 +475,11 @@ export default function AssignmentModal({
               </div>
               <input type="text" value={remarks} onChange={e => setRemarks(e.target.value)}
                 placeholder="e.g. ML, UL, 830-230..."
-                list="remark-options"
                 style={{
                   width: '100%', padding: '0.5rem 0.75rem',
                   border: '1px solid var(--border)', borderRadius: '6px',
                   fontSize: '0.875rem', backgroundColor: 'var(--background)'
                 }} />
-              <datalist id="remark-options">
-                <option value="ML" />
-                <option value="UL" />
-                <option value="AL" />
-                <option value="am one staff" />
-                <option value="TO-2hrs" />
-              </datalist>
             </div>
 
             {error && (
