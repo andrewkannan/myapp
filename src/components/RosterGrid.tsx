@@ -249,7 +249,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
 
               const dateCell = (
                 <td style={{ 
-                  border: '1px solid var(--border)', padding: '2px 4px', textAlign: 'left', 
+                  border: '1px solid var(--border)', padding: '3px 4px', textAlign: 'left', verticalAlign: 'top',
                   fontWeight: 700,
                   color: isPH ? '#DC2626' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
                   position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
@@ -316,8 +316,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={station.id} 
                         onClick={() => handleCellClick(date, station, 'Scheduled')}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '2px 2px', verticalAlign: 'middle',
-                          textAlign: 'center', lineHeight: 1.3,
+                          border: '1px solid var(--border)', padding: '2px 2px', verticalAlign: 'top',
+                          textAlign: 'center', lineHeight: 1.1,
                           cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor
@@ -361,8 +361,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         key={abs} 
                         onClick={() => handleCellClick(date, null, abs)}
                         style={{ 
-                          border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'middle',
-                          textAlign: 'left', lineHeight: 1.3,
+                          border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'top',
+                          textAlign: 'left', lineHeight: 1.1,
                           cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
@@ -399,7 +399,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   
                   {/* Daily Staff Count */}
                   <td style={{ 
-                    border: '1px solid var(--border)', padding: '1px', textAlign: 'center', 
+                    border: '1px solid var(--border)', padding: '3px 1px', textAlign: 'center', verticalAlign: 'top',
                     fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.6rem'
                   }}>
                     {workingStaff}
