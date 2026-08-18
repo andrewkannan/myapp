@@ -21,11 +21,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    // Calculate permissions based on user.role
+    const roleNames = user.role ? user.role.split(',').map(r => r.trim()).filter(Boolean) : [];
+    const systemRoles = await prisma.systemRole.findMany({
+      where: { name: { in: roleNames } }
+    });
+    
+    let permissions = new Set<string>();
+    for (const r of systemRoles) {
+      if (r.permissions) {
+        r.permissions.split(',').forEach(p => permissions.add(p.trim()));
+      }
+    }
+    
+    // Lockout prevention - System Admin implicitly has all permissions
+    if (roleNames.includes('System Admin')) {
+      const allPerms = ['ROSTER_VIEW', 'ROSTER_EDIT', 'STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'];
+      allPerms.forEach(p => permissions.add(p));
+    }
+
     const sessionData = {
       id: user.id,
       abbreviation: user.abbreviation,
       fullName: user.fullName,
-      accessLevel: user.accessLevel
+      permissions: Array.from(permissions),
+      role: user.role
     };
 
     const session = await encrypt(sessionData);

@@ -12,7 +12,7 @@ export type User = {
   abbreviation: string;
   fullName: string;
   role: string;
-  accessLevel?: string;
+  permissions?: string[];
 };
 
 export type Location = {
@@ -177,7 +177,7 @@ export default function Home() {
           <div style={{ textAlign: 'right', marginRight: '0.5rem' }}>
             <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{currentUser.fullName}</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
-              {currentUser.accessLevel}
+              {currentUser.role || 'Staff'}
             </div>
           </div>
 
@@ -230,7 +230,7 @@ export default function Home() {
                 borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', 
                 zIndex: 100, minWidth: '200px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem'
               }}>
-                {['ADMIN', 'MANAGER'].includes(currentUser.accessLevel) && (
+                {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
                   <button 
                     onClick={() => window.location.href = '/admin'} 
                     style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
@@ -240,7 +240,7 @@ export default function Home() {
                     Admin Dashboard
                   </button>
                 )}
-                {['ADMIN', 'MANAGER'].includes(currentUser.accessLevel) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>}
+                {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>}
                 <button 
                   onClick={handleLogout} 
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', color: 'var(--danger)', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}

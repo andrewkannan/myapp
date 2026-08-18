@@ -75,7 +75,7 @@ export function StaffManager() {
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Staff Management</h2>
         <button 
           onClick={() => {
-            setEditingUser({ abbreviation: '', fullName: '', role: '', accessLevel: 'STAFF' });
+            setEditingUser({ abbreviation: '', fullName: '', role: '',  });
             setIsCreating(true);
           }}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
@@ -108,8 +108,8 @@ export function StaffManager() {
                 <td style={{ padding: '0.75rem 1rem' }}>
                   {(() => {
                     const displayRoles = u.role ? u.role.split(',').map(r => r.trim()).filter(Boolean) : [];
-                    if (u.accessLevel === 'ADMIN') displayRoles.push('System Admin');
-                    if (u.accessLevel === 'MANAGER') displayRoles.push('Scheduler');
+                    
+                    
                     
                     if (displayRoles.length === 0) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
                     
@@ -150,8 +150,8 @@ export function StaffManager() {
               {(() => {
                 const dbRoles = editingUser.role ? editingUser.role.split(',').map((r: string) => r.trim()).filter(Boolean) : [];
                 const currentRoles = [...dbRoles];
-                if (editingUser.accessLevel === 'ADMIN') currentRoles.push('System Admin');
-                if (editingUser.accessLevel === 'MANAGER') currentRoles.push('Scheduler');
+                
+                
 
                 const needsAbbreviation = currentRoles.includes('Radiographer') || currentRoles.includes('Sonographer');
                 return (
@@ -186,7 +186,7 @@ export function StaffManager() {
                                     newAbbr = '';
                                   }
                                   
-                                  setEditingUser({ ...editingUser, role: newRolesString, accessLevel: newAccess, abbreviation: newAbbr });
+                                  setEditingUser({ ...editingUser, role: newRolesString,  abbreviation: newAbbr });
                                 }}
                                 style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                               />

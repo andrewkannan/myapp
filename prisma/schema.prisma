@@ -12,7 +12,6 @@ model User {
   fullName     String?
   role         String?
   password     String     @default("password123")
-  accessLevel  String     @default("STAFF")
   email        String?
   modality     String?
   auditLogs    AuditLog[]
@@ -61,8 +60,9 @@ model AuditLog {
 }
 
 model SystemRole {
-  id   String @id @default(uuid())
-  name String @unique
+  id          String  @id @default(uuid())
+  name        String  @unique
+  permissions String?
 }
 
 model SystemModality {

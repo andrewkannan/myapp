@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !session.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const data = await request.json();
     if (data.abbreviation === '') data.abbreviation = null;
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !session.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -69,7 +69,7 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !session.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

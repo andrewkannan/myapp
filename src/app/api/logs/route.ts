@@ -9,7 +9,7 @@ const prisma = new PrismaClient({ adapter });
 export async function GET(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) {
+    if (!session || !session.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE'].includes(p))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

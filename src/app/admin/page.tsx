@@ -19,7 +19,10 @@ export default function AdminDashboard() {
       .then(res => res.json())
       .then(data => {
         const user = data.user;
-        if (!user || !['ADMIN', 'MANAGER'].includes(user.accessLevel)) {
+        const hasAdminAccess = user?.permissions?.some((p: string) => 
+          ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)
+        );
+        if (!user || !hasAdminAccess) {
           router.push('/');
         } else {
           setCurrentUser(user);
@@ -75,30 +78,38 @@ export default function AdminDashboard() {
         {/* Sidebar Nav */}
         <aside style={{ width: '250px', backgroundColor: 'var(--surface)', borderRight: '1px solid var(--border)', padding: '1.5rem 1rem' }}>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <TabButton 
-              active={activeTab === 'staff'} 
-              onClick={() => setActiveTab('staff')}
-              icon={<Users size={18} />}
-              label="Staff Management"
-            />
-            <TabButton 
-              active={activeTab === 'facilities'} 
-              onClick={() => setActiveTab('facilities')}
-              icon={<MapPin size={18} />}
-              label="Facilities"
-            />
-            <TabButton 
-              active={activeTab === 'lists'} 
-              onClick={() => setActiveTab('lists')}
-              icon={<List size={18} />}
-              label="System Lists"
-            />
-            <TabButton 
-              active={activeTab === 'logs'} 
-              onClick={() => setActiveTab('logs')}
-              icon={<Activity size={18} />}
-              label="Audit Logs"
-            />
+            {currentUser.permissions?.includes('STAFF_MANAGE') && (
+              <TabButton 
+                active={activeTab === 'staff'} 
+                onClick={() => setActiveTab('staff')}
+                icon={<Users size={18} />}
+                label="Staff"
+              />
+            )}
+            {currentUser.permissions?.includes('FACILITY_MANAGE') && (
+              <TabButton 
+                active={activeTab === 'facilities'} 
+                onClick={() => setActiveTab('facilities')}
+                icon={<MapPin size={18} />}
+                label="Facilities"
+              />
+            )}
+            {currentUser.permissions?.includes('ROLE_MANAGE') && (
+              <TabButton 
+                active={activeTab === 'lists'} 
+                onClick={() => setActiveTab('lists')}
+                icon={<List size={18} />}
+                label="Access Control"
+              />
+            )}
+            {currentUser.permissions?.includes('AUDIT_VIEW') && (
+              <TabButton 
+                active={activeTab === 'logs'} 
+                onClick={() => setActiveTab('logs')}
+                icon={<Activity size={18} />}
+                label="Audit Logs"
+              />
+            )}
           </nav>
         </aside>
 
