@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, ArrowLeft, Users, MapPin, Activity } from 'lucide-react';
+import { LogOut, ArrowLeft, Users, MapPin, Activity, List } from 'lucide-react';
 
 import { StaffManager } from '@/components/admin/StaffManager';
 import { FacilityManager } from '@/components/admin/FacilityManager';
