@@ -27,6 +27,10 @@ export async function POST(request: Request) {
 
     const data = await request.json();
     if (data.abbreviation === '') data.abbreviation = null;
+    
+    if (data.email && data.email.toLowerCase().endsWith('@asiamedic.com.sg') && data.ssoEnabled === undefined) {
+      data.ssoEnabled = true;
+    }
 
     const newUser = await prisma.user.create({ data });
     
