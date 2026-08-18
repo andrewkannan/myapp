@@ -166,7 +166,7 @@ export default function Home() {
               {currentUser.accessLevel}
             </div>
           </div>
-          {currentUser.accessLevel === 'ADMIN' && (
+          {['ADMIN', 'MANAGER'].includes(currentUser.accessLevel) && (
             <button 
               onClick={() => window.location.href = '/admin'}
               style={{

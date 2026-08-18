@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    if (!session || session.accessLevel !== 'ADMIN') return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const data = await request.json();
     const newUser = await prisma.user.create({ data });
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const session = await getSession();
-    if (!session || session.accessLevel !== 'ADMIN') return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -65,7 +65,7 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await getSession();
-    if (!session || session.accessLevel !== 'ADMIN') return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
