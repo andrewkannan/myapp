@@ -389,7 +389,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               }}
                             >
                               {shift.user.abbreviation}
-                              {shift.remarks && <div style={{ color: '#888', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
+                              {shift.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{shift.remarks}</span>}
                             </span>
                           );
                         })}
