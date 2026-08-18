@@ -19,6 +19,8 @@ model User {
   lastLoginAt  DateTime?
   auditLogs    AuditLog[]
   shifts       Shift[]
+  leaves       Leave[]
+  leaveBalances LeaveBalance[]
 }
 
 model Location {
@@ -71,4 +73,35 @@ model SystemRole {
 model SystemModality {
   id   String @id @default(uuid())
   name String @unique
+}
+
+model Leave {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime
+  period      String   @default("FULL") // "FULL", "AM", "PM"
+  type        String   @default("AL")   // "AL", "MC", "UPL", "OFF"
+  status      String   @default("APPROVED") // "PENDING", "APPROVED", "REJECTED"
+  remarks     String?
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+}
+
+model LeaveBalance {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  year        Int
+  totalDays   Float    // e.g., 21.0
+  usedDays    Float    @default(0)
+
+  @@unique([userId, year])
+}
+
+model PublicHoliday {
+  id          String   @id @default(uuid())
+  date        DateTime @unique
+  name        String
 }
