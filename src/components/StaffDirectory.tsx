@@ -69,7 +69,8 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
 
   // Summary counts
   const counts = users.reduce((acc, u) => {
-    acc[u.accessLevel] = (acc[u.accessLevel] || 0) + 1;
+    const level = u.accessLevel || 'STAFF';
+    acc[level] = (acc[level] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -198,7 +199,7 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
           ) : (
             filtered.map((user, idx) => {
               const uc = getUserColor(user.abbreviation);
-              const meta = ACCESS_LABELS[user.accessLevel] || ACCESS_LABELS.STAFF;
+              const meta = ACCESS_LABELS[user.accessLevel || 'STAFF'] || ACCESS_LABELS.STAFF;
               return (
                 <div
                   key={user.id}
