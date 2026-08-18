@@ -346,7 +346,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               {period === 'AM' && <sup style={{ color: '#0369a1', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
                               {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
                               {shift.user.abbreviation}
-                              {shift.remarks && <sub style={{ color: '#888', fontSize: '0.44rem', marginLeft: '1px' }}>{shift.remarks}</sub>}
+                              {shift.remarks && <div style={{ color: '#888', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
                             </span>
                           );
                         })}
@@ -389,7 +389,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               }}
                             >
                               {shift.user.abbreviation}
-                              {shift.remarks && <sub style={{ color: '#888', fontSize: '0.44rem', marginLeft: '1px' }}>{shift.remarks}</sub>}
+                              {shift.remarks && <div style={{ color: '#888', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
                             </span>
                           );
                         })}
