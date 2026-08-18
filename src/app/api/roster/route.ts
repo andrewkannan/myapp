@@ -19,25 +19,26 @@ export async function GET(request: Request) {
     const endDate = new Date(year, month, 0);
 
     // Fetch all locations, stations, and users
-    const [locations, stations, users, shifts] = await Promise.all([
+    const [locations, stations, users, shifts, leaves] = await Promise.all([
       prisma.location.findMany(),
       prisma.station.findMany(),
       prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } }),
       prisma.shift.findMany({
         where: {
-          date: {
-            gte: startDate,
-            lte: endDate
-          }
+          date: { gte: startDate, lte: endDate }
         },
-        include: {
-          user: true,
-          station: true
-        }
+        include: { user: true, station: true }
+      }),
+      prisma.leave.findMany({
+        where: {
+          date: { gte: startDate, lte: endDate },
+          status: 'APPROVED'
+        },
+        include: { user: true }
       })
     ]);
 
-    return NextResponse.json({ locations, stations, users, shifts });
+    return NextResponse.json({ locations, stations, users, shifts, leaves });
   } catch (error) {
     console.error('Error fetching roster:', error);
     return NextResponse.json({ error: 'Failed to fetch roster data' }, { status: 500 });
@@ -113,6 +114,45 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'date or dateFrom/dateTo is required' }, { status: 400 });
     }
 
+    if (datesToAssign.length === 0) {
+      return NextResponse.json({ created: 0, shifts: [] });
+    }
+
+    // --- LEAVE CONFLICT PREVENTION ENGINE ---
+    const sortedDates = [...datesToAssign].sort((a, b) => a.getTime() - b.getTime());
+    const minDate = new Date(sortedDates[0]);
+    minDate.setHours(0, 0, 0, 0);
+    const maxDate = new Date(sortedDates[sortedDates.length - 1]);
+    maxDate.setHours(23, 59, 59, 999);
+    
+    const overlappingLeaves = await prisma.leave.findMany({
+      where: {
+        userId,
+        status: 'APPROVED',
+        date: { gte: minDate, lte: maxDate }
+      }
+    });
+
+    if (overlappingLeaves.length > 0) {
+      const conflictingDates: string[] = [];
+      for (const d of datesToAssign) {
+        const dKey = toLocalDateKey(d);
+        const leavesOnDay = overlappingLeaves.filter(l => toLocalDateKey(new Date(l.date)) === dKey);
+        for (const l of leavesOnDay) {
+          if (l.period === 'FULL' || shiftPeriod === 'Full' || l.period === shiftPeriod) {
+            conflictingDates.push(dKey);
+            break;
+          }
+        }
+      }
+      if (conflictingDates.length > 0) {
+        return NextResponse.json({ 
+          error: `Conflict: Staff is on Approved Leave on ${conflictingDates.join(', ')}.` 
+        }, { status: 409 });
+      }
+    }
+    // ----------------------------------------
+
     // Bulk insert all shifts in a transaction
     const created = await prisma.$transaction(
       datesToAssign.map(d =>
@@ -184,6 +224,39 @@ export async function PATCH(request: Request) {
 
     const body = await request.json();
     const { status, remarks, shiftPeriod, userId } = body;
+
+    // --- LEAVE CONFLICT PREVENTION ENGINE ---
+    if (shiftPeriod !== undefined || userId !== undefined) {
+      const existingShift = await prisma.shift.findUnique({ where: { id } });
+      if (existingShift) {
+        const targetUserId = userId || existingShift.userId;
+        const targetPeriod = shiftPeriod || existingShift.shiftPeriod;
+        
+        const shiftDateStart = new Date(existingShift.date);
+        shiftDateStart.setHours(0, 0, 0, 0);
+        const shiftDateEnd = new Date(existingShift.date);
+        shiftDateEnd.setHours(23, 59, 59, 999);
+
+        const overlappingLeaves = await prisma.leave.findMany({
+          where: {
+            userId: targetUserId,
+            status: 'APPROVED',
+            date: { gte: shiftDateStart, lte: shiftDateEnd }
+          }
+        });
+
+        if (overlappingLeaves.length > 0) {
+          for (const l of overlappingLeaves) {
+            if (l.period === 'FULL' || targetPeriod === 'Full' || l.period === targetPeriod) {
+              return NextResponse.json({ 
+                error: 'Conflict: Staff is on Approved Leave for this period.' 
+              }, { status: 409 });
+            }
+          }
+        }
+      }
+    }
+    // ----------------------------------------
 
     const updated = await prisma.shift.update({
       where: { id },

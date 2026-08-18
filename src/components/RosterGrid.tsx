@@ -353,9 +353,20 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                       </td>
                     );
                   })}
-                  
                   {absences.map(abs => {
                     const shifts = getCellShifts(date, null, abs);
+                    
+                    const actualLeaves = data.leaves?.filter(l => {
+                       const d = new Date(l.date);
+                       if (d.getDate() !== date.getDate() || d.getMonth() !== date.getMonth()) return false;
+                       if (abs === 'Leave' && l.type === 'AL') return true;
+                       if (abs === 'MC' && l.type === 'MC') return true;
+                       if (abs === 'Off' && l.type === 'OFF') return true;
+                       return false;
+                    }) || [];
+
+                    const hasFilteredItem = shifts.some(s => filterUserIds.includes(s.userId)) || actualLeaves.some(l => filterUserIds.includes(l.userId));
+
                     return (
                       <td 
                         key={abs} 
@@ -365,12 +376,12 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           textAlign: 'left', lineHeight: 1.1,
                           cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
-                          backgroundColor: shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
+                          backgroundColor: hasFilteredItem ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
                         onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = hasFilteredItem ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        {/* Plain text absence cell — Excel style */}
+                        {/* Plain text absence cell ?" Excel style */}
                         {shifts.map(shift => {
                           const isCancelled = shift.status === 'Cancelled';
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
@@ -390,6 +401,29 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                             >
                               {shift.user.abbreviation}
                               {shift.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{shift.remarks}</span>}
+                            </span>
+                          );
+                        })}
+                        {actualLeaves.map(leave => {
+                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
+                          const period = leave.period;
+                          return (
+                            <span
+                              key={leave.id}
+                              title={leave.user.fullName || leave.user.abbreviation}
+                              style={{
+                                display: 'inline-block',
+                                fontSize: '0.6rem',
+                                fontWeight: 700,
+                                color: isFiltered ? '#1d4ed8' : '#1e40af', // Blue for real leaves
+                                marginRight: '4px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {period === 'AM' && <sup style={{ color: '#0369a1', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
+                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
+                              {leave.user.abbreviation}
+                              {leave.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
                             </span>
                           );
                         })}

@@ -43,11 +43,23 @@ export type Shift = {
   station: Station | null;
 };
 
+export type Leave = {
+  id: string;
+  userId: string;
+  date: string;
+  period: string;
+  type: string;
+  status: string;
+  remarks: string | null;
+  user: User;
+};
+
 export type RosterData = {
   locations: Location[];
   stations: Station[];
   users: User[];
   shifts: Shift[];
+  leaves: Leave[];
 };
 
 export default function Home() {
