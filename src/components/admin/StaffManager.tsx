@@ -97,7 +97,7 @@ export function StaffManager() {
                   {(() => {
                     const displayRoles = u.role ? u.role.split(',').map(r => r.trim()).filter(Boolean) : [];
                     if (u.accessLevel === 'ADMIN') displayRoles.push('System Admin');
-                    if (u.accessLevel === 'MANAGER') displayRoles.push('Manager');
+                    if (u.accessLevel === 'MANAGER') displayRoles.push('Scheduler');
                     
                     if (displayRoles.length === 0) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
                     
@@ -105,8 +105,8 @@ export function StaffManager() {
                       <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                         {displayRoles.map((r, i) => (
                           <span key={i} style={{
-                            backgroundColor: r === 'System Admin' ? '#FEE2E2' : r === 'Manager' ? '#FEF08A' : '#E0F2FE',
-                            color: r === 'System Admin' ? '#DC2626' : r === 'Manager' ? '#A16207' : '#0369A1',
+                            backgroundColor: r === 'System Admin' ? '#FEE2E2' : r === 'Scheduler' ? '#FEF08A' : '#E0F2FE',
+                            color: r === 'System Admin' ? '#DC2626' : r === 'Scheduler' ? '#A16207' : '#0369A1',
                             padding: '2px 8px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600
                           }}>
                             {r}
@@ -139,7 +139,7 @@ export function StaffManager() {
                 const dbRoles = editingUser.role ? editingUser.role.split(',').map((r: string) => r.trim()).filter(Boolean) : [];
                 const currentRoles = [...dbRoles];
                 if (editingUser.accessLevel === 'ADMIN') currentRoles.push('System Admin');
-                if (editingUser.accessLevel === 'MANAGER') currentRoles.push('Manager');
+                if (editingUser.accessLevel === 'MANAGER') currentRoles.push('Scheduler');
 
                 const needsAbbreviation = currentRoles.includes('Radiographer') || currentRoles.includes('Sonographer');
                 return (
@@ -147,7 +147,7 @@ export function StaffManager() {
                     <div>
                       <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Role & System Access</label>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                        {['Radiographer', 'Sonographer', 'Nurse', 'Doctor', 'Manager', 'System Admin'].map(roleOption => {
+                        {['Radiographer', 'Sonographer', 'Nurse', 'Doctor', 'Scheduler', 'System Admin'].map(roleOption => {
                           const isChecked = currentRoles.includes(roleOption);
                           return (
                             <label key={roleOption} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
@@ -164,9 +164,9 @@ export function StaffManager() {
                                   
                                   let newAccess = 'STAFF';
                                   if (newRolesList.includes('System Admin')) newAccess = 'ADMIN';
-                                  else if (newRolesList.includes('Manager')) newAccess = 'MANAGER';
+                                  else if (newRolesList.includes('Scheduler')) newAccess = 'MANAGER';
 
-                                  const dbRolesList = newRolesList.filter(r => r !== 'System Admin' && r !== 'Manager');
+                                  const dbRolesList = newRolesList.filter(r => r !== 'System Admin' && r !== 'Scheduler');
                                   const newRolesString = dbRolesList.join(', ');
                                   
                                   let newAbbr = editingUser.abbreviation;
@@ -179,8 +179,8 @@ export function StaffManager() {
                                 style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                               />
                               <span style={{ 
-                                color: roleOption === 'System Admin' ? 'var(--danger)' : roleOption === 'Manager' ? '#A16207' : 'inherit',
-                                fontWeight: (roleOption === 'System Admin' || roleOption === 'Manager') ? 600 : 400
+                                color: roleOption === 'System Admin' ? 'var(--danger)' : roleOption === 'Scheduler' ? '#A16207' : 'inherit',
+                                fontWeight: (roleOption === 'System Admin' || roleOption === 'Scheduler') ? 600 : 400
                               }}>
                                 {roleOption}
                               </span>
