@@ -81,7 +81,6 @@ export function StaffManager() {
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Email</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Modality</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Role</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Access Level</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
@@ -89,20 +88,33 @@ export function StaffManager() {
             {users.map(u => (
               <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
                 <td style={{ padding: '0.75rem 1rem' }}>
-                  <span style={{ backgroundColor: 'var(--background)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.875rem' }}>{u.abbreviation}</span>
+                  <span style={{ backgroundColor: 'var(--background)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.875rem' }}>{u.abbreviation || '-'}</span>
                 </td>
                 <td style={{ padding: '0.75rem 1rem' }}>{u.fullName || '-'}</td>
                 <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{u.email || '-'}</td>
                 <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{u.modality || '-'}</td>
-                <td style={{ padding: '0.75rem 1rem' }}>{u.role || '-'}</td>
                 <td style={{ padding: '0.75rem 1rem' }}>
-                  <span style={{ 
-                    backgroundColor: u.accessLevel === 'ADMIN' ? '#FEE2E2' : u.accessLevel === 'MANAGER' ? '#FEF08A' : '#E0F2FE',
-                    color: u.accessLevel === 'ADMIN' ? '#DC2626' : u.accessLevel === 'MANAGER' ? '#A16207' : '#0369A1',
-                    padding: '2px 8px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600
-                  }}>
-                    {u.accessLevel}
-                  </span>
+                  {(() => {
+                    const displayRoles = u.role ? u.role.split(',').map(r => r.trim()).filter(Boolean) : [];
+                    if (u.accessLevel === 'ADMIN') displayRoles.push('System Admin');
+                    if (u.accessLevel === 'MANAGER') displayRoles.push('Manager');
+                    
+                    if (displayRoles.length === 0) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
+                    
+                    return (
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                        {displayRoles.map((r, i) => (
+                          <span key={i} style={{
+                            backgroundColor: r === 'System Admin' ? '#FEE2E2' : r === 'Manager' ? '#FEF08A' : '#E0F2FE',
+                            color: r === 'System Admin' ? '#DC2626' : r === 'Manager' ? '#A16207' : '#0369A1',
+                            padding: '2px 8px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600
+                          }}>
+                            {r}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </td>
                 <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                   <button onClick={() => { setEditingUser(u); setIsCreating(false); }} style={{ padding: '0.4rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }}><Pencil size={16} /></button>
