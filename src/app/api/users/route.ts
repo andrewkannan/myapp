@@ -26,6 +26,8 @@ export async function POST(request: Request) {
     if (!session || !['ADMIN', 'MANAGER'].includes(session.accessLevel)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
     const data = await request.json();
+    if (data.abbreviation === '') data.abbreviation = null;
+
     const newUser = await prisma.user.create({ data });
     
     await prisma.auditLog.create({
@@ -49,6 +51,8 @@ export async function PATCH(request: Request) {
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
     const data = await request.json();
+    if (data.abbreviation === '') data.abbreviation = null;
+
     const updated = await prisma.user.update({ where: { id }, data });
     
     await prisma.auditLog.create({

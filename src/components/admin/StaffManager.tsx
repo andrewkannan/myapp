@@ -123,14 +123,62 @@ export function StaffManager() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Abbreviation</label>
-                <input 
-                  type="text" value={editingUser.abbreviation || ''} 
-                  onChange={e => setEditingUser({ ...editingUser, abbreviation: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
-                />
-              </div>
+              {(() => {
+                const currentRoles = editingUser.role ? editingUser.role.split(',').map((r: string) => r.trim()).filter(Boolean) : [];
+                const needsAbbreviation = currentRoles.includes('Radiographer') || currentRoles.includes('Sonographer');
+                return (
+                  <>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Role</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                        {['Radiographer', 'Sonographer', 'Nurse', 'Doctor', 'Admin Support'].map(roleOption => {
+                          const isChecked = currentRoles.includes(roleOption);
+                          return (
+                            <label key={roleOption} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    if (!currentRoles.includes(roleOption)) currentRoles.push(roleOption);
+                                  } else {
+                                    const idx = currentRoles.indexOf(roleOption);
+                                    if (idx > -1) currentRoles.splice(idx, 1);
+                                  }
+                                  
+                                  const newRoles = currentRoles.join(', ');
+                                  let newAbbr = editingUser.abbreviation;
+                                  
+                                  // Clear abbreviation if neither Radiographer nor Sonographer is selected
+                                  if (!currentRoles.includes('Radiographer') && !currentRoles.includes('Sonographer')) {
+                                    newAbbr = '';
+                                  }
+                                  
+                                  setEditingUser({ ...editingUser, role: newRoles, abbreviation: newAbbr });
+                                }}
+                                style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                              />
+                              {roleOption}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    {needsAbbreviation && (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Abbreviation (Required)</label>
+                        <input 
+                          type="text" value={editingUser.abbreviation || ''} 
+                          onChange={e => setEditingUser({ ...editingUser, abbreviation: e.target.value })}
+                          style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                        />
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+              
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Full Name</label>
                 <input 
@@ -174,14 +222,6 @@ export function StaffManager() {
                     );
                   })}
                 </div>
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Role</label>
-                <input 
-                  type="text" value={editingUser.role || ''} 
-                  onChange={e => setEditingUser({ ...editingUser, role: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
-                />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Access Level</label>
