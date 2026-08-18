@@ -13,6 +13,8 @@ model User {
   role         String?
   password     String     @default("password123")
   accessLevel  String     @default("STAFF")
+  email        String?
+  modality     String?
   auditLogs    AuditLog[]
   shifts       Shift[]
 }

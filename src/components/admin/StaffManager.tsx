@@ -78,6 +78,8 @@ export function StaffManager() {
             <tr>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Abbr</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Full Name</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Email</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Modality</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Role</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Access Level</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Actions</th>
@@ -90,6 +92,8 @@ export function StaffManager() {
                   <span style={{ backgroundColor: 'var(--background)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.875rem' }}>{u.abbreviation}</span>
                 </td>
                 <td style={{ padding: '0.75rem 1rem' }}>{u.fullName || '-'}</td>
+                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{u.email || '-'}</td>
+                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{u.modality || '-'}</td>
                 <td style={{ padding: '0.75rem 1rem' }}>{u.role || '-'}</td>
                 <td style={{ padding: '0.75rem 1rem' }}>
                   <span style={{ 
@@ -112,7 +116,7 @@ export function StaffManager() {
 
       {editingUser && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', width: '400px', maxWidth: '90%' }}>
+          <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', width: '400px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>{isCreating ? 'Add Staff' : 'Edit Staff'}</h3>
               <button onClick={() => { setEditingUser(null); setIsCreating(false); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
@@ -122,7 +126,7 @@ export function StaffManager() {
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Abbreviation</label>
                 <input 
-                  type="text" value={editingUser.abbreviation} 
+                  type="text" value={editingUser.abbreviation || ''} 
                   onChange={e => setEditingUser({ ...editingUser, abbreviation: e.target.value })}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
                 />
@@ -130,15 +134,42 @@ export function StaffManager() {
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Full Name</label>
                 <input 
-                  type="text" value={editingUser.fullName} 
+                  type="text" value={editingUser.fullName || ''} 
                   onChange={e => setEditingUser({ ...editingUser, fullName: e.target.value })}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
                 />
               </div>
               <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Email Address</label>
+                <input 
+                  type="email" value={editingUser.email || ''} 
+                  onChange={e => setEditingUser({ ...editingUser, email: e.target.value })}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Modality</label>
+                <input 
+                  type="text" value={editingUser.modality || ''} 
+                  list="modality-list"
+                  onChange={e => setEditingUser({ ...editingUser, modality: e.target.value })}
+                  placeholder="e.g., MRI, CT, US"
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                />
+                <datalist id="modality-list">
+                  <option value="MRI" />
+                  <option value="CT" />
+                  <option value="US" />
+                  <option value="X-Ray" />
+                  <option value="PET/CT" />
+                  <option value="Mammo" />
+                  <option value="Mammo, US, X-Ray" />
+                </datalist>
+              </div>
+              <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Role</label>
                 <input 
-                  type="text" value={editingUser.role} 
+                  type="text" value={editingUser.role || ''} 
                   onChange={e => setEditingUser({ ...editingUser, role: e.target.value })}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
                 />
@@ -146,7 +177,7 @@ export function StaffManager() {
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Access Level</label>
                 <select 
-                  value={editingUser.accessLevel} 
+                  value={editingUser.accessLevel || 'STAFF'} 
                   onChange={e => setEditingUser({ ...editingUser, accessLevel: e.target.value })}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
                 >
