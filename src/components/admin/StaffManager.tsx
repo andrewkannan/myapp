@@ -124,14 +124,18 @@ export function StaffManager() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {(() => {
-                const currentRoles = editingUser.role ? editingUser.role.split(',').map((r: string) => r.trim()).filter(Boolean) : [];
+                const dbRoles = editingUser.role ? editingUser.role.split(',').map((r: string) => r.trim()).filter(Boolean) : [];
+                const currentRoles = [...dbRoles];
+                if (editingUser.accessLevel === 'ADMIN') currentRoles.push('System Admin');
+                if (editingUser.accessLevel === 'MANAGER') currentRoles.push('Manager');
+
                 const needsAbbreviation = currentRoles.includes('Radiographer') || currentRoles.includes('Sonographer');
                 return (
                   <>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Role</label>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Role & System Access</label>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                        {['Radiographer', 'Sonographer', 'Nurse', 'Doctor', 'Admin Support'].map(roleOption => {
+                        {['Radiographer', 'Sonographer', 'Nurse', 'Doctor', 'Manager', 'System Admin'].map(roleOption => {
                           const isChecked = currentRoles.includes(roleOption);
                           return (
                             <label key={roleOption} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
@@ -139,26 +143,35 @@ export function StaffManager() {
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={(e) => {
+                                  let newRolesList = [...currentRoles];
                                   if (e.target.checked) {
-                                    if (!currentRoles.includes(roleOption)) currentRoles.push(roleOption);
+                                    if (!newRolesList.includes(roleOption)) newRolesList.push(roleOption);
                                   } else {
-                                    const idx = currentRoles.indexOf(roleOption);
-                                    if (idx > -1) currentRoles.splice(idx, 1);
+                                    newRolesList = newRolesList.filter(r => r !== roleOption);
                                   }
                                   
-                                  const newRoles = currentRoles.join(', ');
-                                  let newAbbr = editingUser.abbreviation;
+                                  let newAccess = 'STAFF';
+                                  if (newRolesList.includes('System Admin')) newAccess = 'ADMIN';
+                                  else if (newRolesList.includes('Manager')) newAccess = 'MANAGER';
+
+                                  const dbRolesList = newRolesList.filter(r => r !== 'System Admin' && r !== 'Manager');
+                                  const newRolesString = dbRolesList.join(', ');
                                   
-                                  // Clear abbreviation if neither Radiographer nor Sonographer is selected
-                                  if (!currentRoles.includes('Radiographer') && !currentRoles.includes('Sonographer')) {
+                                  let newAbbr = editingUser.abbreviation;
+                                  if (!newRolesList.includes('Radiographer') && !newRolesList.includes('Sonographer')) {
                                     newAbbr = '';
                                   }
                                   
-                                  setEditingUser({ ...editingUser, role: newRoles, abbreviation: newAbbr });
+                                  setEditingUser({ ...editingUser, role: newRolesString, accessLevel: newAccess, abbreviation: newAbbr });
                                 }}
                                 style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                               />
-                              {roleOption}
+                              <span style={{ 
+                                color: roleOption === 'System Admin' ? 'var(--danger)' : roleOption === 'Manager' ? '#A16207' : 'inherit',
+                                fontWeight: (roleOption === 'System Admin' || roleOption === 'Manager') ? 600 : 400
+                              }}>
+                                {roleOption}
+                              </span>
                             </label>
                           );
                         })}
@@ -223,19 +236,6 @@ export function StaffManager() {
                   })}
                 </div>
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Access Level</label>
-                <select 
-                  value={editingUser.accessLevel || 'STAFF'} 
-                  onChange={e => setEditingUser({ ...editingUser, accessLevel: e.target.value })}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
-                >
-                  <option value="STAFF">STAFF</option>
-                  <option value="MANAGER">MANAGER</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-              </div>
-              
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
                 <button onClick={() => { setEditingUser(null); setIsCreating(false); }} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={() => handleSave(editingUser)} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: 'white', cursor: 'pointer', fontWeight: 500 }}>Save User</button>
