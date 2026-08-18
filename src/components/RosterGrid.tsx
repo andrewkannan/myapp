@@ -143,10 +143,10 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="roster-scroll" style={{ flex: 1, overflow: 'auto' }}>
-        <table id="roster-table" style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed', fontSize: '0.65rem' }}>
+        <table id="roster-table" style={{ borderCollapse: 'collapse', width: '100%', minWidth: '1200px', fontSize: '0.65rem' }}>
           <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--header-bg)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             <tr>
-              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px 3px', width: '52px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20, fontSize: '0.6rem', fontWeight: 700 }}>
+              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px 3px', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20, fontSize: '0.65rem', fontWeight: 700 }}>
                 Date
               </th>
               {stationsByLocation.map(loc => {
@@ -249,14 +249,14 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
 
               const dateCell = (
                 <td style={{ 
-                  border: '1px solid var(--border)', padding: '1px 2px', textAlign: 'center', 
+                  border: '1px solid var(--border)', padding: '2px 4px', textAlign: 'left', 
                   fontWeight: 700,
                   color: isPH ? '#cc0000' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
                   position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
-                  width: '52px', lineHeight: 1.1,
+                  width: '60px', whiteSpace: 'nowrap'
                 }}>
-                  <div style={{ fontSize: '0.55rem', textTransform: 'uppercase', opacity: 0.7 }}>{date.toLocaleDateString('default', { weekday: 'short' })}</div>
-                  <div style={{ fontSize: '0.78rem', fontWeight: 800 }}>{date.getDate()}</div>
+                  <span style={{ fontSize: '0.6rem', textTransform: 'capitalize', display: 'inline-block', width: '22px' }}>{date.toLocaleDateString('default', { weekday: 'short' })}</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800 }}>{date.getDate()}</span>
                 </td>
               );
 
@@ -335,12 +335,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               key={shift.id}
                               title={shift.user.fullName || shift.user.abbreviation}
                               style={{
-                                display: 'inline-block',
+                                display: 'block',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
                                 color: isCancelled ? '#9CA3AF' : isFiltered ? '#1d4ed8' : '#111',
                                 textDecoration: isCancelled ? 'line-through' : 'none',
-                                marginRight: '2px',
                                 whiteSpace: 'nowrap',
                               }}
                             >
@@ -385,7 +384,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 fontWeight: 700,
                                 color: isCancelled ? '#9CA3AF' : isFiltered ? '#1d4ed8' : '#111',
                                 textDecoration: isCancelled ? 'line-through' : 'none',
-                                marginRight: '2px',
+                                marginRight: '4px',
                                 whiteSpace: 'nowrap',
                               }}
                             >
