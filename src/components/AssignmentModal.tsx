@@ -42,6 +42,61 @@ function getUserColor(abbreviation: string) {
   };
 }
 
+function InlineRemarkEditor({ shift, onUpdate }: { shift: Shift, onUpdate: (id: string, val: string) => void }) {
+  const [val, setVal] = useState(shift.remarks || '');
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <input
+        type="text"
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => {
+          setTimeout(() => {
+            setIsFocused(false);
+            if (val !== (shift.remarks || '')) {
+              onUpdate(shift.id, val);
+            }
+          }, 150);
+        }}
+        onKeyDown={e => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+        }}
+        placeholder="+ remark"
+        style={{
+          fontSize: '0.65rem', padding: '2px 6px', width: '130px',
+          border: isFocused ? '1px solid var(--primary)' : '1px solid transparent',
+          borderRadius: '4px',
+          backgroundColor: isFocused ? 'var(--surface)' : 'rgba(0,0,0,0.04)', 
+          color: 'var(--text-muted)',
+          outline: 'none', fontStyle: val ? 'italic' : 'normal',
+          transition: 'all 0.15s'
+        }}
+        onMouseEnter={e => { if (!isFocused) e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.08)'; }}
+        onMouseLeave={e => { if (!isFocused) e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)'; }}
+      />
+      {isFocused && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '2px', backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', padding: '3px', display: 'flex', gap: '4px', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          {['ML', 'UL', 'AL'].map(quick => (
+            <button
+              key={quick}
+              onMouseDown={e => {
+                e.preventDefault(); // Prevents input from losing focus
+                setVal(v => v ? `${v} ${quick}` : quick);
+              }}
+              style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '2px', border: 'none', backgroundColor: '#EFF6FF', color: '#1d4ed8', cursor: 'pointer', fontWeight: 600 }}
+            >
+              {quick}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AssignmentModal({
   date, station, statusType, currentShifts, allShifts, users, onClose, onRefresh
 }: AssignmentModalProps) {
@@ -267,25 +322,7 @@ export default function AssignmentModal({
                                 Cancelled
                               </span>
                             )}
-                            <input
-                              type="text"
-                              defaultValue={shift.remarks || ''}
-                              onBlur={(e) => {
-                                if (e.target.value !== (shift.remarks || '')) {
-                                  handleUpdateRemark(shift.id, e.target.value);
-                                }
-                              }}
-                              placeholder="+ remark"
-                              list="remark-options"
-                              style={{
-                                fontSize: '0.65rem', padding: '2px 6px', width: '110px',
-                                border: '1px solid transparent', borderRadius: '4px',
-                                backgroundColor: 'rgba(0,0,0,0.04)', color: 'var(--text-muted)',
-                                outline: 'none', fontStyle: shift.remarks ? 'italic' : 'normal'
-                              }}
-                              onFocus={e => { e.target.style.backgroundColor = 'var(--surface)'; e.target.style.border = '1px solid var(--primary)'; }}
-                              onMouseLeave={e => { if (document.activeElement !== e.target) e.target.style.backgroundColor = 'rgba(0,0,0,0.04)'; }}
-                            />
+                            <InlineRemarkEditor shift={shift} onUpdate={handleUpdateRemark} />
                           </div>
                         </div>
                       </div>
