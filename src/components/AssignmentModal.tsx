@@ -275,7 +275,7 @@ export default function AssignmentModal({
           {currentShifts.length > 0 && (
             <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>
-                Currently Assigned
+                {statusType === 'Scheduled' ? 'Currently Assigned' : `Currently on ${statusType}`}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {currentShifts.map(shift => {
@@ -368,7 +368,7 @@ export default function AssignmentModal({
             {/* Mode toggle */}
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
-                Assignment Type
+                {statusType === 'Scheduled' ? 'Assignment Type' : 'Select Dates'}
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {(['single', 'range'] as Mode[]).map(m => (
@@ -421,7 +421,7 @@ export default function AssignmentModal({
             {/* Shift Period */}
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
-                Shift Period
+                {statusType === 'Scheduled' ? 'Shift Period' : 'Duration'}
               </div>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 {(Object.entries(PERIOD_LABELS) as [Period, typeof PERIOD_LABELS[Period]][]).map(([key, meta]) => (
@@ -457,7 +457,7 @@ export default function AssignmentModal({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.4rem' }}>
                 <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block' }}>
-                  Time / Remarks <span style={{ fontWeight: 400 }}>(optional)</span>
+                  {statusType === 'Scheduled' ? 'Time / Remarks' : 'Leave Type / Remarks'} <span style={{ fontWeight: 400 }}>(optional)</span>
                 </label>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   {['ML', 'UL', 'AL'].map(quick => (
