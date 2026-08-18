@@ -175,13 +175,15 @@ export async function PATCH(request: Request) {
     if (!id) return NextResponse.json({ error: 'Shift ID required' }, { status: 400 });
 
     const body = await request.json();
-    const { status, remarks } = body;
+    const { status, remarks, shiftPeriod, userId } = body;
 
     const updated = await prisma.shift.update({
       where: { id },
       data: {
         ...(status !== undefined ? { status } : {}),
         ...(remarks !== undefined ? { remarks } : {}),
+        ...(shiftPeriod !== undefined ? { shiftPeriod } : {}),
+        ...(userId !== undefined ? { userId } : {}),
       },
       include: { user: true, station: true }
     });

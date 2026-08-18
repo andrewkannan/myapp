@@ -213,12 +213,12 @@ export default function AssignmentModal({
     } finally { setLoading(false); }
   };
 
-  const handleUpdateRemark = async (shiftId: string, newRemarks: string) => {
+  const handleUpdateShift = async (shiftId: string, payload: Record<string, any>) => {
     try {
       await fetch(`/api/roster?id=${shiftId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ remarks: newRemarks })
+        body: JSON.stringify(payload)
       });
       onRefresh();
     } catch (e) {
@@ -303,21 +303,37 @@ export default function AssignmentModal({
                           {shift.user.abbreviation}
                         </div>
                         <div>
-                          <div style={{
-                            fontSize: '0.8rem', fontWeight: 600,
-                            textDecoration: isCancelled ? 'line-through' : 'none',
-                            color: isCancelled ? 'var(--text-muted)' : 'var(--foreground)',
-                          }}>
-                            {shift.user.fullName}
-                          </div>
+                          <select
+                            value={shift.userId}
+                            onChange={e => handleUpdateShift(shift.id, { userId: e.target.value })}
+                            disabled={isCancelled || loading}
+                            style={{
+                              fontSize: '0.8rem', fontWeight: 600,
+                              textDecoration: isCancelled ? 'line-through' : 'none',
+                              color: isCancelled ? 'var(--text-muted)' : 'var(--foreground)',
+                              backgroundColor: 'transparent', border: '1px solid transparent', outline: 'none', cursor: 'pointer', padding: '0 2px'
+                            }}
+                          >
+                            {users.map(u => (
+                              <option key={u.id} value={u.id}>{u.fullName || u.abbreviation}</option>
+                            ))}
+                          </select>
                           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '2px', alignItems: 'center' }}>
                             {!isCancelled ? (
-                              <span style={{
-                                fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px',
-                                borderRadius: '4px', backgroundColor: periodMeta.bg, color: periodMeta.color
-                              }}>
-                                {periodMeta.label}
-                              </span>
+                              <select
+                                value={shift.shiftPeriod || 'Full'}
+                                onChange={e => handleUpdateShift(shift.id, { shiftPeriod: e.target.value })}
+                                disabled={loading}
+                                style={{
+                                  fontSize: '0.65rem', fontWeight: 700, padding: '1px 2px',
+                                  borderRadius: '4px', backgroundColor: periodMeta.bg, color: periodMeta.color,
+                                  border: '1px solid transparent', outline: 'none', cursor: 'pointer'
+                                }}
+                              >
+                                {Object.entries(PERIOD_LABELS).map(([k, m]) => (
+                                  <option key={k} value={k}>{m.label}</option>
+                                ))}
+                              </select>
                             ) : (
                               <span style={{
                                 fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px',
@@ -326,7 +342,7 @@ export default function AssignmentModal({
                                 Cancelled
                               </span>
                             )}
-                            <InlineRemarkEditor shift={shift} onUpdate={handleUpdateRemark} />
+                            <InlineRemarkEditor shift={shift} onUpdate={(id, val) => handleUpdateShift(id, { remarks: val })} />
                           </div>
                         </div>
                       </div>
