@@ -21,6 +21,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    if (!user.isActive) {
+      return NextResponse.json({ error: 'Account has been deactivated' }, { status: 403 });
+    }
+
+    // Update lastLoginAt
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+
     // Calculate permissions based on user.role
     const roleNames = user.role ? user.role.split(',').map(r => r.trim()).filter(Boolean) : [];
     const systemRoles = await prisma.systemRole.findMany({

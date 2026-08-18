@@ -13,6 +13,10 @@ export type User = {
   fullName: string;
   role: string;
   permissions?: string[];
+  email?: string;
+  modality?: string;
+  isActive?: boolean;
+  lastLoginAt?: string | null;
 };
 
 export type Location = {

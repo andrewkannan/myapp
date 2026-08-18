@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const [locations, stations, users, shifts] = await Promise.all([
       prisma.location.findMany(),
       prisma.station.findMany(),
-      prisma.user.findMany({ orderBy: { abbreviation: 'asc' } }),
+      prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } }),
       prisma.shift.findMany({
         where: {
           date: {

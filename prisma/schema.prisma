@@ -14,6 +14,8 @@ model User {
   password     String     @default("password123")
   email        String?
   modality     String?
+  isActive     Boolean    @default(true)
+  lastLoginAt  DateTime?
   auditLogs    AuditLog[]
   shifts       Shift[]
 }

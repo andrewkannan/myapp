@@ -8,7 +8,7 @@ type DirectoryUser = {
   abbreviation: string;
   fullName: string | null;
   role: string | null;
-  accessLevel?: string;
+  isActive?: boolean;
 };
 
 interface StaffDirectoryProps {
@@ -26,13 +26,9 @@ function getUserColor(abbreviation: string) {
   };
 }
 
-const ACCESS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  ADMIN:   { label: 'Admin',   color: '#92400e', bg: '#FEF3C7' },
-  MANAGER: { label: 'Manager', color: '#1e40af', bg: '#DBEAFE' },
-  STAFF:   { label: 'Staff',   color: '#374151', bg: '#F3F4F6' },
-};
 
-type SortKey = 'abbreviation' | 'fullName' | 'accessLevel';
+
+type SortKey = 'abbreviation' | 'fullName' | 'role';
 
 export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) {
   const [search, setSearch] = useState('');
@@ -42,6 +38,7 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return users
+      .filter(u => u.isActive !== false) // Filter inactive users here just to be safe
       .filter(u =>
         !q ||
         u.abbreviation.toLowerCase().includes(q) ||
@@ -68,9 +65,11 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
   };
 
   // Summary counts
-  const counts = users.reduce((acc, u) => {
-    const level = u.accessLevel || 'STAFF';
-    acc[level] = (acc[level] || 0) + 1;
+  const counts = users.filter(u => u.isActive !== false).reduce((acc, u) => {
+    const rs = u.role ? u.role.split(',').map(r => r.trim()).filter(Boolean) : ['Unassigned'];
+    for (const r of rs) {
+      acc[r] = (acc[r] || 0) + 1;
+    }
     return acc;
   }, {} as Record<string, number>);
 
@@ -166,7 +165,7 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
         {/* Table header */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '68px 1fr 1fr 80px',
+          gridTemplateColumns: '68px 1.5fr 1.5fr',
           gap: 0,
           padding: '0.5rem 1.25rem',
           borderBottom: '1px solid var(--border)',
@@ -176,7 +175,7 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
           {([
             { key: 'abbreviation', label: 'Code' },
             { key: 'fullName',     label: 'Full Name' },
-            { key: 'accessLevel',  label: 'Role' },
+            { key: 'role',         label: 'Roles' },
           ] as { key: SortKey; label: string }[]).map(col => (
             <button key={col.key} onClick={() => toggleSort(col.key)} style={{
               display: 'flex', alignItems: 'center', gap: '3px',
@@ -199,13 +198,12 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
           ) : (
             filtered.map((user, idx) => {
               const uc = getUserColor(user.abbreviation);
-              const meta = ACCESS_LABELS[user.accessLevel || 'STAFF'] || ACCESS_LABELS.STAFF;
               return (
                 <div
                   key={user.id}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '68px 1fr 1fr 80px',
+                    gridTemplateColumns: '68px 1.5fr 1.5fr',
                     alignItems: 'center',
                     gap: 0,
                     padding: '0.65rem 1.25rem',
@@ -240,18 +238,13 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
 
                   {/* Role/dept */}
                   <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', paddingRight: '0.5rem' }}>
-                    {user.role || '—'}
-                  </div>
-
-                  {/* Access level badge */}
-                  <div>
-                    <span style={{
-                      fontSize: '0.65rem', fontWeight: 700,
-                      padding: '2px 7px', borderRadius: '4px',
-                      backgroundColor: meta.bg, color: meta.color,
-                    }}>
-                      {meta.label}
-                    </span>
+                    {user.role ? (
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                        {user.role.split(',').map(r => r.trim()).filter(Boolean).map((r, i) => (
+                          <span key={i} style={{ backgroundColor: r === 'System Admin' ? '#FEE2E2' : r === 'Scheduler' ? '#FEF08A' : '#E0F2FE', color: r === 'System Admin' ? '#DC2626' : r === 'Scheduler' ? '#A16207' : '#0369A1', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600 }}>{r}</span>
+                        ))}
+                      </div>
+                    ) : '—'}
                   </div>
                 </div>
               );
