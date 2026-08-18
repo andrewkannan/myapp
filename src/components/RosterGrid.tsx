@@ -9,7 +9,7 @@ interface RosterGridProps {
   year: number;
   month: number;
   currentUser: User;
-  filterUserId: string;
+  filterUserIds: string[];
   onRefresh: () => void;
 }
 
@@ -84,7 +84,7 @@ function getUserColor(abbreviation: string): { bg: string; text: string; border:
   };
 }
 
-export default function RosterGrid({ data, year, month, currentUser, filterUserId, onRefresh }: RosterGridProps) {
+export default function RosterGrid({ data, year, month, currentUser, filterUserIds, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
 
@@ -320,15 +320,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           textAlign: 'center', lineHeight: 1.1,
                           cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
-                          backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor
+                          backgroundColor: shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : baseColor
                         }}
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : baseColor }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : baseColor }}
                       >
                         {/* Plain text cell — Excel style */}
                         {shifts.map(shift => {
                           const isCancelled = shift.status === 'Cancelled';
-                          const isFiltered = filterUserId && shift.userId === filterUserId;
+                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
                           const period = shift.shiftPeriod;
                           return (
                             <span
@@ -365,15 +365,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           textAlign: 'left', lineHeight: 1.1,
                           cursor: (currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
-                          backgroundColor: shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
+                          backgroundColor: shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
                         onMouseOver={(e) => { if(currentUser.accessLevel === 'MANAGER' || currentUser.accessLevel === 'ADMIN') e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => s.userId === filterUserId) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
                         {/* Plain text absence cell — Excel style */}
                         {shifts.map(shift => {
                           const isCancelled = shift.status === 'Cancelled';
-                          const isFiltered = filterUserId && shift.userId === filterUserId;
+                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
                           return (
                             <span
                               key={shift.id}
