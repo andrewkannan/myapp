@@ -74,8 +74,8 @@ export default function Home() {
     checkAuth();
   }, [router]);
 
-  const fetchRoster = async (y: number, m: number) => {
-    setLoading(true);
+  const fetchRoster = async (y: number, m: number, isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch(`/api/roster?year=${y}&month=${m}`);
       if (res.ok) {
@@ -85,7 +85,7 @@ export default function Home() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 
@@ -219,7 +219,7 @@ export default function Home() {
             month={month} 
             currentUser={currentUser}
             filterUserId={filterUserId}
-            onRefresh={() => fetchRoster(year, month)}
+            onRefresh={() => fetchRoster(year, month, true)}
           />
         ) : (
           <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
