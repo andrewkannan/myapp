@@ -87,8 +87,16 @@ input, select {
   body > * { display: none !important; }
   main { display: block !important; }
   header { display: none !important; }
-  section { display: block !important; overflow: visible !important; height: auto !important; }
-  .roster-scroll { overflow: visible !important; height: auto !important; }
+  /* Make wrappers take full width in print */
+  html, body, main, section, .roster-scroll, .roster-scroll-parent {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    display: block !important;
+  }
 
   /* Preserve background colours when printing */
   * {
@@ -103,9 +111,28 @@ input, select {
   /* Make table fill the page */
   #roster-table {
     width: 100% !important;
-    font-size: 7pt !important;
+    min-width: 100% !important;
     border-collapse: collapse !important;
+    table-layout: fixed !important;
     page-break-inside: auto;
+  }
+
+  /* Force font sizes to scale up for print, overriding inline styles */
+  #roster-table th,
+  #roster-table td,
+  #roster-table span,
+  #roster-table div {
+    font-size: 8.5pt !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  #roster-table td > span > div {
+    font-size: 7pt !important;
+  }
+
+  #roster-table sup {
+    font-size: 6pt !important;
   }
 
   #roster-table tr { page-break-inside: avoid; }

@@ -141,7 +141,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   });
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="roster-scroll-parent" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="roster-scroll" style={{ flex: 1, overflow: 'auto' }}>
         <table id="roster-table" style={{ borderCollapse: 'collapse', width: '100%', minWidth: '1200px', fontSize: '0.65rem' }}>
           <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--header-bg)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
