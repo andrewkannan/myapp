@@ -148,23 +148,32 @@ export function StaffManager() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Modality</label>
-                <input 
-                  type="text" value={editingUser.modality || ''} 
-                  list="modality-list"
-                  onChange={e => setEditingUser({ ...editingUser, modality: e.target.value })}
-                  placeholder="e.g., MRI, CT, US"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}
-                />
-                <datalist id="modality-list">
-                  <option value="MRI" />
-                  <option value="CT" />
-                  <option value="US" />
-                  <option value="X-Ray" />
-                  <option value="PET/CT" />
-                  <option value="Mammo" />
-                  <option value="Mammo, US, X-Ray" />
-                </datalist>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Modality</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                  {['MRI', 'CT', 'US', 'X-Ray', 'PET/CT', 'Mammo'].map(mod => {
+                    const currentMods = editingUser.modality ? editingUser.modality.split(',').map((m: string) => m.trim()).filter(Boolean) : [];
+                    const isChecked = currentMods.includes(mod);
+                    return (
+                      <label key={mod} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (!currentMods.includes(mod)) currentMods.push(mod);
+                            } else {
+                              const idx = currentMods.indexOf(mod);
+                              if (idx > -1) currentMods.splice(idx, 1);
+                            }
+                            setEditingUser({ ...editingUser, modality: currentMods.join(', ') });
+                          }}
+                          style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                        />
+                        {mod}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>Role</label>
