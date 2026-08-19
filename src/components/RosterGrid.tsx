@@ -303,6 +303,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 );
               }
 
+              return (
                 <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
                   {dateCell}
                   
