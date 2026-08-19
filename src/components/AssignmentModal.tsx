@@ -101,12 +101,39 @@ function InlineRemarkEditor({ shift, onUpdate }: { shift: Shift, onUpdate: (id: 
   );
 }
 
+function getRequiredModalities(stationName: string): string[] {
+  const req: string[] = [];
+  const upper = stationName.toUpperCase();
+  if (upper.includes('MR')) req.push('MRI');
+  if (upper.includes('CT')) req.push('CT');
+  if (upper.includes('US')) req.push('US');
+  if (upper.includes('XR') || upper.includes('X-RAY')) req.push('X-Ray');
+  if (upper.includes('MAM')) req.push('Mammo');
+  if (upper.includes('PET')) req.push('PET/CT');
+  if (upper.includes('BMD')) req.push('BMD');
+  return req;
+}
+
 export default function AssignmentModal({
   date, station, statusType, currentShifts, allShifts, users, onClose, onRefresh
 }: AssignmentModalProps) {
   const [mode, setMode] = useState<Mode>('single');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [period, setPeriod] = useState<Period>('Full');
+  
+  const eligibleUsers = useMemo(() => {
+    if (!station) return users;
+    const required = getRequiredModalities(station.name);
+    if (required.length === 0) return users;
+    
+    return users.filter(u => {
+      if (u.role?.toLowerCase().includes('admin')) return true;
+      if (!u.modality) return false;
+      const userMods = u.modality.split(',').map(s => s.trim());
+      return required.some(r => userMods.includes(r));
+    });
+  }, [station, users]);
+
   const [remarks, setRemarks] = useState('');
   const [dateFrom, setDateFrom] = useState(toInputDate(date));
   const [dateTo, setDateTo]   = useState(toInputDate(date));
@@ -462,7 +489,7 @@ export default function AssignmentModal({
                 Select Staff {selectedUserIds.length > 0 && <span style={{ color: 'var(--primary)' }}>({selectedUserIds.length} selected)</span>}
               </div>
               <StaffPicker
-                users={users}
+                users={eligibleUsers}
                 selectedIds={selectedUserIds}
                 conflictUserIds={conflictUserIds}
                 onToggle={toggleUser}

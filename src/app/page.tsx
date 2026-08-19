@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
@@ -70,9 +70,25 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   
   const [filterUserIds, setFilterUserIds] = useState<string[]>([]);
+  const [modalityFilter, setModalityFilter] = useState<string>('All');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
   const [directoryOpen, setDirectoryOpen] = useState(false);
+
+  const effectiveFilterIds = useMemo(() => {
+    let ids = new Set<string>();
+    if (filterUserIds.length > 0) {
+      filterUserIds.forEach(id => ids.add(id));
+    }
+    if (modalityFilter !== 'All' && data) {
+      data.users.forEach(u => {
+        if (u.modality && u.modality.includes(modalityFilter)) {
+          ids.add(u.id);
+        }
+      });
+    }
+    return Array.from(ids);
+  }, [filterUserIds, modalityFilter, data]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1; // 1-12
@@ -100,18 +116,17 @@ export default function Home() {
     checkAuth();
   }, [router]);
 
-  const fetchRoster = async (y: number, m: number, isBackground = false) => {
-    if (!isBackground) setLoading(true);
+  const fetchRoster = async (y: number, m: number, force = false) => {
     try {
+      if (force) setLoading(true);
       const res = await fetch(`/api/roster?year=${y}&month=${m}`);
-      if (res.ok) {
-        const json = await res.json();
-        setData(json);
-      }
+      if (!res.ok) throw new Error('Failed to load roster');
+      const json = await res.json();
+      setData(json);
     } catch (err) {
       console.error(err);
     } finally {
-      if (!isBackground) setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -120,9 +135,6 @@ export default function Home() {
       fetchRoster(year, month);
     }
   }, [year, month, currentUser]);
-
-  const handlePrevMonth = () => setCurrentDate(new Date(year, month - 2, 1));
-  const handleNextMonth = () => setCurrentDate(new Date(year, month, 1));
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -151,7 +163,7 @@ export default function Home() {
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button 
-              onClick={handlePrevMonth}
+              onClick={() => setCurrentDate(new Date(year, month - 2, 1))}
               style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center' }}
             >
               <ChevronLeft size={18} />
@@ -160,37 +172,55 @@ export default function Home() {
               {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
             </h2>
             <button 
-              onClick={handleNextMonth}
+              onClick={() => setCurrentDate(new Date(year, month, 1))}
               style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center' }}
             >
               <ChevronRight size={18} />
             </button>
           </div>
           
-          {/* Filter Dropdown */}
+          {/* Filters */}
           {data && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '350px' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Filter:</span>
-              <div style={{ flex: 1, zIndex: 50 }}>
-                <Select
-                  isMulti
-                  options={data.users.map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
-                  value={data.users
-                    .filter(u => filterUserIds.includes(u.id))
-                    .map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
-                  onChange={(selected) => setFilterUserIds(selected.map(s => s.value))}
-                  placeholder="Select staff..."
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      fontSize: '0.875rem',
-                      borderColor: 'var(--border)',
-                      minHeight: '38px',
-                      borderRadius: '6px'
-                    }),
-                    menu: (base) => ({ ...base, fontSize: '0.875rem', zIndex: 100 })
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Modality:</span>
+                <select 
+                  value={modalityFilter}
+                  onChange={e => setModalityFilter(e.target.value)}
+                  style={{ 
+                    padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)', 
+                    fontSize: '0.875rem', outline: 'none', backgroundColor: 'var(--surface)' 
                   }}
-                />
+                >
+                  <option value="All">All Modalities</option>
+                  {['MRI', 'CT', 'US', 'X-Ray', 'PET/CT', 'Mammo', 'BMD'].map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '350px' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Staff Filter:</span>
+                <div style={{ flex: 1, zIndex: 50 }}>
+                  <Select
+                    isMulti
+                    options={data.users.map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
+                    value={data.users
+                      .filter(u => filterUserIds.includes(u.id))
+                      .map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
+                    onChange={(selected) => setFilterUserIds(selected.map(s => s.value))}
+                    placeholder="Select staff..."
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        fontSize: '0.875rem',
+                        borderColor: 'var(--border)',
+                        minHeight: '38px',
+                        borderRadius: '6px'
+                      }),
+                      menu: (base) => ({ ...base, fontSize: '0.875rem', zIndex: 100 })
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -309,7 +339,7 @@ export default function Home() {
             year={year} 
             month={month} 
             currentUser={currentUser}
-            filterUserIds={filterUserIds}
+            filterUserIds={effectiveFilterIds}
             onRefresh={() => fetchRoster(year, month, true)}
           />
         ) : (
