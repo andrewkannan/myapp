@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     });
 
     await prisma.auditLog.create({
-      data: { userId: session.id, action: 'CREATE_LEAVE', details: \Requested \ days of \\ }
+      data: { userId: session.id, action: 'CREATE_LEAVE', details: `Requested ${created.count} days of ${type}` }
     });
 
     return NextResponse.json({ success: true, count: created.count });
