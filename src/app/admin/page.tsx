@@ -124,11 +124,11 @@ export default function AdminDashboard() {
 
         {/* Content Area */}
         <section style={{ flex: 1, padding: '2rem', overflowY: 'auto', backgroundColor: 'var(--background)' }}>
-          {activeTab === 'staff' && <StaffManager currentUser={currentUser} />}
+          {activeTab === 'staff' && <StaffManager />}
           {activeTab === 'leaves' && <MasterLeaveViewer />}
-          {activeTab === 'facilities' && <FacilityManager currentUser={currentUser} />}
-          {activeTab === 'lists' && <SystemListManager currentUser={currentUser} />}
-          {activeTab === 'logs' && <AuditViewer currentUser={currentUser} />}
+          {activeTab === 'facilities' && <FacilityManager />}
+          {activeTab === 'lists' && <SystemListManager />}
+          {activeTab === 'logs' && <AuditViewer />}
         </section>
       </div>
     </main>
