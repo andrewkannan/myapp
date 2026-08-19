@@ -1,32 +1,35 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 
 export function TimeOffManager() {
   const [records, setRecords] = useState<any[]>([]);
-  const [filter, setFilter] = useState('PENDING'); // PENDING or ALL
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'PENDING' | 'ALL'>('PENDING');
 
   useEffect(() => {
     fetchRecords();
   }, [filter]);
 
   const fetchRecords = async () => {
-    const res = await fetch('/api/time-off/admin');
+    setLoading(true);
+    const res = await fetch(`/api/time-off/admin${filter === 'PENDING' ? '' : '?all=true'}`);
     if (res.ok) {
       const data = await res.json();
-      if (filter === 'PENDING') {
-        setRecords(data.filter((r: any) => r.status === 'PENDING'));
-      } else {
-        setRecords(data);
-      }
+      setRecords(data);
     }
+    setLoading(false);
   };
 
   const handleAction = async (id: string, status: 'APPROVED' | 'REJECTED') => {
+    if (!confirm(`Are you sure you want to ${status.toLowerCase()} this request?`)) return;
+    
     const res = await fetch('/api/time-off/admin', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status })
     });
+
     if (res.ok) {
       fetchRecords();
     } else {
@@ -35,55 +38,73 @@ export function TimeOffManager() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 className="text-xl font-bold">Time-Off & Overtime Approvals</h2>
-          <p className="text-sm text-gray-500">Review and approve staff time-off claims and logged overtime.</p>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.25rem 0' }}>Time-Off & Overtime Approvals</h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>Review and approve staff time-off claims and logged overtime.</p>
         </div>
-        <div className="space-x-2">
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button 
-            className={`px-4 py-2 rounded-md border text-sm font-semibold ${filter === 'PENDING' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`} 
+            style={{ 
+              padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, border: '1px solid var(--border)', cursor: 'pointer',
+              backgroundColor: filter === 'PENDING' ? 'var(--primary)' : 'var(--surface)',
+              color: filter === 'PENDING' ? 'white' : 'var(--text)'
+            }}
             onClick={() => setFilter('PENDING')}>Pending</button>
           <button 
-            className={`px-4 py-2 rounded-md border text-sm font-semibold ${filter === 'ALL' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`} 
+            style={{ 
+              padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, border: '1px solid var(--border)', cursor: 'pointer',
+              backgroundColor: filter === 'ALL' ? 'var(--primary)' : 'var(--surface)',
+              color: filter === 'ALL' ? 'white' : 'var(--text)'
+            }}
             onClick={() => setFilter('ALL')}>All Records</button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow border overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div style={{ backgroundColor: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', overflowX: 'auto' }}>
+        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead>
-            <tr className="bg-gray-50 border-b">
-              <th className="p-3 text-xs font-semibold text-gray-600">STAFF</th>
-              <th className="p-3 text-xs font-semibold text-gray-600">DATE</th>
-              <th className="p-3 text-xs font-semibold text-gray-600">REASON</th>
-              <th className="p-3 text-xs font-semibold text-gray-600">TIME</th>
-              <th className="p-3 text-xs font-semibold text-gray-600 text-right">HOURS</th>
-              <th className="p-3 text-xs font-semibold text-gray-600">STATUS</th>
-              <th className="p-3 text-xs font-semibold text-gray-600 text-right">ACTION</th>
+            <tr style={{ backgroundColor: 'var(--background)', borderBottom: '1px solid var(--border)' }}>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>STAFF</th>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>DATE</th>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>REASON</th>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>TIME</th>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textAlign: 'right' }}>HOURS</th>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>STATUS</th>
+              <th style={{ padding: '0.75rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textAlign: 'right' }}>ACTION</th>
             </tr>
           </thead>
           <tbody>
             {records.map(r => (
-              <tr key={r.id} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="p-3 font-semibold text-sm">{r.user?.fullName || r.user?.abbreviation}</td>
-                <td className="p-3 text-sm">{new Date(r.date).toLocaleDateString('en-GB')}</td>
-                <td className="p-3 text-sm">{r.reason} {r.studyAccNo && <span className="text-gray-400 text-xs ml-2">#{r.studyAccNo}</span>}</td>
-                <td className="p-3 text-sm text-gray-500">{r.startTime && r.endTime ? `${r.startTime} - ${r.endTime}` : '-'}</td>
-                <td className={`p-3 text-sm text-right font-bold ${r.hours < 0 ? 'text-red-600' : 'text-green-600'}`}>
+              <tr key={r.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td style={{ padding: '0.75rem', fontSize: '0.875rem', fontWeight: 600 }}>{r.user?.fullName || r.user?.abbreviation}</td>
+                <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>{new Date(r.date).toLocaleDateString('en-GB')}</td>
+                <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>
+                  {r.reason} {r.studyAccNo && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>#{r.studyAccNo}</span>}
+                </td>
+                <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{r.startTime && r.endTime ? `${r.startTime} - ${r.endTime}` : '-'}</td>
+                <td style={{ padding: '0.75rem', fontSize: '0.875rem', textAlign: 'right', fontWeight: 'bold', color: r.hours < 0 ? 'var(--danger)' : 'var(--success)' }}>
                   {r.hours > 0 ? '+' : ''}{r.hours} HRS
                 </td>
-                <td className="p-3">
-                  <span className={`px-2 py-1 text-xs rounded-full ${r.status === 'APPROVED' ? 'bg-green-100 text-green-800' : r.status === 'REJECTED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                <td style={{ padding: '0.75rem' }}>
+                  <span style={{ 
+                    padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '9999px',
+                    backgroundColor: r.status === 'APPROVED' ? '#dcfce7' : r.status === 'REJECTED' ? '#fee2e2' : '#fef9c3',
+                    color: r.status === 'APPROVED' ? '#166534' : r.status === 'REJECTED' ? '#991b1b' : '#854d0e'
+                  }}>
                     {r.status}
                   </span>
                 </td>
-                <td className="p-3 text-right space-x-2">
+                <td style={{ padding: '0.75rem', textAlign: 'right', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                   {r.status === 'PENDING' && (
                     <>
-                      <button className="px-3 py-1 text-xs rounded-md border border-green-200 text-green-600 hover:bg-green-50" onClick={() => handleAction(r.id, 'APPROVED')}>Approve</button>
-                      <button className="px-3 py-1 text-xs rounded-md border border-red-200 text-red-600 hover:bg-red-50" onClick={() => handleAction(r.id, 'REJECTED')}>Reject</button>
+                      <button 
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #bbf7d0', color: '#166534', backgroundColor: 'transparent', cursor: 'pointer' }}
+                        onClick={() => handleAction(r.id, 'APPROVED')}>Approve</button>
+                      <button 
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #fecaca', color: '#991b1b', backgroundColor: 'transparent', cursor: 'pointer' }}
+                        onClick={() => handleAction(r.id, 'REJECTED')}>Reject</button>
                     </>
                   )}
                 </td>
@@ -91,7 +112,7 @@ export function TimeOffManager() {
             ))}
             {records.length === 0 && (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-gray-500 text-sm">No records found</td>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>No records found</td>
               </tr>
             )}
           </tbody>

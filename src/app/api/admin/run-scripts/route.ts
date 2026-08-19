@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import prisma from '@/lib/prisma';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./dev.db' });
-const prisma = new PrismaClient({ adapter });
 
 export async function GET() {
   try {
