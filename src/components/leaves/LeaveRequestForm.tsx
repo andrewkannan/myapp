@@ -67,7 +67,7 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
             type="date" 
             value={dateStr}
             onChange={(e) => setDateStr(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+            className="input-field"
             required
           />
         </div>
@@ -76,7 +76,7 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
           <select 
             value={type}
             onChange={(e) => setType(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+            className="input-field"
           >
             <option value="AL">Annual Leave (AL)</option>
             <option value="MC">Medical Certificate (MC)</option>
@@ -94,7 +94,7 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
           <select 
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+            className="input-field"
           >
             <option value="FULL">Full Day</option>
             <option value="AM">Morning (AM)</option>
@@ -110,20 +110,15 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
           placeholder="Reason or notes for your manager"
-          style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+          className="input-field"
         />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
         <button 
           type="submit" 
           disabled={loading}
-          style={{ 
-            backgroundColor: '#2563eb', color: 'white', fontWeight: 600, 
-            padding: '0.5rem 1.5rem', borderRadius: '4px', border: 'none', 
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1
-          }}
+          className="btn btn-primary"
         >
           {loading ? 'Submitting...' : 'Submit Request'}
         </button>

@@ -412,8 +412,8 @@ export function StaffManager() {
       </div>
 
       {editingUser && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', width: '500px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-backdrop" onClick={() => { setEditingUser(null); setIsCreating(false); }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>{isCreating ? 'Add Staff' : 'Edit Staff'}</h3>
               <button onClick={() => { setEditingUser(null); setIsCreating(false); }} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}><X size={20} /></button>

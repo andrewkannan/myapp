@@ -42,15 +42,8 @@ export default function StaffPicker({ users, selectedIds, conflictUserIds = [], 
           placeholder="Search staff name or code..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '0.5rem 0.75rem 0.5rem 2rem',
-            border: '1px solid var(--border)',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-            backgroundColor: 'var(--background)',
-            outline: 'none',
-          }}
+          className="input-field"
+          style={{ paddingLeft: '2rem' }}
         />
         <span style={{ position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>🔍</span>
       </div>

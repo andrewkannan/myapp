@@ -247,25 +247,16 @@ export default function Home() {
               <MoreVertical size={18} />
             </button>
             {settingsOpen && (
-              <div style={{ 
-                position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', 
-                backgroundColor: 'var(--surface)', border: '1px solid var(--border)', 
-                borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', 
-                zIndex: 100, minWidth: '200px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem'
-              }}>
+              <div className="glass-popover" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', minWidth: '200px' }}>
                 <button 
                   onClick={() => { setSettingsOpen(false); router.push('/leaves'); }} 
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
-                  onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
-                  onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="dropdown-item"
                 >
                   <Activity size={16} /> My Requests
                 </button>
                 <button 
                   onClick={() => { setSettingsOpen(false); window.print(); }} 
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
-                  onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
-                  onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="dropdown-item"
                 >
                   <Printer size={16} /> Print A3
                 </button>
@@ -273,9 +264,7 @@ export default function Home() {
                 {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
                   <button 
                     onClick={() => { setSettingsOpen(false); window.location.href = '/admin'; }} 
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
-                    onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
-                    onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    className="dropdown-item"
                   >
                     <Settings size={16} /> Admin Dashboard
                   </button>
@@ -283,9 +272,7 @@ export default function Home() {
                 {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>}
                 <button 
                   onClick={handleLogout} 
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', color: 'var(--danger)', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
-                  onMouseOver={e => e.currentTarget.style.backgroundColor = '#fee2e2'}
-                  onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="dropdown-item danger"
                 >
                   <LogOut size={16} /> Logout
                 </button>

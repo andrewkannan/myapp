@@ -90,7 +90,7 @@ function InlineRemarkEditor({ shift, onUpdate }: { shift: Shift, onUpdate: (id: 
                 e.preventDefault();
                 setVal(v => v ? `${v} ${quick}` : quick);
               }}
-              style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '2px', border: 'none', backgroundColor: '#EFF6FF', color: '#1d4ed8', cursor: 'pointer', fontWeight: 600 }}
+              className="btn btn-secondary"
             >
               {quick}
             </button>
@@ -271,20 +271,18 @@ export default function AssignmentModal({
     station?.name || 'Scheduled';
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0,
-      backgroundColor: 'rgba(0,0,0,0.45)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 50, padding: '1rem'
-    }} onClick={onClose} role="dialog" aria-modal="true" aria-label="Shift Assignment">
-      <div style={{
-        backgroundColor: 'var(--surface)',
-        borderRadius: '14px',
-        width: '100%', maxWidth: '520px', maxHeight: '92vh',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
-        display: 'flex', flexDirection: 'column',
-        overflow: 'hidden',
-      }} onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label="Shift Assignment">
+      <div 
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: 'var(--surface)',
+          borderRadius: '14px',
+          width: '100%', maxWidth: '520px', maxHeight: '92vh',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
+          display: 'flex', flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
         {/* Header */}
         <div style={{
           padding: '1rem 1.25rem',

@@ -191,3 +191,187 @@ input, select, textarea {
   /* Hide hover/interactive elements */
   button { display: none !important; }
 }
+
+/* --- PREMIUM UI / UX COMPONENTS ------------------------ */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-md);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  animation: fadeIn var(--transition-fast);
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp var(--transition-base);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Base button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: var(--brand);
+  color: white;
+  box-shadow: 0 1px 2px rgba(104, 176, 77, 0.2);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--brand-dark);
+  box-shadow: 0 2px 4px rgba(104, 176, 77, 0.3);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--background);
+  border-color: #cbd5e1;
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: var(--danger-light);
+  color: var(--danger);
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #fecaca;
+}
+
+/* Ghost Button */
+.btn-ghost {
+  color: var(--text-muted);
+  background: transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--cell-hover);
+  color: var(--foreground);
+}
+
+/* Form Inputs */
+.input-field {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  transition: all var(--transition-fast);
+  color: var(--foreground);
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-light);
+}
+
+/* Roster Cell Specific Overrides */
+#roster-table td {
+  border-color: rgba(0,0,0,0.06) !important;
+}
+#roster-table th {
+  border-color: rgba(0,0,0,0.06) !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Dropdown Menu Item */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.625rem 1rem;
+  background-color: transparent;
+  color: var(--foreground);
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  transition: all 0.1s ease;
+  font-size: 0.875rem;
+}
+.dropdown-item:hover {
+  background-color: var(--cell-hover);
+}
+.dropdown-item.danger {
+  color: var(--danger);
+}
+.dropdown-item.danger:hover {
+  background-color: var(--danger-light);
+}
+
+/* Glass popover */
+.glass-popover {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  z-index: 100;
+  padding: 0.375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  animation: popIn 0.15s ease-out;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}

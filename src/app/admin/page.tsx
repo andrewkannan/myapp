@@ -192,13 +192,15 @@ function TabButton({ active, onClick, icon, label, isMobile }: { active: boolean
         display: 'flex', alignItems: 'center', gap: '0.75rem',
         padding: '0.75rem 1rem', borderRadius: '8px',
         width: isMobile ? 'auto' : '100%', whiteSpace: 'nowrap', textAlign: 'left',
-        backgroundColor: active ? 'var(--primary)' : 'transparent',
-        color: active ? 'white' : 'var(--foreground)',
+        backgroundColor: active ? 'var(--primary-light)' : 'transparent',
+        color: active ? 'var(--primary)' : 'var(--text-muted)',
         fontWeight: active ? 600 : 500,
-        transition: 'all 0.2s ease',
+        transition: 'all 0.15s ease',
         cursor: 'pointer',
         border: 'none',
       }}
+      onMouseOver={e => { if (!active) { e.currentTarget.style.backgroundColor = 'var(--cell-hover)'; e.currentTarget.style.color = 'var(--foreground)'; } }}
+      onMouseOut={e => { if (!active) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
     >
       {icon}
       {label}
