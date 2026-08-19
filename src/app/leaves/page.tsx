@@ -2,6 +2,9 @@ import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { PrismaClient } from '@prisma/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import LeaveRequestForm from '@/components/leaves/LeaveRequestForm';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./dev.db' });
 const prisma = new PrismaClient({ adapter });
@@ -18,13 +21,17 @@ export default async function LeavesPage() {
   });
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>My Leaves</h1>
+    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', color: '#4b5563', textDecoration: 'none', marginRight: '1rem', fontWeight: 500 }}>
+          <ChevronLeft size={20} /> Back to Roster
+        </Link>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', margin: 0, color: '#111827' }}>My Leaves</h1>
+      </div>
       
-      <div style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1rem', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem' }}>Request New Leave</h2>
-        {/* Placeholder for Leave Request Form */}
-        <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>Leave request form UI will be added here in the next update.</p>
+      <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem', color: '#111827' }}>Request New Leave</h2>
+        <LeaveRequestForm />
       </div>
 
       <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Leave History</h2>
