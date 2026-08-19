@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 // 1 day
+      maxAge: 365 * 24 * 60 * 60 // 1 year
     });
 
     await prisma.auditLog.create({

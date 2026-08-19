@@ -162,8 +162,8 @@ export default function AssignmentModal({
           body: JSON.stringify({
             userId,
             ...(mode === 'range'
-              ? { dateFrom: new Date(dateFrom).toISOString(), dateTo: new Date(dateTo).toISOString() }
-              : { date: date.toISOString() }
+              ? { dateFrom: dateFrom, dateTo: dateTo }
+              : { date: (() => { const tzOffset = date.getTimezoneOffset() * 60000; return new Date(date.getTime() - tzOffset).toISOString().split('T')[0]; })() }
             ),
             stationId: station?.id || null,
             status: statusType,

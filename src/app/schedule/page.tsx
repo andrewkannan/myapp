@@ -122,9 +122,22 @@ export default function MobileSchedulePage() {
 
           return (
             <div key={day.label}>
-              <h2 style={{ fontSize: isToday ? '1.5rem' : '1.25rem', fontWeight: 700, color: '#1d1d1f', marginBottom: '1rem', paddingLeft: '0.5rem' }}>
-                {day.label}
-              </h2>
+              <div style={{ marginBottom: '1rem', paddingLeft: '0.5rem' }}>
+                <h2 style={{ 
+                  fontSize: isToday ? '1rem' : '1.25rem', 
+                  fontWeight: 700, 
+                  color: isToday ? '#ffffff' : '#1d1d1f', 
+                  margin: 0,
+                  padding: isToday ? '0.35rem 1rem' : '0',
+                  backgroundColor: isToday ? '#68B04D' : 'transparent',
+                  borderRadius: isToday ? '9999px' : '0',
+                  display: 'inline-block',
+                  letterSpacing: isToday ? '0.05em' : 'normal',
+                  textTransform: isToday ? 'uppercase' : 'none'
+                }}>
+                  {day.label}
+                </h2>
+              </div>
               
               <div style={cardStyle}>
                 {leaves.length > 0 ? (
@@ -177,22 +190,6 @@ export default function MobileSchedulePage() {
           );
         })}
       </div>
-
-      {/* Floating Logout Button */}
-      <div style={{ position: 'fixed', bottom: '2.5rem', left: 0, width: '100%', display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <button 
-          onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); window.location.href = '/login'; }}
-          style={{ 
-            pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', 
-            padding: '1.25rem 2.5rem', borderRadius: '99px', backgroundColor: '#1d1d1f', color: '#ffffff', 
-            border: 'none', fontSize: '1.125rem', fontWeight: 600, boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
-          }}
-        >
-          <LogOut size={20} />
-          Sign Out
-        </button>
-      </div>
-
     </div>
   );
 }
