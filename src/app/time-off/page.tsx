@@ -148,14 +148,14 @@ export default function TimeOffPage() {
                 <td className="p-3 text-sm">{r.studyAccNo}</td>
                 <td className="p-3 text-sm">{r.startTime}</td>
                 <td className="p-3 text-sm">{r.endTime}</td>
-                <td className={\p-3 text-sm text-right font-semibold \\}>
+                <td className={`p-3 text-sm text-right font-semibold ${r.hours < 0 ? 'text-red-600' : 'text-green-600'}`}>
                   {r.hours > 0 ? '+' : ''}{r.hours} HRS
                 </td>
                 <td className="p-3 text-sm text-right font-bold bg-blue-50/50">
-                  {r.status === 'APPROVED' ? \\ HRS\ : '-'}
+                  {r.status === 'APPROVED' ? `${r.runningBalance.toFixed(2)} HRS` : '-'}
                 </td>
                 <td className="p-3">
-                  <span className={\px-2 py-1 text-xs rounded-full \\}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${r.status === 'APPROVED' ? 'bg-green-100 text-green-800' : r.status === 'REJECTED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                     {r.status}
                   </span>
                 </td>

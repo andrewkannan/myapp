@@ -43,10 +43,10 @@ export function TimeOffManager() {
         </div>
         <div className="space-x-2">
           <button 
-            className={\px-4 py-2 rounded-md border text-sm font-semibold \\} 
+            className={`px-4 py-2 rounded-md border text-sm font-semibold ${filter === 'PENDING' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`} 
             onClick={() => setFilter('PENDING')}>Pending</button>
           <button 
-            className={\px-4 py-2 rounded-md border text-sm font-semibold \\} 
+            className={`px-4 py-2 rounded-md border text-sm font-semibold ${filter === 'ALL' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`} 
             onClick={() => setFilter('ALL')}>All Records</button>
         </div>
       </div>
@@ -70,12 +70,12 @@ export function TimeOffManager() {
                 <td className="p-3 font-semibold text-sm">{r.user?.fullName || r.user?.abbreviation}</td>
                 <td className="p-3 text-sm">{new Date(r.date).toLocaleDateString('en-GB')}</td>
                 <td className="p-3 text-sm">{r.reason} {r.studyAccNo && <span className="text-gray-400 text-xs ml-2">#{r.studyAccNo}</span>}</td>
-                <td className="p-3 text-sm text-gray-500">{r.startTime && r.endTime ? \\ - \\ : '-'}</td>
-                <td className={\p-3 text-sm text-right font-bold \\}>
+                <td className="p-3 text-sm text-gray-500">{r.startTime && r.endTime ? `${r.startTime} - ${r.endTime}` : '-'}</td>
+                <td className={`p-3 text-sm text-right font-bold ${r.hours < 0 ? 'text-red-600' : 'text-green-600'}`}>
                   {r.hours > 0 ? '+' : ''}{r.hours} HRS
                 </td>
                 <td className="p-3">
-                  <span className={\px-2 py-1 text-xs rounded-full \\}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${r.status === 'APPROVED' ? 'bg-green-100 text-green-800' : r.status === 'REJECTED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                     {r.status}
                   </span>
                 </td>
