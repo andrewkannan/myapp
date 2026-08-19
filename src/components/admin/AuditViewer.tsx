@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Activity } from 'lucide-react';
 
 export function AuditViewer() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -27,7 +28,7 @@ export function AuditViewer() {
     fetchLogs();
   }, []);
 
-  if (loading && logs.length === 0) return <div>Loading audit logs...</div>;
+  if (loading && logs.length === 0) return <div className="skeleton" style={{ height: '400px', width: '100%' }}></div>;
 
   return (
     <div>
@@ -38,44 +39,50 @@ export function AuditViewer() {
       {error && (
         <div style={{ padding: '1rem', marginBottom: '1rem', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{error}</span>
-          <button onClick={fetchLogs} style={{ padding: '0.25rem 0.75rem', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}>Retry</button>
+          <button onClick={fetchLogs} className="btn btn-danger">Retry</button>
         </div>
       )}
 
-      <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflowX: 'auto', backgroundColor: 'var(--surface)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead style={{ backgroundColor: 'var(--header-bg)', borderBottom: '1px solid var(--border)' }}>
+      <div className="premium-table-wrapper">
+        <table className="premium-table">
+          <thead>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Timestamp</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>User</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Action</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Details</th>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
             {logs.map(log => (
-              <tr key={log.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              <tr key={log.id}>
+                <td style={{ color: 'var(--text-muted)' }}>
                   {new Date(log.createdAt).toLocaleString()}
                 </td>
-                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                <td style={{ fontWeight: 500 }}>
                   {log.user ? `${log.user.fullName || log.user.abbreviation}` : 'System'}
                 </td>
-                <td style={{ padding: '0.75rem 1rem' }}>
-                  <span style={{ 
-                    backgroundColor: log.action.includes('DELETE') ? '#FEE2E2' : log.action.includes('CREATE') ? '#DCFCE7' : '#E0F2FE',
-                    color: log.action.includes('DELETE') ? '#DC2626' : log.action.includes('CREATE') ? '#166534' : '#0369A1',
-                    padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700
-                  }}>
+                <td>
+                  <span className={
+                    log.action.includes('DELETE') ? 'badge badge-danger' : 
+                    log.action.includes('CREATE') ? 'badge badge-success' : 
+                    log.action.includes('AUTH') ? 'badge badge-warning' : 'badge badge-info'
+                  }>
                     {log.action}
                   </span>
                 </td>
-                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>{log.details || '-'}</td>
+                <td>{log.details || '-'}</td>
               </tr>
             ))}
             {logs.length === 0 && !loading && !error && (
               <tr>
-                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No audit logs found</td>
+                <td colSpan={4}>
+                  <div className="empty-state">
+                    <Activity size={48} />
+                    <h3>No logs found</h3>
+                    <p>Audit trail will appear here once actions are recorded in the system.</p>
+                  </div>
+                </td>
               </tr>
             )}
           </tbody>

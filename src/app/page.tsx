@@ -197,6 +197,21 @@ export default function Home() {
                   ))}
                 </select>
               </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '200px' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Modality:</span>
+                <select 
+                  className="input-field" 
+                  value={modalityFilter} 
+                  onChange={e => setModalityFilter(e.target.value)}
+                  style={{ minWidth: '120px' }}
+                >
+                  <option value="All">All Modalities</option>
+                  {Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => (
+                    <option key={mod} value={mod}>{mod}</option>
+                  ))}
+                </select>
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '350px' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Staff Filter:</span>
                 <div style={{ flex: 1, zIndex: 50 }}>

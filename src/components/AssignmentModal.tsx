@@ -101,16 +101,29 @@ function InlineRemarkEditor({ shift, onUpdate }: { shift: Shift, onUpdate: (id: 
   );
 }
 
-function getRequiredModalities(stationName: string): string[] {
+function getRequiredModalities(stationName: string, allUsers: User[]): string[] {
   const req: string[] = [];
   const upper = stationName.toUpperCase();
-  if (upper.includes('MR')) req.push('MRI');
+  
+  if (upper.includes('MR') || upper.includes('TUCKER')) req.push('MRI');
   if (upper.includes('CT')) req.push('CT');
-  if (upper.includes('US')) req.push('US');
-  if (upper.includes('XR') || upper.includes('X-RAY')) req.push('X-Ray');
+  if (upper.includes('US') || upper.includes('ULTRASOUND')) req.push('US');
+  if (upper.includes('XR') || upper.includes('X-RAY') || upper.includes('XRAY')) req.push('X-Ray');
   if (upper.includes('MAM')) req.push('Mammo');
   if (upper.includes('PET')) req.push('PET/CT');
   if (upper.includes('BMD')) req.push('BMD');
+
+  const allMods = new Set<string>();
+  allUsers.forEach(u => {
+    if (u.modality) u.modality.split(',').forEach(m => allMods.add(m.trim()));
+  });
+
+  for (const mod of allMods) {
+    if (upper.includes(mod.toUpperCase()) && !req.map(r => r.toUpperCase()).includes(mod.toUpperCase())) {
+      req.push(mod);
+    }
+  }
+
   return req;
 }
 
@@ -131,7 +144,7 @@ export default function AssignmentModal({
   
   const eligibleUsers = useMemo(() => {
     if (!station) return users;
-    const required = getRequiredModalities(station.name);
+    const required = getRequiredModalities(station.name, users);
     if (required.length === 0) return users;
     
     return users.filter(u => {

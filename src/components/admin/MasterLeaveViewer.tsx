@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useToast } from '@/components/ToastProvider';
+import { Calendar } from 'lucide-react';
 
 export function MasterLeaveViewer() {
+  const { toast } = useToast();
   const [leaves, setLeaves] = useState<any[]>([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
@@ -18,9 +21,12 @@ export function MasterLeaveViewer() {
       if (res.ok) {
         const data = await res.json();
         setLeaves(data.leaves || []);
+      } else {
+        toast('Failed to load master leave data', 'error');
       }
     } catch (e) {
       console.error(e);
+      toast('Failed to load master leave data', 'error');
     } finally {
       setLoading(false);
     }
@@ -41,26 +47,30 @@ export function MasterLeaveViewer() {
   }, [leaves]);
 
   return (
-    <div style={{ padding: '1rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Master Leave Preview</h2>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Master Leave Overview</h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Yearly view of all staff leave.</p>
+        </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>Year:</label>
           <input 
             type="number" 
             value={year} 
             onChange={(e) => setYear(parseInt(e.target.value) || new Date().getFullYear())}
-            style={{ padding: '0.25rem 0.5rem', border: '1px solid var(--border)', borderRadius: '4px', width: '80px' }}
+            className="input-field"
+            style={{ width: '100px', textAlign: 'center' }}
           />
         </div>
       </div>
 
       {loading ? (
-        <div>Loading master leave data...</div>
+        <div className="skeleton" style={{ flex: 1, width: '100%', borderRadius: '8px' }}></div>
       ) : (
-        <div style={{ flex: 1, overflow: 'auto', border: '1px solid var(--border)', borderRadius: '8px', backgroundColor: 'var(--surface)' }}>
-          <table style={{ borderCollapse: 'collapse', minWidth: '1800px', width: '100%', fontSize: '0.7rem' }}>
-            <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--header-bg)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <div className="premium-table-wrapper" style={{ flex: 1, overflow: 'auto', padding: 0 }}>
+          <table style={{ borderCollapse: 'collapse', minWidth: '1800px', width: '100%', fontSize: '0.75rem', textAlign: 'left' }}>
+            <thead style={{ position: 'sticky', top: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
               <tr>
                 <th style={{ border: '1px solid var(--border)', padding: '0.5rem', width: '60px', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20 }}>Month</th>
                 {days.map(d => (

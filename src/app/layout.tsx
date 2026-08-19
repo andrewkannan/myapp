@@ -30,10 +30,16 @@ export const viewport: Viewport = {
   themeColor: "#68B04D",
 };
 
+import { ToastProvider } from "@/components/ToastProvider";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </body>
     </html>
   );
 }

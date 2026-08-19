@@ -87,12 +87,16 @@ export async function POST(request: Request) {
     // Determine list of dates to assign
     let datesToAssign: Date[] = [];
 
+    // Helper to parse 'YYYY-MM-DD' exactly into local noon
+    function parseLocalNoon(dateStr: string) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d, 12, 0, 0, 0);
+    }
+
     if (dateFrom && dateTo) {
       // Bulk range
-      const start = new Date(dateFrom);
-      const end = new Date(dateTo);
-      start.setHours(12, 0, 0, 0);
-      end.setHours(12, 0, 0, 0);
+      const start = parseLocalNoon(dateFrom);
+      const end = parseLocalNoon(dateTo);
       const cur = new Date(start);
       while (cur <= end) {
         const dow = cur.getDay();
@@ -107,9 +111,9 @@ export async function POST(request: Request) {
       }
     } else if (date) {
       // Single day
-      const d = new Date(date);
-      d.setHours(12, 0, 0, 0);
-      datesToAssign = [d];
+      // Strip any time components if present to get YYYY-MM-DD
+      const dateStr = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date;
+      datesToAssign = [parseLocalNoon(dateStr)];
     } else {
       return NextResponse.json({ error: 'date or dateFrom/dateTo is required' }, { status: 400 });
     }

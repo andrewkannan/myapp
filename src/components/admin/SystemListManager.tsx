@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Trash2, Plus, Save } from 'lucide-react';
+import { useToast } from '@/components/ToastProvider';
 
 type SystemRole = { id: string; name: string; permissions: string | null };
 type SystemModality = { id: string; name: string };
@@ -16,6 +17,7 @@ const APP_MODULES = [
 ];
 
 export function SystemListManager() {
+  const { toast, confirm } = useToast();
   const [roles, setRoles] = useState<SystemRole[]>([]);
   const [modalities, setModalities] = useState<SystemModality[]>([]);
   
@@ -51,6 +53,7 @@ export function SystemListManager() {
       
     } catch (e) {
       console.error(e);
+      toast('Failed to load system lists', 'error');
     } finally {
       setLoading(false);
     }
@@ -69,19 +72,25 @@ export function SystemListManager() {
         if (type === 'role') setNewRoleName('');
         if (type === 'modality') setNewModalityName('');
         fetchLists();
+        toast(`${type === 'role' ? 'Role' : 'Modality'} added`, 'success');
+      } else {
+        toast(`Failed to add ${type}`, 'error');
       }
     } catch (e) {
       console.error(e);
+      toast(`Failed to add ${type}`, 'error');
     }
   };
 
   const deleteListEntry = async (type: 'role' | 'modality', id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+    if (!await confirm('Are you sure you want to delete this item?')) return;
     try {
       await fetch(`/api/system-lists?type=${type}&id=${id}`, { method: 'DELETE' });
       fetchLists();
+      toast('Item deleted', 'success');
     } catch (e) {
       console.error(e);
+      toast('Failed to delete item', 'error');
     }
   };
 
@@ -105,153 +114,141 @@ export function SystemListManager() {
   const savePermissions = async () => {
     setSavingPermissions(true);
     try {
-      // Create an array of updates
       const updates = roles.map(r => ({
         id: r.id,
-        permissions: Array.from(rolePermissions[r.id] || new Set()).join(',')
+        permissions: Array.from(rolePermissions[r.id] || []).join(',')
       }));
       
       const res = await fetch('/api/system-lists/permissions', {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roles: updates })
+        body: JSON.stringify({ updates })
       });
+      
       if (res.ok) {
-        alert('Permissions saved successfully!');
+        toast('Permissions saved successfully', 'success');
+        fetchLists();
       } else {
-        alert('Failed to save permissions');
+        toast('Failed to save permissions', 'error');
       }
     } catch (e) {
       console.error(e);
-      alert('Error saving permissions');
+      toast('Failed to save permissions', 'error');
     } finally {
       setSavingPermissions(false);
     }
   };
 
-  if (loading) return <div>Loading system lists...</div>;
+  if (loading) return <div className="skeleton" style={{ height: '400px', width: '100%' }}></div>;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      
-      {/* Roles Matrix List */}
-      <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.5rem', overflowX: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--foreground)' }}>Role-Based Access Control</h2>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-              Configure permissions for each role. Check the box to grant access to a module.
-            </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>System Lists & Access Roles</h2>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+        {/* Roles List */}
+        <div className="premium-table-wrapper" style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Roles</h3>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <input 
+              type="text" placeholder="New Role Name" 
+              value={newRoleName} onChange={e => setNewRoleName(e.target.value)}
+              className="input-field"
+            />
+            <button onClick={() => addListEntry('role', newRoleName)} className="btn btn-primary">
+              <Plus size={16} /> Add
+            </button>
           </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {roles.map(r => (
+              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                <span style={{ fontWeight: 500, fontSize: '0.875rem' }}>{r.name}</span>
+                {r.name !== 'System Admin' && (
+                  <button onClick={() => deleteListEntry('role', r.id)} className="btn-ghost" style={{ padding: '0.25rem', color: 'var(--danger)', borderRadius: '4px' }}>
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Modalities List */}
+        <div className="premium-table-wrapper" style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Modalities</h3>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <input 
+              type="text" placeholder="New Modality Name" 
+              value={newModalityName} onChange={e => setNewModalityName(e.target.value)}
+              className="input-field"
+            />
+            <button onClick={() => addListEntry('modality', newModalityName)} className="btn btn-primary">
+              <Plus size={16} /> Add
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {modalities.map(m => (
+              <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                <span style={{ fontWeight: 500, fontSize: '0.875rem' }}>{m.name}</span>
+                <button onClick={() => deleteListEntry('modality', m.id)} className="btn-ghost" style={{ padding: '0.25rem', color: 'var(--danger)', borderRadius: '4px' }}>
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Permissions Matrix */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>Access Permissions Matrix</h3>
           <button 
-            onClick={savePermissions}
+            onClick={savePermissions} 
             disabled={savingPermissions}
-            style={{ 
-              padding: '0.5rem 1rem', background: 'var(--primary)', color: 'white', border: 'none', 
-              borderRadius: '4px', cursor: savingPermissions ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
-              opacity: savingPermissions ? 0.7 : 1
-            }}
+            className="btn btn-primary"
           >
             <Save size={16} /> {savingPermissions ? 'Saving...' : 'Save Permissions'}
           </button>
         </div>
-
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', maxWidth: '400px' }}>
-          <input 
-            type="text" value={newRoleName} onChange={e => setNewRoleName(e.target.value)}
-            placeholder="New role name (e.g. Receptionist)" 
-            style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
-            onKeyDown={e => e.key === 'Enter' && addListEntry('role', newRoleName)}
-          />
-          <button 
-            onClick={() => addListEntry('role', newRoleName)}
-            style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-          >
-            <Plus size={16} /> Add Role
-          </button>
-        </div>
-
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '2px solid var(--border)', width: '200px' }}>Module / Feature</th>
-              {roles.map(r => (
-                <th key={r.id} style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid var(--border)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                    {r.name}
-                    {!['System Admin', 'Scheduler'].includes(r.name) && (
-                      <button onClick={() => deleteListEntry('role', r.id)} style={{ padding: '0', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--danger)' }} title="Delete Role">
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {APP_MODULES.map((mod, i) => (
-              <tr key={mod.key} style={{ backgroundColor: i % 2 === 0 ? 'var(--background)' : 'transparent' }}>
-                <td style={{ padding: '0.75rem', borderBottom: '1px solid var(--border)', fontWeight: 500 }}>{mod.label}</td>
-                {roles.map(r => {
-                  const isLockedAdmin = r.name === 'System Admin';
-                  const isChecked = rolePermissions[r.id]?.has(mod.key) || isLockedAdmin;
-                  return (
-                    <td key={r.id} style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '1px solid var(--border)' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={isChecked}
-                        disabled={isLockedAdmin}
-                        onChange={() => togglePermission(r.id, mod.key)}
-                        style={{ cursor: isLockedAdmin ? 'not-allowed' : 'pointer', width: '16px', height: '16px' }}
-                      />
-                    </td>
-                  );
-                })}
+        
+        <div className="premium-table-wrapper">
+          <table className="premium-table">
+            <thead>
+              <tr>
+                <th>Module / Permission</th>
+                {roles.map(r => (
+                  <th key={r.id} style={{ textAlign: 'center' }}>{r.name}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modalities List */}
-      <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.5rem', maxWidth: '600px' }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--foreground)' }}>Modalities</h2>
-        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-          Configure the list of modalities that can be assigned to staff members.
-        </p>
-
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-          <input 
-            type="text" value={newModalityName} onChange={e => setNewModalityName(e.target.value)}
-            placeholder="New modality (e.g. Ultrasound)" 
-            style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)' }}
-            onKeyDown={e => e.key === 'Enter' && addListEntry('modality', newModalityName)}
-          />
-          <button 
-            onClick={() => addListEntry('modality', newModalityName)}
-            style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-          >
-            <Plus size={16} /> Add Modality
-          </button>
+            </thead>
+            <tbody>
+              {APP_MODULES.map(mod => (
+                <tr key={mod.key}>
+                  <td style={{ fontWeight: 500 }}>{mod.label}</td>
+                  {roles.map(r => {
+                    const hasPerm = rolePermissions[r.id]?.has(mod.key) || false;
+                    const isLocked = r.name === 'System Admin';
+                    return (
+                      <td key={r.id} style={{ textAlign: 'center' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={hasPerm}
+                          onChange={() => togglePermission(r.id, mod.key)}
+                          disabled={isLocked}
+                          style={{ cursor: isLocked ? 'not-allowed' : 'pointer', width: '16px', height: '16px' }}
+                        />
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {modalities.map(m => (
-            <li key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: '4px' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{m.name}</span>
-              <button 
-                onClick={() => deleteListEntry('modality', m.id)}
-                style={{ padding: '0.25rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--danger)' }}
-              >
-                <Trash2 size={16} />
-              </button>
-            </li>
-          ))}
-          {modalities.length === 0 && <li style={{ fontSize: '0.875rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No modalities defined.</li>}
-        </ul>
       </div>
-
     </div>
   );
 }

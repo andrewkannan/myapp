@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Pencil, Trash2, Plus, X, Download, Upload, Search, Filter, Power, Lock } from 'lucide-react';
+import { useToast } from '@/components/ToastProvider';
 
 function parseCSVLine(line: string): string[] {
   const fields: string[] = [];
@@ -23,6 +24,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 export function StaffManager() {
+  const { toast, confirm } = useToast();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -76,19 +78,22 @@ export function StaffManager() {
       setEditingUser(null);
       setIsCreating(false);
       fetchUsers();
+      toast('User saved successfully', 'success');
     } catch (e) {
       console.error(e);
-      alert('Failed to save user.');
+      toast('Failed to save user.', 'error');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to permanently delete this user? (Consider Deactivating instead to preserve history)')) return;
+    if (!await confirm('Are you sure you want to permanently delete this user? (Consider Deactivating instead to preserve history)')) return;
     try {
       await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
       fetchUsers();
+      toast('User deleted', 'success');
     } catch (e) {
       console.error(e);
+      toast('Failed to delete user', 'error');
     }
   };
 
@@ -100,8 +105,10 @@ export function StaffManager() {
         body: JSON.stringify({ isActive: !currentStatus })
       });
       fetchUsers();
+      toast(`User ${!currentStatus ? 'activated' : 'deactivated'}`, 'success');
     } catch (e) {
       console.error(e);
+      toast('Failed to update status', 'error');
     }
   };
 
@@ -130,6 +137,7 @@ export function StaffManager() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast('Export complete', 'success');
   };
 
   const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,7 +148,7 @@ export function StaffManager() {
     reader.onload = async (event) => {
       const text = event.target?.result as string;
       const lines = text.split('\n').filter(l => l.trim());
-      if (lines.length < 2) return alert('File is empty or invalid');
+      if (lines.length < 2) return toast('File is empty or invalid', 'error');
       
       const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
       const usersToImport = [];
@@ -169,13 +177,13 @@ export function StaffManager() {
         });
         const data = await res.json();
         if (res.ok) {
-          alert(`Import successful: ${data.createdCount} created, ${data.updatedCount} updated.`);
+          toast(`Import successful: ${data.createdCount} created, ${data.updatedCount} updated.`, 'success');
           fetchUsers();
         } else {
-          alert('Import failed: ' + data.error);
+          toast('Import failed: ' + data.error, 'error');
         }
       } catch (err) {
-        alert('Import request failed');
+        toast('Import request failed', 'error');
       }
     };
     reader.readAsText(file);
@@ -184,7 +192,7 @@ export function StaffManager() {
 
   const handleBulkAssignRole = async (roleName: string) => {
     if (selectedUserIds.size === 0) return;
-    if (!confirm(`Append role "${roleName}" to ${selectedUserIds.size} users?`)) return;
+    if (!await confirm(`Append role "${roleName}" to ${selectedUserIds.size} users?`)) return;
 
     const usersToUpdate = users.filter(u => selectedUserIds.has(u.id)).map(u => {
       const currentRoles = u.role ? u.role.split(',').map((r: string) => r.trim()).filter(Boolean) : [];
@@ -200,9 +208,10 @@ export function StaffManager() {
       });
       setSelectedUserIds(new Set());
       fetchUsers();
+      toast(`Roles updated for ${usersToUpdate.length} users`, 'success');
     } catch (e) {
       console.error(e);
-      alert('Bulk update failed');
+      toast('Bulk update failed', 'error');
     }
   };
 
@@ -344,68 +353,74 @@ export function StaffManager() {
         )}
       </div>
 
-      <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'auto', backgroundColor: 'var(--surface)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead style={{ backgroundColor: 'var(--header-bg)', borderBottom: '1px solid var(--border)' }}>
+      <div className="premium-table-wrapper">
+        <table className="premium-table">
+          <thead>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: '40px' }}>
+              <th style={{ width: '40px' }}>
                 <input type="checkbox" checked={selectedUserIds.size === filteredAndSortedUsers.length && filteredAndSortedUsers.length > 0} onChange={toggleSelectAll} style={{ cursor: 'pointer' }} />
               </th>
-              <th onClick={() => requestSort('abbreviation')} style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Abbr {sortConfig.key === 'abbreviation' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th onClick={() => requestSort('fullName')} style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Full Name {sortConfig.key === 'fullName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Contact & Auth</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem' }}>Role & Modalities</th>
-              <th onClick={() => requestSort('lastLoginAt')} style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Last Active {sortConfig.key === 'lastLoginAt' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Actions</th>
+              <th onClick={() => requestSort('abbreviation')} style={{ cursor: 'pointer' }}>Abbr {sortConfig.key === 'abbreviation' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => requestSort('fullName')} style={{ cursor: 'pointer' }}>Full Name {sortConfig.key === 'fullName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th>Contact & Auth</th>
+              <th>Role & Modalities</th>
+              <th onClick={() => requestSort('lastLoginAt')} style={{ cursor: 'pointer' }}>Last Active {sortConfig.key === 'lastLoginAt' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredAndSortedUsers.map(u => (
-              <tr key={u.id} style={{ borderBottom: '1px solid var(--border)', opacity: u.isActive ? 1 : 0.6 }}>
-                <td style={{ padding: '0.75rem 1rem' }}>
+              <tr key={u.id} style={{ opacity: u.isActive ? 1 : 0.6 }}>
+                <td>
                   <input type="checkbox" checked={selectedUserIds.has(u.id)} onChange={() => toggleSelect(u.id)} style={{ cursor: 'pointer' }} />
                 </td>
-                <td style={{ padding: '0.75rem 1rem' }}>
-                  <span style={{ backgroundColor: 'var(--background)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.875rem' }}>{u.abbreviation || '-'}</span>
+                <td>
+                  <span className="badge badge-neutral">{u.abbreviation || '-'}</span>
                 </td>
-                <td style={{ padding: '0.75rem 1rem' }}>
+                <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: u.isActive ? 'var(--success)' : 'var(--text-muted)' }} title={u.isActive ? 'Active' : 'Inactive'} />
                     {u.fullName || '-'}
                   </div>
                 </td>
-                <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>
+                <td>
                   <div style={{ color: 'var(--foreground)', marginBottom: '0.25rem' }}>{u.email || '-'}</div>
                   {u.ssoEnabled ? (
-                    <span style={{ fontSize: '0.65rem', fontWeight: 700, backgroundColor: '#DBEAFE', color: '#1E40AF', padding: '2px 6px', borderRadius: '4px' }}>✓ MS SSO</span>
+                    <span className="badge badge-info">✓ MS SSO</span>
                   ) : (
-                    <span style={{ fontSize: '0.65rem', fontWeight: 600, backgroundColor: 'var(--background)', color: 'var(--text-muted)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border)' }}>Local Auth</span>
+                    <span className="badge badge-neutral">Local Auth</span>
                   )}
                 </td>
-                <td style={{ padding: '0.75rem 1rem' }}>
+                <td>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                     {u.role ? (
                       <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                         {u.role.split(',').map((r: string) => r.trim()).filter(Boolean).map((r: string, i: number) => (
-                          <span key={i} style={{ backgroundColor: r === 'System Admin' ? '#FEE2E2' : r === 'Scheduler' ? '#FEF08A' : '#E0F2FE', color: r === 'System Admin' ? '#DC2626' : r === 'Scheduler' ? '#A16207' : '#0369A1', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 600 }}>{r}</span>
+                          <span key={i} className={r === 'System Admin' ? 'badge badge-danger' : r === 'Scheduler' ? 'badge badge-warning' : 'badge badge-info'}>{r}</span>
                         ))}
                       </div>
                     ) : <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No Role</span>}
                     {u.modality && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mods: {u.modality}</span>}
                   </div>
                 </td>
-                <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                <td style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                   {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : 'Never'}
                 </td>
-                <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                  <button onClick={() => { setEditingUser(u); setIsCreating(false); }} style={{ padding: '0.4rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }} title="Edit User"><Pencil size={16} /></button>
-                  <button onClick={() => handleToggleActive(u.id, u.isActive)} style={{ padding: '0.4rem', border: 'none', background: 'transparent', cursor: 'pointer', color: u.isActive ? 'var(--warning)' : 'var(--success)' }} title={u.isActive ? "Deactivate User" : "Activate User"}><Power size={16} /></button>
-                  <button onClick={() => handleDelete(u.id)} style={{ padding: '0.4rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--danger)' }} title="Permanently Delete"><Trash2 size={16} /></button>
+                <td style={{ textAlign: 'right' }}>
+                  <button onClick={() => { setEditingUser(u); setIsCreating(false); }} className="btn-ghost" style={{ padding: '0.4rem', borderRadius: '4px' }} title="Edit User"><Pencil size={16} /></button>
+                  <button onClick={() => handleToggleActive(u.id, u.isActive)} className="btn-ghost" style={{ padding: '0.4rem', borderRadius: '4px', color: u.isActive ? 'var(--warning)' : 'var(--success)' }} title={u.isActive ? "Deactivate User" : "Activate User"}><Power size={16} /></button>
+                  <button onClick={() => handleDelete(u.id)} className="btn-ghost" style={{ padding: '0.4rem', borderRadius: '4px', color: 'var(--danger)' }} title="Permanently Delete"><Trash2 size={16} /></button>
                 </td>
               </tr>
             ))}
             {filteredAndSortedUsers.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No staff members match your search criteria.</td></tr>
+              <tr><td colSpan={7}>
+                <div className="empty-state">
+                  <Search size={48} />
+                  <h3>No staff found</h3>
+                  <p>No staff members match your search criteria.</p>
+                </div>
+              </td></tr>
             )}
           </tbody>
         </table>

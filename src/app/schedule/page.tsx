@@ -110,12 +110,6 @@ export default function MobileSchedulePage() {
             {new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(today)}
           </p>
         </div>
-        <button 
-          onClick={() => router.push('/')}
-          style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#e8e8ed', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 'none', color: '#1d1d1f' }}
-        >
-          <Navigation size={20} />
-        </button>
       </header>
 
       {error && (
