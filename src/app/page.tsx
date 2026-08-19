@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
 import StaffDirectory from '@/components/StaffDirectory';
-import { ChevronLeft, ChevronRight, LogOut, Users, Printer, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Users, Printer, Settings, Activity } from 'lucide-react';
 
 export type User = {
   id: string;
@@ -198,6 +198,17 @@ export default function Home() {
             </div>
           </div>
 
+          <button
+            onClick={() => router.push('/time-off')}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
+              backgroundColor: '#fef3c7', color: '#92400e',
+              borderRadius: '6px', fontWeight: 500, border: '1px solid transparent',
+            }}
+          >
+            <Activity size={18} />
+            <span className="hidden-mobile">Time Off</span>
+          </button>
 
           <button
             onClick={() => setDirectoryOpen(true)}

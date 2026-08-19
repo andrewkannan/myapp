@@ -21,6 +21,28 @@ model User {
   shifts       Shift[]
   leaves       Leave[]
   leaveBalances LeaveBalance[]
+  timeOffRecords TimeOffRecord[] @relation("TimeOffUser")
+  approvedTimeOffs TimeOffRecord[] @relation("TimeOffApprover")
+}
+
+model TimeOffRecord {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation("TimeOffUser", fields: [userId], references: [id])
+  date         DateTime 
+  reason       String   
+  studyAccNo   String?  
+  startTime    String?  
+  endTime      String?  
+  hours        Float    
+  status       String   @default("PENDING") 
+  
+  approvedById String?
+  approvedBy   User?    @relation("TimeOffApprover", fields: [approvedById], references: [id])
+  
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Location {

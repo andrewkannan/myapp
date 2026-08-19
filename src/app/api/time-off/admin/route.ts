@@ -1,0 +1,92 @@
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { getSession } from '@/lib/auth';
+
+const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./dev.db' });
+const prisma = new PrismaClient({ adapter });
+
+export async function GET(request: Request) {
+  try {
+    const session = await getSession();
+    if (!session || !session.permissions?.includes('ROSTER_EDIT')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    let whereClause: any = {};
+    if (userId) {
+      whereClause.userId = userId;
+    } else {
+      whereClause.status = 'PENDING';
+    }
+
+    const records = await prisma.timeOffRecord.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { fullName: true, abbreviation: true } }
+      }
+    });
+
+    return NextResponse.json(records);
+  } catch (error: any) {
+    console.error('Failed to fetch admin time off records:', error);
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const session = await getSession();
+    if (!session || !session.permissions?.includes('ROSTER_EDIT')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !['APPROVED', 'REJECTED'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+    }
+
+    const record = await prisma.timeOffRecord.update({
+      where: { id },
+      data: {
+        status,
+        approvedById: session.id
+      }
+    });
+
+    // If approved and it's a claim (negative hours), add to Leaves for the roster
+    if (status === 'APPROVED' && record.hours < 0) {
+      // Check if a leave already exists for this exact date to prevent duplicates
+      const existing = await prisma.leave.findFirst({
+        where: {
+          userId: record.userId,
+          date: record.date,
+          type: 'TO'
+        }
+      });
+      if (!existing) {
+        await prisma.leave.create({
+          data: {
+            userId: record.userId,
+            date: record.date,
+            period: 'FULL',
+            type: 'TO',
+            status: 'APPROVED',
+            remarks: record.reason || 'Time Off Claim'
+          }
+        });
+      }
+    }
+
+    return NextResponse.json(record);
+  } catch (error: any) {
+    console.error('Failed to update time off record:', error);
+    return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+  }
+}

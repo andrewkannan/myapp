@@ -9,9 +9,10 @@ import { FacilityManager } from '@/components/admin/FacilityManager';
 import { AuditViewer } from '@/components/admin/AuditViewer';
 import { SystemListManager } from '@/components/admin/SystemListManager';
 import { MasterLeaveViewer } from '@/components/admin/MasterLeaveViewer';
+import { TimeOffManager } from '@/components/admin/TimeOffManager';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs' | 'leaves'>('staff');
+  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff'>('staff');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const router = useRouter();
 
@@ -95,6 +96,14 @@ export default function AdminDashboard() {
                 label="Master Leave Preview"
               />
             )}
+            {currentUser.permissions?.includes('STAFF_MANAGE') && (
+              <TabButton 
+                active={activeTab === 'timeoff'} 
+                onClick={() => setActiveTab('timeoff')}
+                icon={<Activity size={18} />}
+                label="Time-Off Claims"
+              />
+            )}
             {currentUser.permissions?.includes('FACILITY_MANAGE') && (
               <TabButton 
                 active={activeTab === 'facilities'} 
@@ -126,6 +135,7 @@ export default function AdminDashboard() {
         <section style={{ flex: 1, padding: '2rem', overflowY: 'auto', backgroundColor: 'var(--background)' }}>
           {activeTab === 'staff' && <StaffManager />}
           {activeTab === 'leaves' && <MasterLeaveViewer />}
+          {activeTab === 'timeoff' && <TimeOffManager />}
           {activeTab === 'facilities' && <FacilityManager />}
           {activeTab === 'lists' && <SystemListManager />}
           {activeTab === 'logs' && <AuditViewer />}
