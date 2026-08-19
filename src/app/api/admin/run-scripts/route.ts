@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import * as xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 import path from 'path';
 import fs from 'fs';
 
@@ -52,9 +52,15 @@ export async function GET() {
     try {
       const excelPath = path.join(process.cwd(), 'Annual leave 2026.xlsx');
       if (fs.existsSync(excelPath)) {
-        const workbook = xlsx.readFile(excelPath);
-        const sheet = workbook.Sheets['AL 2026'];
-        const data = xlsx.utils.sheet_to_json(sheet, { defval: null, header: 1 });
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(excelPath);
+        const sheet = workbook.getWorksheet('AL 2026');
+        if (!sheet) { logs.push('Sheet "AL 2026" not found'); return NextResponse.json({ success: true, logs }); }
+        
+        const data: any[][] = [];
+        sheet.eachRow((row, rowNumber) => {
+          data.push(row.values as any[]);
+        });
         
         const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
         const result: { leaves: any[], publicHolidays: string[] } = { leaves: [], publicHolidays: [] };
