@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const roles = await prisma.systemRole.findMany({ orderBy: { name: 'asc' } });
     const modalities = await prisma.systemModality.findMany({ orderBy: { name: 'asc' } });
     
@@ -32,6 +36,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await getSession();
+    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'ROLE_MANAGE'].includes(p))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { type, name } = await request.json();
     if (!name || name.trim() === '') {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -53,6 +62,11 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const session = await getSession();
+    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'ROLE_MANAGE'].includes(p))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const id = searchParams.get('id');

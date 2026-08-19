@@ -25,7 +25,7 @@ export async function GET(request: Request) {
         }
       },
       include: {
-        user: true
+        user: { select: { id: true, fullName: true, abbreviation: true, email: true } }
       },
       orderBy: {
         date: 'asc'

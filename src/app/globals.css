@@ -1,21 +1,11 @@
+/* ─── DESIGN SYSTEM TOKENS ─────────────────────────────── */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
-  --danger: #ef4444;
-  --text-muted: #64748b;
-  --cell-hover: #f1f5f9;
-  
-  --weekend-bg: #f8fafc;
-  --header-bg: #f1f5f9;
-}
+  /* Brand */
+  --brand: #68B04D;
+  --brand-light: #e8f5e3;
+  --brand-dark: #4a8a35;
 
-/* Force light mode to maintain clean Excel-like visibility */
-:root {
+  /* Core palette */
   --background: #f8fafc;
   --foreground: #0f172a;
   --surface: #ffffff;
@@ -24,12 +14,51 @@
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
   --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --warning: #f59e0b;
+  --warning-light: #fefce8;
+  --success: #22c55e;
+  --success-light: #f0fdf4;
   --text-muted: #64748b;
-  --cell-hover: rgba(0,0,0,0.05); /* Subtle dark overlay for hover */
-  
+  --cell-hover: rgba(0,0,0,0.04);
+
+  /* Roster-specific */
   --weekend-bg: #f1f5f9;
   --header-bg: #f8fafc;
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+
+  /* Transitions */
+  --transition-fast: 0.1s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
+
+/* ─── BASE RESET ──────────────────────────────────────── */
 * {
   box-sizing: border-box;
   padding: 0;
@@ -39,9 +68,10 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button {
@@ -56,11 +86,17 @@ a {
   text-decoration: none;
 }
 
-input, select {
+input, select, textarea {
   font-family: inherit;
 }
 
-/* Custom Scrollbar */
+/* ─── FOCUS RING ──────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ─── SCROLLBAR ───────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -70,13 +106,21 @@ input, select {
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
 
-/* ─── A3 LANDSCAPE PRINT ─────────────────────────────────── */
+/* ─── MOBILE UTILITIES ────────────────────────────────── */
+@media (max-width: 768px) {
+  .hidden-mobile { display: none !important; }
+}
+@media (min-width: 769px) {
+  .hidden-desktop { display: none !important; }
+}
+
+/* ─── A3 LANDSCAPE PRINT ─────────────────────────────── */
 @media print {
   @page {
     size: A3 landscape;

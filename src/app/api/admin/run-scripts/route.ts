@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
@@ -7,6 +8,11 @@ import fs from 'fs';
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session || !session.permissions?.some((p: string) => ['System Admin', 'SYSTEM_ADMIN'].includes(p))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const logs: string[] = [];
     
     // 1. MERGE STATIONS

@@ -5,6 +5,11 @@ import { getSession } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
     const month = parseInt(searchParams.get('month') || (new Date().getMonth() + 1).toString());
@@ -65,12 +70,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    // Singapore 2026 public holiday dates (ISO YYYY-MM-DD)
-    const SG_PUBLIC_HOLIDAYS = new Set([
-      '2026-01-01','2026-02-17','2026-02-18','2026-03-21','2026-04-03',
-      '2026-05-01','2026-05-27','2026-06-01','2026-08-09','2026-08-10',
-      '2026-11-09','2026-12-25',
-    ]);
+    // Fetch public holidays dynamically from database
+    const publicHolidayRecords = await prisma.publicHoliday.findMany();
+    const SG_PUBLIC_HOLIDAYS = new Set(publicHolidayRecords.map(ph => {
+      const d = new Date(ph.date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }));
 
     function toLocalDateKey(d: Date) {
       const y = d.getFullYear();

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 
 
 const staffData = [
@@ -255,6 +256,11 @@ const staffData = [
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'System Admin'].includes(p))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     let updated = 0;
     let created = 0;
     for (const row of staffData) {

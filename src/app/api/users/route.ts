@@ -5,8 +5,12 @@ import { getSession } from '@/lib/auth';
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const users = await prisma.user.findMany({
-      orderBy: { abbreviation: 'asc' }
+      orderBy: { abbreviation: 'asc' },
+      select: { id: true, abbreviation: true, fullName: true, role: true, email: true, modality: true, isActive: true, ssoEnabled: true, lastLoginAt: true }
     });
     return NextResponse.json(users);
   } catch (error) {
@@ -27,13 +31,15 @@ export async function POST(request: Request) {
       data.ssoEnabled = true;
     }
 
-    const newUser = await prisma.user.create({ data });
+    const { abbreviation, fullName, role, password, email, modality, isActive, ssoEnabled } = data;
+    const newUser = await prisma.user.create({ data: { abbreviation, fullName, role, password, email, modality, isActive, ssoEnabled } });
     
     await prisma.auditLog.create({
       data: { userId: session.id, action: 'CREATE_USER', details: `Created user ${newUser.abbreviation}` }
     });
 
-    return NextResponse.json(newUser);
+    const { password: _, ...newUserWithoutPassword } = newUser as any;
+    return NextResponse.json(newUserWithoutPassword);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
@@ -52,13 +58,18 @@ export async function PATCH(request: Request) {
     const data = await request.json();
     if (data.abbreviation === '') data.abbreviation = null;
 
-    const updated = await prisma.user.update({ where: { id }, data });
+    const { abbreviation, fullName, role, password, email, modality, isActive, ssoEnabled } = data;
+    const updateData = { abbreviation, fullName, role, password, email, modality, isActive, ssoEnabled };
+    Object.keys(updateData).forEach(key => updateData[key as keyof typeof updateData] === undefined && delete updateData[key as keyof typeof updateData]);
+
+    const updated = await prisma.user.update({ where: { id }, data: updateData });
     
     await prisma.auditLog.create({
       data: { userId: session.id, action: 'UPDATE_USER', details: `Updated user ${updated.abbreviation}` }
     });
 
-    return NextResponse.json(updated);
+    const { password: _, ...updatedWithoutPassword } = updated as any;
+    return NextResponse.json(updatedWithoutPassword);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });

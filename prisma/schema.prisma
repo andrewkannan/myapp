@@ -43,6 +43,7 @@ model TimeOffRecord {
   createdAt    DateTime @default(now())
 
   @@index([userId])
+  @@index([status])
 }
 
 model Location {
@@ -75,6 +76,8 @@ model Shift {
   user        User     @relation(fields: [userId], references: [id])
 
   @@index([date])
+  @@index([userId])
+  @@index([userId, date])
 }
 
 model AuditLog {
@@ -84,6 +87,9 @@ model AuditLog {
   action    String
   details   String?
   user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([userId])
 }
 
 model SystemRole {
@@ -109,6 +115,8 @@ model Leave {
   createdAt   DateTime @default(now())
 
   @@index([date])
+  @@index([userId])
+  @@index([userId, date])
 }
 
 model LeaveBalance {

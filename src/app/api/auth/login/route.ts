@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { encrypt } from '@/lib/auth';
+import { verifyPassword, hashPassword } from '@/lib/password';
 import { cookies } from 'next/headers';
 
 
@@ -12,8 +13,21 @@ export async function POST(request: Request) {
       where: { abbreviation: abbreviation.toUpperCase() }
     });
 
-    if (!user || user.password !== password) {
+    if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+    
+    const isValid = await verifyPassword(password, user.password);
+    if (!isValid) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+    
+    // Progressive migration: if password was still plaintext, hash it now
+    if (!user.password.startsWith('$2')) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: await hashPassword(password) }
+      });
     }
 
     if (!user.isActive) {

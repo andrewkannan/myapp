@@ -5,6 +5,9 @@ import { getSession } from '@/lib/auth';
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const locations = await prisma.location.findMany({ include: { stations: true } });
     return NextResponse.json(locations);
   } catch (error) {
