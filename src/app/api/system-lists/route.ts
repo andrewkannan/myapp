@@ -21,7 +21,7 @@ export async function GET() {
     
     if (modalities.length === 0) {
       await prisma.systemModality.createMany({
-        data: ['MRI', 'CT', 'US', 'X-Ray', 'PET/CT', 'Mammo'].map(name => ({ name }))
+        data: ['MRI', 'CT', 'US', 'X-Ray', 'PET/CT', 'Mammo', 'BMD'].map(name => ({ name }))
       });
     }
     
