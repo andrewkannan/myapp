@@ -4,8 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
-import StaffDirectory from '@/components/StaffDirectory';
-import { ChevronLeft, ChevronRight, LogOut, Users, Printer, Settings, Activity } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical } from 'lucide-react';
 
 export type User = {
   id: string;
@@ -74,7 +73,6 @@ export default function Home() {
   const [modalityFilter, setModalityFilter] = useState<string>('All');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
-  const [directoryOpen, setDirectoryOpen] = useState(false);
 
   const effectiveFilterIds = useMemo(() => {
     let ids = new Set<string>();
@@ -235,46 +233,6 @@ export default function Home() {
             </div>
           </div>
 
-          <button
-            onClick={() => router.push('/leaves')}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
-              backgroundColor: '#fef3c7', color: '#92400e',
-              borderRadius: '6px', fontWeight: 500, border: '1px solid transparent',
-            }}
-          >
-            <Activity size={18} />
-            <span className="hidden-mobile">My Requests</span>
-          </button>
-
-          <button
-            onClick={() => setDirectoryOpen(true)}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
-              backgroundColor: 'var(--primary-light)', color: 'var(--primary)',
-              borderRadius: '6px', fontWeight: 500, border: '1px solid transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--primary)'; e.currentTarget.style.color = 'white'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--primary-light)'; e.currentTarget.style.color = 'var(--primary)'; }}
-          >
-            <Users size={18} />
-            <span className="hidden-mobile">Directory</span>
-          </button>
-          <button
-            onClick={() => window.print()}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
-              backgroundColor: '#f0fdf4', color: '#166534',
-              borderRadius: '6px', fontWeight: 500, border: '1px solid transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#166534'; e.currentTarget.style.color = 'white'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#f0fdf4'; e.currentTarget.style.color = '#166534'; }}
-          >
-            <Printer size={18} />
-            <span className="hidden-mobile">Print A3</span>
-          </button>
           <div style={{ position: 'relative' }} ref={settingsRef}>
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
@@ -286,7 +244,7 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--surface)'; }}
             >
-              <Settings size={18} />
+              <MoreVertical size={18} />
             </button>
             {settingsOpen && (
               <div style={{ 
@@ -296,22 +254,30 @@ export default function Home() {
                 zIndex: 100, minWidth: '200px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem'
               }}>
                 <button 
-                  onClick={() => window.location.href = '/leaves'} 
-                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
+                  onClick={() => { setSettingsOpen(false); router.push('/leaves'); }} 
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
                   onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
                   onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  My Leaves
+                  <Activity size={16} /> My Requests
+                </button>
+                <button 
+                  onClick={() => { setSettingsOpen(false); window.print(); }} 
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
+                  onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
+                  onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <Printer size={16} /> Print A3
                 </button>
                 <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>
                 {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
                   <button 
-                    onClick={() => window.location.href = '/admin'} 
-                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
+                    onClick={() => { setSettingsOpen(false); window.location.href = '/admin'; }} 
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', textAlign: 'left', padding: '0.75rem 1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 500 }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    Admin Dashboard
+                    <Settings size={16} /> Admin Dashboard
                   </button>
                 )}
                 {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>}
@@ -350,12 +316,6 @@ export default function Home() {
         )}
       </section>
 
-      {directoryOpen && data && (
-        <StaffDirectory
-          users={data.users}
-          onClose={() => setDirectoryOpen(false)}
-        />
-      )}
     </main>
   );
 }
