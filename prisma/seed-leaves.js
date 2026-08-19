@@ -3,7 +3,7 @@ const xlsx = require('xlsx');
 const { PrismaClient } = require('@prisma/client');
 const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./dev.db' });
+const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || (require('fs').existsSync('./dev.db') ? 'file:./dev.db' : 'file:./data/dev.db') });
 const prisma = new PrismaClient({ adapter });
 
 async function seed() {
