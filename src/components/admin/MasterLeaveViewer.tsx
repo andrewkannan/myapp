@@ -14,7 +14,7 @@ export function MasterLeaveViewer() {
   const fetchLeaves = async () => {
     setLoading(true);
     try {
-      const res = await fetch(\/api/leaves/master?year=\\);
+      const res = await fetch(`/api/leaves/master?year=${year}`);
       if (res.ok) {
         const data = await res.json();
         setLeaves(data.leaves || []);
@@ -76,8 +76,9 @@ export function MasterLeaveViewer() {
                       }
 
                       // Create a local date for comparison. The DB leaves are stored accurately based on local date string extraction.
-                      // We will match the YYYY-MM-DD string.
-                      const targetDateStr = \\-\-\\;
+                      const mStr = String(mIndex + 1).padStart(2, '0');
+                      const dStr = String(d).padStart(2, '0');
+                      const targetDateStr = `${year}-${mStr}-${dStr}`;
 
                       const cellLeaves = leaves.filter(l => {
                         const leaveDateStr = new Date(l.date).toISOString().split('T')[0];
