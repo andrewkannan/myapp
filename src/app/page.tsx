@@ -83,6 +83,12 @@ export default function Home() {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const { user } = await res.json();
+          const roles = (user.role || '').toLowerCase();
+          const isTargetRole = roles.includes('radiographer') || roles.includes('sonographer');
+          if (isTargetRole && window.innerWidth <= 768) {
+            router.push('/schedule');
+            return;
+          }
           setCurrentUser(user);
         } else {
           router.push('/login');
