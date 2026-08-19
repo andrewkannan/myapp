@@ -199,7 +199,7 @@ export default function Home() {
           </div>
 
           <button
-            onClick={() => router.push('/time-off')}
+            onClick={() => router.push('/leaves')}
             style={{ 
               display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
               backgroundColor: '#fef3c7', color: '#92400e',
@@ -207,7 +207,7 @@ export default function Home() {
             }}
           >
             <Activity size={18} />
-            <span className="hidden-mobile">Time Off</span>
+            <span className="hidden-mobile">My Requests</span>
           </button>
 
           <button
