@@ -79,7 +79,12 @@ export default function LeaveRequestForm() {
           >
             <option value="AL">Annual Leave (AL)</option>
             <option value="MC">Medical Certificate (MC)</option>
-            <option value="OFF">Off in Lieu (OFF)</option>
+            <option value="ML">Maternity Leave (ML)</option>
+            <option value="CCL">Child Care Leave (CCL)</option>
+            <option value="UL">Urgent Leave (UL)</option>
+            <option value="NS">Reservist Leave (NS)</option>
+            <option value="HL">Hospitalisation Leave (HL)</option>
+            <option value="TO">Time Off (TO)</option>
             <option value="UPL">Unpaid Leave (UPL)</option>
           </select>
         </div>

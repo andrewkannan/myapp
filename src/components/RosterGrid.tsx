@@ -359,9 +359,9 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                     const actualLeaves = data.leaves?.filter(l => {
                        const d = new Date(l.date);
                        if (d.getDate() !== date.getDate() || d.getMonth() !== date.getMonth()) return false;
-                       if (abs === 'Leave' && l.type === 'AL') return true;
+                       if (abs === 'Leave' && ['AL', 'ML', 'CCL', 'UL', 'NS', 'HL', 'UPL'].includes(l.type)) return true;
                        if (abs === 'MC' && l.type === 'MC') return true;
-                       if (abs === 'Off' && l.type === 'OFF') return true;
+                       if (abs === 'Off' && ['OFF', 'TO'].includes(l.type)) return true;
                        return false;
                     }) || [];
 
@@ -415,14 +415,18 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 display: 'inline-block',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
-                                color: isFiltered ? '#1d4ed8' : '#1e40af', // Blue for real leaves
-                                marginRight: '4px',
-                                whiteSpace: 'nowrap',
+                                color: '#1e40af',
+                                backgroundColor: '#dbeafe',
+                                padding: '1px 3px',
+                                borderRadius: '3px',
+                                margin: '1px',
+                                opacity: isFiltered ? 1 : (filterUserIds.length > 0 ? 0.3 : 1),
                               }}
                             >
-                              {period === 'AM' && <sup style={{ color: '#0369a1', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
-                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
+                              {period === 'AM' && <span style={{ color: '#0369a1', marginRight: '2px' }}>am</span>}
+                              {period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
                               {leave.user.abbreviation}
+                              {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: '#6b7280', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
                               {leave.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
                             </span>
                           );

@@ -112,6 +112,7 @@ export function MasterLeaveViewer() {
                                 {leave.period === 'AM' && <span style={{ color: '#0369a1', marginRight: '2px' }}>am</span>}
                                 {leave.period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
                                 {leave.user?.abbreviation || 'Unk'}
+                                {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: '#6b7280', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
                               </div>
                             ))}
                           </div>
