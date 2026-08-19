@@ -1,7 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Calendar, CheckCircle2, Navigation } from 'lucide-react';
+import { MapPin, Calendar, CheckCircle2, Navigation, MoreVertical, CalendarDays, Activity, Clock, Settings } from 'lucide-react';
 
 export default function MobileSchedulePage() {
   const [session, setSession] = useState<any>(null);
@@ -9,7 +9,19 @@ export default function MobileSchedulePage() {
   const [leaves, setLeaves] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -101,7 +113,7 @@ export default function MobileSchedulePage() {
       padding: '2.5rem 1.5rem',
       paddingBottom: '8rem'
     }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', position: 'relative' }}>
         <div>
           <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', margin: '0 0 0.25rem 0', lineHeight: 1.1 }}>
             {greeting()},<br/>{session.fullName?.split(' ')[0] || session.abbreviation}
@@ -109,6 +121,37 @@ export default function MobileSchedulePage() {
           <p style={{ color: '#86868b', fontSize: '1.125rem', fontWeight: 500, margin: 0 }}>
             {new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(today)}
           </p>
+        </div>
+        
+        <div style={{ position: 'relative' }} ref={menuRef}>
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#e8e8ed', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 'none', color: '#1d1d1f' }}
+          >
+            <MoreVertical size={20} />
+          </button>
+          
+          {menuOpen && (
+            <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', width: '220px', backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '16px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <button onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+                <CalendarDays size={18} color="#007aff" /> Roster
+              </button>
+              <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+                <Activity size={18} color="#34c759" /> Leaves
+              </button>
+              <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+                <Clock size={18} color="#ff9500" /> Time Off
+              </button>
+              {session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
+                <>
+                  <div style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.1)', margin: '4px 8px' }} />
+                  <button onClick={() => router.push('/admin')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+                    <Settings size={18} color="#5856d6" /> Admin Dashboard
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
