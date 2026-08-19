@@ -43,7 +43,7 @@ function LoginContent() {
 
   return (
     <div style={{
-      height: '100vh',
+      minHeight: '100dvh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -88,6 +88,7 @@ function LoginContent() {
               value={abbreviation}
               onChange={(e) => setAbbreviation(e.target.value.toUpperCase())}
               placeholder="e.g. EJP"
+              autoComplete="username"
               required
               style={{
                 width: '100%',
@@ -109,6 +110,7 @@ function LoginContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              autoComplete="current-password"
               required
               style={{
                 width: '100%',

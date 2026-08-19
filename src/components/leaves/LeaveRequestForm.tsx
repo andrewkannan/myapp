@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function LeaveRequestForm() {
+export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -47,6 +47,7 @@ export default function LeaveRequestForm() {
       setDateStr('');
       setRemarks('');
       router.refresh(); // Refresh the Server Component to show new history
+      onSuccess?.();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -59,7 +60,7 @@ export default function LeaveRequestForm() {
       {error && <div style={{ color: '#b91c1c', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>{error}</div>}
       {success && <div style={{ color: '#15803d', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>Leave request submitted successfully! (Pending Approval)</div>}
       
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Date</label>
           <input 

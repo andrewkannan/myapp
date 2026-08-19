@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { RosterData, Shift, Station, User } from '@/app/page';
 import AssignmentModal from './AssignmentModal';
 
@@ -39,30 +39,6 @@ const STATION_COLORS: Record<string, string> = {
   'TUCKER':     '#D6F5F8',
 };
 
-// Singapore 2026 Public Holidays
-const SG_PUBLIC_HOLIDAYS: Record<string, string> = {
-  '2026-01-01': "New Year's Day",
-  '2026-02-17': 'Chinese New Year',
-  '2026-02-18': 'Chinese New Year',
-  '2026-03-21': 'Hari Raya Puasa',
-  '2026-04-03': 'Good Friday',
-  '2026-05-01': 'Labour Day',
-  '2026-05-27': 'Hari Raya Haji',
-  '2026-06-01': 'Vesak Day',
-  '2026-08-09': 'National Day (Sunday)',
-  '2026-08-10': 'National Day (in lieu)',
-  '2026-11-09': 'Deepavali',
-  '2026-12-25': 'Christmas Day',
-};
-
-function getPhName(date: Date): string | null {
-  // Use LOCAL date parts to avoid UTC offset shifting dates (Singapore is UTC+8)
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return SG_PUBLIC_HOLIDAYS[`${y}-${m}-${d}`] || null;
-}
-
 function getStationColor(stationName: string, locationName: string): string {
   const stUpper = stationName.toUpperCase();
   const locUpper = locationName.toUpperCase();
@@ -73,32 +49,31 @@ function getStationColor(stationName: string, locationName: string): string {
   return LOCATION_COLORS[locUpper] || '#F8F8F8';
 }
 
-// Generate a unique, soft pastel color per staff abbreviation (consistent across renders)
-function getUserColor(abbreviation: string): { bg: string; text: string; border: string } {
-  const hash = abbreviation.split('').reduce((acc, c) => c.charCodeAt(0) + ((acc << 5) - acc), 0);
-  const hue = Math.abs(hash) % 360;
-  return {
-    bg: `hsl(${hue}, 55%, 92%)`,      // Very light pastel background
-    text: `hsl(${hue}, 60%, 28%)`,    // Deep matching text
-    border: `hsl(${hue}, 55%, 70%)`,  // Mid-tone border
-  };
-}
-
 export default function RosterGrid({ data, year, month, currentUser, filterUserIds, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
 
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const days = Array.from({ length: daysInMonth }, (_, i) => {
-    const d = new Date(year, month - 1, i + 1);
-    return d;
-  });
+  const publicHolidaysMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (data.publicHolidays) {
+      data.publicHolidays.forEach(ph => {
+        const dateStr = ph.date.split('T')[0];
+        map.set(dateStr, ph.name);
+      });
+    }
+    return map;
+  }, [data.publicHolidays]);
+
+  const daysInMonth = useMemo(() => new Date(year, month, 0).getDate(), [year, month]);
+  const days = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => {
+    return new Date(year, month - 1, i + 1);
+  }), [year, month, daysInMonth]);
 
   // Group stations by location
-  const stationsByLocation = data.locations.map(loc => ({
+  const stationsByLocation = useMemo(() => data.locations.map(loc => ({
     ...loc,
     stations: data.stations.filter(s => s.locationId === loc.id)
-  })).filter(loc => loc.stations.length > 0);
+  })).filter(loc => loc.stations.length > 0), [data.stations, data.locations]);
 
   // Define absence columns — Off / Leave / MC only
   const absences = ['Off', 'Leave', 'MC'] as const;
@@ -118,19 +93,25 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   };
 
   // O(1) Indexing for massive performance boost
-  const shiftsByDate = new Map<string, Shift[]>();
-  data.shifts.forEach(s => {
-    const dStr = typeof s.date === 'string' ? s.date.split('T')[0] : new Date(s.date).toISOString().split('T')[0];
-    if (!shiftsByDate.has(dStr)) shiftsByDate.set(dStr, []);
-    shiftsByDate.get(dStr)!.push(s);
-  });
+  const shiftsByDate = useMemo(() => {
+    const map = new Map<string, Shift[]>();
+    data.shifts.forEach(s => {
+      const dStr = typeof s.date === 'string' ? s.date.split('T')[0] : new Date(s.date).toISOString().split('T')[0];
+      if (!map.has(dStr)) map.set(dStr, []);
+      map.get(dStr)!.push(s);
+    });
+    return map;
+  }, [data.shifts]);
 
-  const leavesByDate = new Map<string, any[]>();
-  (data.leaves || []).forEach(l => {
-    const dStr = typeof l.date === 'string' ? l.date.split('T')[0] : new Date(l.date).toISOString().split('T')[0];
-    if (!leavesByDate.has(dStr)) leavesByDate.set(dStr, []);
-    leavesByDate.get(dStr)!.push(l);
-  });
+  const leavesByDate = useMemo(() => {
+    const map = new Map<string, any[]>();
+    (data.leaves || []).forEach(l => {
+      const dStr = typeof l.date === 'string' ? l.date.split('T')[0] : new Date(l.date).toISOString().split('T')[0];
+      if (!map.has(dStr)) map.set(dStr, []);
+      map.get(dStr)!.push(l);
+    });
+    return map;
+  }, [data.leaves]);
 
   const getLocalDateString = (date: Date) => {
     const tzOffset = date.getTimezoneOffset() * 60000;
@@ -250,7 +231,12 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const dayOfWeek = date.getDay();
               const isSunday = dayOfWeek === 0;
               const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-              const phName = getPhName(date);
+              
+              const y = date.getFullYear();
+              const m = String(date.getMonth() + 1).padStart(2, '0');
+              const d = String(date.getDate()).padStart(2, '0');
+              const dateKey = `${y}-${m}-${d}`;
+              const phName = publicHolidaysMap.get(dateKey);
               const isPH = !!phName;
               const rowBg = isPH ? '#FEF2F2' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
               

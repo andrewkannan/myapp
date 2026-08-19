@@ -1,7 +1,26 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Pencil, Trash2, Plus, X, Download, Upload, Search, Filter, CheckSquare, Power, Lock } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Download, Upload, Search, Filter, Power, Lock } from 'lucide-react';
+
+function parseCSVLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      fields.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current.trim());
+  return fields;
+}
 
 export function StaffManager() {
   const [users, setUsers] = useState<any[]>([]);
@@ -127,8 +146,7 @@ export function StaffManager() {
       const usersToImport = [];
 
       for (let i = 1; i < lines.length; i++) {
-        // Very basic CSV parsing (fails on commas inside quotes, but good enough for simple admin usage)
-        const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map(v => v.replace(/^"|"$/g, '')) || lines[i].split(',');
+        const row = parseCSVLine(lines[i]);
         const userObj: any = {};
         headers.forEach((header, idx) => {
           if (row[idx]) {
@@ -468,7 +486,7 @@ export function StaffManager() {
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem' }}>
                   <Lock size={14} /> Set Local Password
                 </label>
-                <input type="text" placeholder={isCreating ? "password123" : "Leave blank to keep unchanged"} value={editingUser.password || ''} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }} />
+                <input type="password" placeholder={isCreating ? "password123" : "Leave blank to keep unchanged"} value={editingUser.password || ''} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }} />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Use this to set a manual password for users not using SSO.</p>
               </div>
 

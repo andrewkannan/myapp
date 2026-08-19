@@ -11,7 +11,15 @@ export default function LeavesPage() {
   const [session, setSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'leaves' | 'timeoff'>('leaves');
   const [userLeaves, setUserLeaves] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -25,8 +33,8 @@ export default function LeavesPage() {
       });
   }, [router]);
 
-  useEffect(() => {
-    if (session && activeTab === 'leaves') {
+  const fetchLeaves = () => {
+    if (session) {
       fetch('/api/leaves')
         .then(res => res.json())
         .then(data => {
@@ -34,6 +42,12 @@ export default function LeavesPage() {
             setUserLeaves(data);
           }
         });
+    }
+  };
+
+  useEffect(() => {
+    if (session && activeTab === 'leaves') {
+      fetchLeaves();
     }
   }, [session, activeTab]);
 
@@ -48,18 +62,19 @@ export default function LeavesPage() {
         <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', margin: 0, color: '#111827' }}>My Requests</h1>
       </div>
 
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '2rem', alignItems: 'flex-start' }}>
         
         {/* Sidebar Nav */}
-        <aside style={{ width: '220px', flexShrink: 0 }}>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <aside style={{ width: isMobile ? '100%' : '220px', flexShrink: 0 }}>
+          <nav style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '0.5rem', overflowX: isMobile ? 'auto' : 'visible' }}>
             <button
               onClick={() => setActiveTab('leaves')}
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px',
                 textAlign: 'left', fontWeight: 500, cursor: 'pointer', border: 'none',
                 backgroundColor: activeTab === 'leaves' ? 'var(--primary)' : 'transparent',
-                color: activeTab === 'leaves' ? 'white' : 'var(--foreground)'
+                color: activeTab === 'leaves' ? 'white' : 'var(--foreground)',
+                whiteSpace: isMobile ? 'nowrap' : 'normal'
               }}
             >
               <Calendar size={18} />
@@ -72,7 +87,8 @@ export default function LeavesPage() {
                 display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px',
                 textAlign: 'left', fontWeight: 500, cursor: 'pointer', border: 'none',
                 backgroundColor: activeTab === 'timeoff' ? 'var(--primary)' : 'transparent',
-                color: activeTab === 'timeoff' ? 'white' : 'var(--foreground)'
+                color: activeTab === 'timeoff' ? 'white' : 'var(--foreground)',
+                whiteSpace: isMobile ? 'nowrap' : 'normal'
               }}
             >
               <Activity size={18} />
@@ -82,12 +98,12 @@ export default function LeavesPage() {
         </aside>
 
         {/* Content Area */}
-        <section style={{ flex: 1, minWidth: 0 }}>
+        <section style={{ flex: 1, minWidth: 0, width: '100%' }}>
           {activeTab === 'leaves' && (
             <div>
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem', color: '#111827' }}>Request New Leave</h2>
-                <LeaveRequestForm />
+                <LeaveRequestForm onSuccess={fetchLeaves} />
               </div>
 
               <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Leave History</h2>

@@ -60,6 +60,7 @@ export type RosterData = {
   users: User[];
   shifts: Shift[];
   leaves: Leave[];
+  publicHolidays?: { id: string; date: string; name: string }[];
 };
 
 export default function Home() {

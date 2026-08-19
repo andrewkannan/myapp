@@ -7,7 +7,7 @@ export function FacilityManager() {
   const [locations, setLocations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [newLocName, setNewLocName] = useState('');
-  const [newStation, setNewStation] = useState({ name: '', locationId: '' });
+  const [newStationNames, setNewStationNames] = useState<Record<string, string>>({});
 
   const fetchLocations = async () => {
     setLoading(true);
@@ -42,11 +42,12 @@ export function FacilityManager() {
   };
 
   const handleAddStation = async (locationId: string) => {
-    if (!newStation.name.trim() || newStation.locationId !== locationId) return;
+    const name = newStationNames[locationId];
+    if (!name?.trim()) return;
     await fetch('/api/stations', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newStation.name, locationId })
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, locationId })
     });
-    setNewStation({ name: '', locationId: '' });
+    setNewStationNames(prev => ({ ...prev, [locationId]: '' }));
     fetchLocations();
   };
 
@@ -100,8 +101,8 @@ export function FacilityManager() {
               <div style={{ display: 'flex', gap: '0.5rem', maxWidth: '300px' }}>
                 <input 
                   type="text" placeholder="New Station Name" 
-                  value={newStation.locationId === loc.id ? newStation.name : ''}
-                  onChange={e => setNewStation({ name: e.target.value, locationId: loc.id })}
+                  value={newStationNames[loc.id] || ''}
+                  onChange={e => setNewStationNames(prev => ({ ...prev, [loc.id]: e.target.value }))}
                   style={{ flex: 1, padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border)', fontSize: '0.875rem' }}
                 />
                 <button onClick={() => handleAddStation(loc.id)} style={{ padding: '0.4rem 0.75rem', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.875rem' }}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export function MasterLeaveViewer() {
   const [leaves, setLeaves] = useState<any[]>([]);
@@ -28,6 +28,17 @@ export function MasterLeaveViewer() {
 
   const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+  const leavesByKey = useMemo(() => {
+    const map = new Map<string, typeof leaves>();
+    for (const leave of leaves) {
+      const d = new Date(leave.date);
+      const key = `${d.getMonth()}-${d.getDate()}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(leave);
+    }
+    return map;
+  }, [leaves]);
 
   return (
     <div style={{ padding: '1rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -75,15 +86,7 @@ export function MasterLeaveViewer() {
                         return <td key={d} style={{ border: '1px solid var(--border)', backgroundColor: '#f3f4f6' }}></td>;
                       }
 
-                      // Create a local date for comparison. The DB leaves are stored accurately based on local date string extraction.
-                      const mStr = String(mIndex + 1).padStart(2, '0');
-                      const dStr = String(d).padStart(2, '0');
-                      const targetDateStr = `${year}-${mStr}-${dStr}`;
-
-                      const cellLeaves = leaves.filter(l => {
-                        const leaveDateStr = new Date(l.date).toISOString().split('T')[0];
-                        return leaveDateStr === targetDateStr;
-                      });
+                      const cellLeaves = leavesByKey.get(`${mIndex}-${d}`) || [];
 
                       const isWeekend = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6;
 
