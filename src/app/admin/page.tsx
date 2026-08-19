@@ -8,9 +8,10 @@ import { StaffManager } from '@/components/admin/StaffManager';
 import { FacilityManager } from '@/components/admin/FacilityManager';
 import { AuditViewer } from '@/components/admin/AuditViewer';
 import { SystemListManager } from '@/components/admin/SystemListManager';
+import { MasterLeaveViewer } from '@/components/admin/MasterLeaveViewer';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs'>('staff');
+  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs' | 'leaves'>('staff');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const router = useRouter();
 
@@ -83,7 +84,15 @@ export default function AdminDashboard() {
                 active={activeTab === 'staff'} 
                 onClick={() => setActiveTab('staff')}
                 icon={<Users size={18} />}
-                label="Staff"
+                label="Staff Management"
+              />
+            )}
+            {currentUser.permissions?.includes('STAFF_MANAGE') && (
+              <TabButton 
+                active={activeTab === 'leaves'} 
+                onClick={() => setActiveTab('leaves')}
+                icon={<List size={18} />}
+                label="Master Leave Preview"
               />
             )}
             {currentUser.permissions?.includes('FACILITY_MANAGE') && (
@@ -91,7 +100,7 @@ export default function AdminDashboard() {
                 active={activeTab === 'facilities'} 
                 onClick={() => setActiveTab('facilities')}
                 icon={<MapPin size={18} />}
-                label="Facilities"
+                label="Facility Settings"
               />
             )}
             {currentUser.permissions?.includes('ROLE_MANAGE') && (
@@ -99,7 +108,7 @@ export default function AdminDashboard() {
                 active={activeTab === 'lists'} 
                 onClick={() => setActiveTab('lists')}
                 icon={<List size={18} />}
-                label="Access Control"
+                label="System Lists & Roles"
               />
             )}
             {currentUser.permissions?.includes('AUDIT_VIEW') && (
@@ -115,10 +124,11 @@ export default function AdminDashboard() {
 
         {/* Content Area */}
         <section style={{ flex: 1, padding: '2rem', overflowY: 'auto', backgroundColor: 'var(--background)' }}>
-          {activeTab === 'staff' && <StaffManager />}
-          {activeTab === 'facilities' && <FacilityManager />}
-          {activeTab === 'lists' && <SystemListManager />}
-          {activeTab === 'logs' && <AuditViewer />}
+          {activeTab === 'staff' && <StaffManager currentUser={currentUser} />}
+          {activeTab === 'leaves' && <MasterLeaveViewer />}
+          {activeTab === 'facilities' && <FacilityManager currentUser={currentUser} />}
+          {activeTab === 'lists' && <SystemListManager currentUser={currentUser} />}
+          {activeTab === 'logs' && <AuditViewer currentUser={currentUser} />}
         </section>
       </div>
     </main>
