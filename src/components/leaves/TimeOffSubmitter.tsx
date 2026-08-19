@@ -149,12 +149,12 @@ export function TimeOffSubmitter({ session }: { session: any }) {
                 <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>{new Date(r.date).toLocaleDateString('en-GB')}</td>
                 <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>{r.reason}</td>
                 <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>{r.studyAccNo || '-'}</td>
-                <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>{r.startTime && r.endTime ? \\ - \\ : '-'}</td>
+                <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>{r.startTime && r.endTime ? `${r.startTime} - ${r.endTime}` : '-'}</td>
                 <td style={{ padding: '0.75rem', fontSize: '0.875rem', textAlign: 'right', fontWeight: 600, color: r.hours < 0 ? '#b91c1c' : '#15803d' }}>
                   {r.hours > 0 ? '+' : ''}{r.hours} HRS
                 </td>
                 <td style={{ padding: '0.75rem', fontSize: '0.875rem', textAlign: 'right', fontWeight: 'bold', backgroundColor: '#eff6ff' }}>
-                  {r.status === 'APPROVED' ? \\ HRS\ : '-'}
+                  {r.status === 'APPROVED' ? `${r.runningBalance.toFixed(2)} HRS` : '-'}
                 </td>
                 <td style={{ padding: '0.75rem' }}>
                   <span style={{ 

@@ -117,15 +117,32 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     setModalOpen(true);
   };
 
+  // O(1) Indexing for massive performance boost
+  const shiftsByDate = new Map<string, Shift[]>();
+  data.shifts.forEach(s => {
+    const dStr = typeof s.date === 'string' ? s.date.split('T')[0] : new Date(s.date).toISOString().split('T')[0];
+    if (!shiftsByDate.has(dStr)) shiftsByDate.set(dStr, []);
+    shiftsByDate.get(dStr)!.push(s);
+  });
+
+  const leavesByDate = new Map<string, any[]>();
+  (data.leaves || []).forEach(l => {
+    const dStr = typeof l.date === 'string' ? l.date.split('T')[0] : new Date(l.date).toISOString().split('T')[0];
+    if (!leavesByDate.has(dStr)) leavesByDate.set(dStr, []);
+    leavesByDate.get(dStr)!.push(l);
+  });
+
+  const getLocalDateString = (date: Date) => {
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().split('T')[0];
+  };
+
   const getCellShifts = (date: Date, stationId: string | null, status: string) => {
-    return data.shifts.filter(s => {
-      const shiftDate = new Date(s.date);
-      const isSameDate = shiftDate.getDate() === date.getDate() &&
-                         shiftDate.getMonth() === date.getMonth() &&
-                         shiftDate.getFullYear() === date.getFullYear();
-      if (!isSameDate) return false;
+    const dStr = getLocalDateString(date);
+    const dayShifts = shiftsByDate.get(dStr) || [];
+    
+    return dayShifts.filter(s => {
       if (stationId) {
-        // Include both Scheduled and Cancelled so cancelled shows as strikethrough
         return s.stationId === stationId && (s.status === 'Scheduled' || s.status === 'Cancelled');
       } else {
         return s.status === status || s.status === 'Cancelled' && s.stationId === null && status !== 'Scheduled';
@@ -241,10 +258,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences(3) + total
 
               // Count staff for the day
-              const dayShifts = data.shifts.filter(s => {
-                 const d = new Date(s.date);
-                 return d.getDate() === date.getDate() && d.getMonth() === date.getMonth();
-              });
+              const dayShifts = shiftsByDate.get(getLocalDateString(date)) || [];
               const workingStaff = dayShifts.filter(s => s.status === 'Scheduled').length;
 
               const dateCell = (
@@ -356,14 +370,13 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   {absences.map(abs => {
                     const shifts = getCellShifts(date, null, abs);
                     
-                    const actualLeaves = data.leaves?.filter(l => {
-                       const d = new Date(l.date);
-                       if (d.getDate() !== date.getDate() || d.getMonth() !== date.getMonth()) return false;
+                    const dayLeaves = leavesByDate.get(getLocalDateString(date)) || [];
+                    const actualLeaves = dayLeaves.filter(l => {
                        if (abs === 'Leave' && ['AL', 'ML', 'CCL', 'UL', 'NS', 'HL', 'UPL'].includes(l.type)) return true;
                        if (abs === 'MC' && l.type === 'MC') return true;
                        if (abs === 'Off' && ['OFF', 'TO'].includes(l.type)) return true;
                        return false;
-                    }) || [];
+                    });
 
                     const hasFilteredItem = shifts.some(s => filterUserIds.includes(s.userId)) || actualLeaves.some(l => filterUserIds.includes(l.userId));
 
