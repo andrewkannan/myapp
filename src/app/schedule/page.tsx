@@ -1,13 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Calendar, CheckCircle2, Navigation, LogOut } from 'lucide-react';
+import { MapPin, Calendar, CheckCircle2, Navigation } from 'lucide-react';
 
 export default function MobileSchedulePage() {
   const [session, setSession] = useState<any>(null);
   const [shifts, setShifts] = useState<any[]>([]);
   const [leaves, setLeaves] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,15 +23,28 @@ export default function MobileSchedulePage() {
       });
   }, [router]);
 
+  const fetchSchedule = () => {
+    setLoading(true);
+    setError(null);
+    fetch('/api/schedule')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load schedule');
+        return res.json();
+      })
+      .then(data => {
+        setShifts(data.shifts || []);
+        setLeaves(data.leaves || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     if (session) {
-      fetch('/api/schedule')
-        .then(res => res.json())
-        .then(data => {
-          setShifts(data.shifts || []);
-          setLeaves(data.leaves || []);
-          setLoading(false);
-        });
+      fetchSchedule();
     }
   }, [session]);
 
@@ -103,6 +117,13 @@ export default function MobileSchedulePage() {
           <Navigation size={20} />
         </button>
       </header>
+
+      {error && (
+        <div style={{ backgroundColor: '#fef2f2', padding: '1.5rem', borderRadius: '24px', border: '1px solid #fecaca', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+          <p style={{ color: '#991b1b', margin: 0, fontWeight: 500 }}>{error}</p>
+          <button onClick={fetchSchedule} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', backgroundColor: '#ef4444', color: 'white', border: 'none', fontWeight: 600, fontSize: '1rem' }}>Retry</button>
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {days.map((day, index) => {

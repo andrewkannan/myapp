@@ -17,6 +17,15 @@ export function TimeOffSubmitter({ session }: { session: any }) {
     fetchRecords();
   }, []);
 
+  useEffect(() => {
+    if (startTime && endTime) {
+      const [sh, sm] = startTime.split(':').map(Number);
+      const [eh, em] = endTime.split(':').map(Number);
+      const diff = (eh + em/60) - (sh + sm/60);
+      if (diff > 0) setHours(diff.toFixed(2));
+    }
+  }, [startTime, endTime]);
+
   const fetchRecords = async () => {
     const res = await fetch('/api/time-off');
     if (res.ok) {
@@ -128,7 +137,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
       </div>
 
       {/* Ledger Table */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)', overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>

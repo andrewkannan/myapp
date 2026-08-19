@@ -49,39 +49,51 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
     }
 
-    const record = await prisma.timeOffRecord.update({
-      where: { id },
-      data: {
-        status,
-        approvedById: session.id
-      }
-    });
-
-    // If approved and it's a claim (negative hours), add to Leaves for the roster
-    if (status === 'APPROVED' && record.hours < 0) {
-      // Check if a leave already exists for this exact date to prevent duplicates
-      const existing = await prisma.leave.findFirst({
-        where: {
-          userId: record.userId,
-          date: record.date,
-          type: 'TO'
+    const result = await prisma.$transaction(async (tx) => {
+      const record = await tx.timeOffRecord.update({
+        where: { id },
+        data: {
+          status,
+          approvedById: session.id
         }
       });
-      if (!existing) {
-        await prisma.leave.create({
-          data: {
+
+      // If approved and it's a claim (negative hours), add to Leaves for the roster
+      if (status === 'APPROVED' && record.hours < 0) {
+        // Check if a leave already exists for this exact date to prevent duplicates
+        const existing = await tx.leave.findFirst({
+          where: {
             userId: record.userId,
             date: record.date,
-            period: 'FULL',
-            type: 'TO',
-            status: 'APPROVED',
-            remarks: record.reason || 'Time Off Claim'
+            type: 'TO'
           }
         });
+        if (!existing) {
+          await tx.leave.create({
+            data: {
+              userId: record.userId,
+              date: record.date,
+              period: 'FULL',
+              type: 'TO',
+              status: 'APPROVED',
+              remarks: record.reason || 'Time Off Claim'
+            }
+          });
+        }
       }
-    }
 
-    return NextResponse.json(record);
+      await tx.auditLog.create({
+        data: {
+          userId: session.id,
+          action: 'TIME_OFF_APPROVAL',
+          details: `Time-off request ${id} ${status.toLowerCase()} by admin`
+        }
+      });
+
+      return record;
+    });
+
+    return NextResponse.json(result);
   } catch (error: any) {
     console.error('Failed to update time off record:', error);
     return NextResponse.json({ error: 'Failed to update' }, { status: 500 });

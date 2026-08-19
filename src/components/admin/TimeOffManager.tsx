@@ -6,6 +6,7 @@ export function TimeOffManager() {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'PENDING' | 'ALL'>('PENDING');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRecords();
@@ -13,12 +14,17 @@ export function TimeOffManager() {
 
   const fetchRecords = async () => {
     setLoading(true);
-    const res = await fetch(`/api/time-off/admin${filter === 'PENDING' ? '' : '?all=true'}`);
-    if (res.ok) {
+    setError(null);
+    try {
+      const res = await fetch(`/api/time-off/admin${filter === 'PENDING' ? '' : '?all=true'}`);
+      if (!res.ok) throw new Error('Failed to fetch records');
       const data = await res.json();
       setRecords(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleAction = async (id: string, status: 'APPROVED' | 'REJECTED') => {
@@ -61,6 +67,13 @@ export function TimeOffManager() {
             onClick={() => setFilter('ALL')}>All Records</button>
         </div>
       </div>
+
+      {error && (
+        <div style={{ padding: '1rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{error}</span>
+          <button onClick={fetchRecords} style={{ padding: '0.5rem 1rem', borderRadius: '6px', backgroundColor: '#991b1b', color: 'white', border: 'none', cursor: 'pointer' }}>Retry</button>
+        </div>
+      )}
 
       <div style={{ backgroundColor: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', overflowX: 'auto' }}>
         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
@@ -110,9 +123,14 @@ export function TimeOffManager() {
                 </td>
               </tr>
             ))}
-            {records.length === 0 && (
+            {records.length === 0 && !loading && !error && (
               <tr>
                 <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>No records found</td>
+              </tr>
+            )}
+            {loading && (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading records...</td>
               </tr>
             )}
           </tbody>

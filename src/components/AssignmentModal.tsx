@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { User, Shift, Station } from '@/app/page';
 import { X, Trash2, Calendar, Clock, CalendarRange, Ban, RotateCcw } from 'lucide-react';
 import StaffPicker from './StaffPicker';
@@ -120,6 +120,14 @@ export default function AssignmentModal({
   const [mode, setMode] = useState<Mode>('single');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [period, setPeriod] = useState<Period>('Full');
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
   
   const eligibleUsers = useMemo(() => {
     if (!station) return users;
@@ -268,7 +276,7 @@ export default function AssignmentModal({
       backgroundColor: 'rgba(0,0,0,0.45)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       zIndex: 50, padding: '1rem'
-    }}>
+    }} onClick={onClose} role="dialog" aria-modal="true" aria-label="Shift Assignment">
       <div style={{
         backgroundColor: 'var(--surface)',
         borderRadius: '14px',
@@ -276,7 +284,7 @@ export default function AssignmentModal({
         boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
-      }}>
+      }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div style={{
           padding: '1rem 1.25rem',

@@ -5,8 +5,11 @@ import { useState, useEffect } from 'react';
 export function AuditViewer() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
+  const fetchLogs = () => {
+    setLoading(true);
+    setError('');
     fetch('/api/logs?limit=200')
       .then(res => res.json())
       .then(data => {
@@ -15,11 +18,16 @@ export function AuditViewer() {
       })
       .catch(e => {
         console.error(e);
+        setError('Failed to load audit logs.');
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchLogs();
   }, []);
 
-  if (loading) return <div>Loading audit logs...</div>;
+  if (loading && logs.length === 0) return <div>Loading audit logs...</div>;
 
   return (
     <div>
@@ -27,7 +35,14 @@ export function AuditViewer() {
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>System Audit Logs</h2>
       </div>
 
-      <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--surface)' }}>
+      {error && (
+        <div style={{ padding: '1rem', marginBottom: '1rem', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{error}</span>
+          <button onClick={fetchLogs} style={{ padding: '0.25rem 0.75rem', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}>Retry</button>
+        </div>
+      )}
+
+      <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflowX: 'auto', backgroundColor: 'var(--surface)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead style={{ backgroundColor: 'var(--header-bg)', borderBottom: '1px solid var(--border)' }}>
             <tr>
@@ -58,9 +73,9 @@ export function AuditViewer() {
                 <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>{log.details || '-'}</td>
               </tr>
             ))}
-            {logs.length === 0 && (
+            {logs.length === 0 && !loading && !error && (
               <tr>
-                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No logs recorded yet.</td>
+                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No audit logs found</td>
               </tr>
             )}
           </tbody>

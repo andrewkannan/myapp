@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { X, Search, ChevronUp, ChevronDown } from 'lucide-react';
 
 type DirectoryUser = {
@@ -34,6 +34,14 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('abbreviation');
   const [sortAsc, setSortAsc] = useState(true);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -82,6 +90,7 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
           position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)',
           zIndex: 40, backdropFilter: 'blur(2px)'
         }}
+        role="dialog" aria-modal="true" aria-label="Staff Directory"
       />
 
       {/* Panel */}
@@ -92,7 +101,6 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
         boxShadow: '-8px 0 40px rgba(0,0,0,0.15)',
         zIndex: 50,
         display: 'flex', flexDirection: 'column',
-        animation: 'slideInRight 0.22s ease',
       }}>
 
         {/* Header */}
@@ -262,13 +270,6 @@ export default function StaffDirectory({ users, onClose }: StaffDirectoryProps) 
           Hover over a staff pill on the roster to see their full name
         </div>
       </div>
-
-      <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100%); opacity: 0; }
-          to   { transform: translateX(0);    opacity: 1; }
-        }
-      `}</style>
     </>
   );
 }
