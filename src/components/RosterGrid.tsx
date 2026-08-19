@@ -144,7 +144,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
         <table id="roster-table" style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed', fontSize: '0.65rem' }}>
           <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--header-bg)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             <tr>
-              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px 3px', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20, fontSize: '0.65rem', fontWeight: 700 }}>
+              <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px 3px', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20, fontSize: '0.65rem', fontWeight: 700, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)' }}>
                 Date
               </th>
               {stationsByLocation.map(loc => {
@@ -253,7 +253,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   fontWeight: 700,
                   color: isPH ? '#DC2626' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
                   position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
-                  width: '60px', whiteSpace: 'nowrap'
+                  width: '60px', whiteSpace: 'nowrap',
+                  boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)'
                 }}>
                   <span style={{ fontSize: '0.6rem', textTransform: 'capitalize', display: 'inline-block', width: '22px' }}>{date.toLocaleDateString('default', { weekday: 'short' })}</span>
                   <span style={{ fontSize: '0.65rem', fontWeight: 800 }}>{date.getDate()}</span>
@@ -302,7 +303,6 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 );
               }
 
-              return (
                 <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
                   {dateCell}
                   
@@ -320,25 +320,28 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           textAlign: 'center', lineHeight: 1.1,
                           cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
-                          backgroundColor: shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : baseColor
+                          backgroundColor: baseColor
                         }}
                         onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = shifts.some(s => filterUserIds.includes(s.userId)) ? '#fef08a' : baseColor }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = baseColor }}
                       >
                         {/* Plain text cell — Excel style */}
                         {shifts.map(shift => {
                           const isCancelled = shift.status === 'Cancelled';
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
+                          const isOther = filterUserIds.length > 0 && !isFiltered;
                           const period = shift.shiftPeriod;
                           return (
                             <span
                               key={shift.id}
                               title={shift.user.fullName || shift.user.abbreviation}
                               style={{
-                                display: 'block',
+                                display: isOther ? 'none' : 'block', // "only show the selected data" -> hide the others completely, or wait "grey other others", let's use opacity
+                                opacity: isOther ? 0.15 : 1,
+                                filter: isOther ? 'grayscale(100%)' : 'none',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
-                                color: isCancelled ? '#9CA3AF' : isFiltered ? '#1d4ed8' : '#111',
+                                color: isCancelled ? '#9CA3AF' : '#111',
                                 textDecoration: isCancelled ? 'line-through' : 'none',
                                 whiteSpace: 'nowrap',
                               }}
@@ -375,24 +378,27 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           textAlign: 'left', lineHeight: 1.1,
                           cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
-                          backgroundColor: hasFilteredItem ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent')
+                          backgroundColor: (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
                         onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = hasFilteredItem ? '#fef08a' : (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        {/* Plain text absence cell ?" Excel style */}
+                        {/* Plain text absence cell — Excel style */}
                         {shifts.map(shift => {
                           const isCancelled = shift.status === 'Cancelled';
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
+                          const isOther = filterUserIds.length > 0 && !isFiltered;
                           return (
                             <span
                               key={shift.id}
                               title={shift.user.fullName || shift.user.abbreviation}
                               style={{
-                                display: 'inline-block',
+                                display: isOther ? 'none' : 'inline-block',
+                                opacity: isOther ? 0.15 : 1,
+                                filter: isOther ? 'grayscale(100%)' : 'none',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
-                                color: isCancelled ? '#9CA3AF' : isFiltered ? '#1d4ed8' : '#111',
+                                color: isCancelled ? '#9CA3AF' : '#111',
                                 textDecoration: isCancelled ? 'line-through' : 'none',
                                 marginRight: '4px',
                                 whiteSpace: 'nowrap',
@@ -405,13 +411,16 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                         })}
                         {actualLeaves.map(leave => {
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
+                          const isOther = filterUserIds.length > 0 && !isFiltered;
                           const period = leave.period;
                           return (
                             <span
                               key={leave.id}
                               title={leave.user.fullName || leave.user.abbreviation}
                               style={{
-                                display: 'inline-block',
+                                display: isOther ? 'none' : 'inline-block',
+                                opacity: isOther ? 0.15 : 1,
+                                filter: isOther ? 'grayscale(100%)' : 'none',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
                                 color: '#1e40af',
@@ -419,7 +428,6 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 padding: '1px 3px',
                                 borderRadius: '3px',
                                 margin: '1px',
-                                opacity: isFiltered ? 1 : (filterUserIds.length > 0 ? 0.3 : 1),
                               }}
                             >
                               {period === 'AM' && <span style={{ color: '#0369a1', marginRight: '2px' }}>am</span>}

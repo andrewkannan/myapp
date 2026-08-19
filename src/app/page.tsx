@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
-import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter } from 'lucide-react';
 
 export type User = {
   id: string;
@@ -72,7 +72,9 @@ export default function Home() {
   const [filterUserIds, setFilterUserIds] = useState<string[]>([]);
   const [modalityFilter, setModalityFilter] = useState<string>('All');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
 
   const effectiveFilterIds = useMemo(() => {
     let ids = new Set<string>();
@@ -114,6 +116,19 @@ export default function Home() {
     }
     checkAuth();
   }, [router]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setSettingsOpen(false);
+      }
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFilterOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchRoster = async (y: number, m: number, force = false) => {
     try {
@@ -180,62 +195,79 @@ export default function Home() {
           
           {/* Filters */}
           {data && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Modality:</span>
-                <select 
-                  value={modalityFilter}
-                  onChange={e => setModalityFilter(e.target.value)}
-                  style={{ 
-                    padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)', 
-                    fontSize: '0.875rem', outline: 'none', backgroundColor: 'var(--surface)' 
-                  }}
-                >
-                  <option value="All">All Modalities</option>
-                  {['MRI', 'CT', 'US', 'X-Ray', 'PET/CT', 'Mammo', 'BMD'].map(m => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '200px' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Modality:</span>
-                <select 
-                  className="input-field" 
-                  value={modalityFilter} 
-                  onChange={e => setModalityFilter(e.target.value)}
-                  style={{ minWidth: '120px' }}
-                >
-                  <option value="All">All Modalities</option>
-                  {Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => (
-                    <option key={mod} value={mod}>{mod}</option>
-                  ))}
-                </select>
-              </div>
+            <div style={{ position: 'relative' }} ref={filterRef}>
+              <button 
+                onClick={() => setFilterOpen(!filterOpen)}
+                className={`btn ${filterUserIds.length > 0 || modalityFilter !== 'All' ? 'btn-primary' : 'btn-ghost'}`}
+                style={{ padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <Filter size={18} />
+                <span>Filters</span>
+                {(filterUserIds.length > 0 || modalityFilter !== 'All') && (
+                  <span style={{ 
+                    backgroundColor: 'rgba(255,255,255,0.2)', 
+                    padding: '2px 6px', 
+                    borderRadius: '10px', 
+                    fontSize: '0.75rem' 
+                  }}>
+                    {(filterUserIds.length > 0 ? 1 : 0) + (modalityFilter !== 'All' ? 1 : 0)}
+                  </span>
+                )}
+              </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '350px' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Staff Filter:</span>
-                <div style={{ flex: 1, zIndex: 50 }}>
-                  <Select
-                    isMulti
-                    options={data.users.map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
-                    value={data.users
-                      .filter(u => filterUserIds.includes(u.id))
-                      .map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
-                    onChange={(selected) => setFilterUserIds(selected.map(s => s.value))}
-                    placeholder="Select staff..."
-                    styles={{
-                      control: (base) => ({
-                        ...base,
-                        fontSize: '0.875rem',
-                        borderColor: 'var(--border)',
-                        minHeight: '38px',
-                        borderRadius: '6px'
-                      }),
-                      menu: (base) => ({ ...base, fontSize: '0.875rem', zIndex: 100 })
-                    }}
-                  />
+              {filterOpen && (
+                <div className="glass-popover" style={{ position: 'absolute', left: 0, top: '100%', marginTop: '0.5rem', width: '300px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 100 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Modality</label>
+                    <select 
+                      className="input-field" 
+                      value={modalityFilter} 
+                      onChange={e => setModalityFilter(e.target.value)}
+                    >
+                      <option value="All">All Modalities</option>
+                      {Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => (
+                        <option key={mod} value={mod}>{mod}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Staff Select</label>
+                    <Select
+                      isMulti
+                      options={data.users.map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
+                      value={data.users
+                        .filter(u => filterUserIds.includes(u.id))
+                        .map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
+                      onChange={(selected) => setFilterUserIds(selected.map(s => s.value))}
+                      placeholder="Select staff..."
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          fontSize: '0.875rem',
+                          borderColor: 'var(--border)',
+                          minHeight: '38px',
+                          borderRadius: '6px'
+                        }),
+                        menu: (base) => ({ ...base, fontSize: '0.875rem', zIndex: 100 })
+                      }}
+                    />
+                  </div>
+
+                  {(filterUserIds.length > 0 || modalityFilter !== 'All') && (
+                    <button 
+                      onClick={() => {
+                        setFilterUserIds([]);
+                        setModalityFilter('All');
+                      }}
+                      className="btn btn-ghost" 
+                      style={{ width: '100%', color: 'var(--danger)', marginTop: '0.5rem' }}
+                    >
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
