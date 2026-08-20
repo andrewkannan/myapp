@@ -9,6 +9,7 @@ services:
       - "80:3000"
     environment:
       - DATABASE_URL=file:/app/data/dev.db
+      - JWT_SECRET=super-secret-production-key-change-me
     restart: always
     volumes:
       - ./data:/app/data
