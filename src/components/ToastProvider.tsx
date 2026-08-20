@@ -71,7 +71,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         <div className="modal-backdrop" style={{ zIndex: 2000 }}>
           <div className="modal-content" style={{ padding: '1.5rem', maxWidth: '400px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ padding: '0.5rem', backgroundColor: '#fef9c3', borderRadius: '50%', color: '#854d0e' }}>
+              <div style={{ padding: '0.5rem', backgroundColor: 'var(--warning-light)', borderRadius: '50%', color: 'var(--warning-text)' }}>
                 <AlertCircle size={24} />
               </div>
               <div>

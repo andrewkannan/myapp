@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter } from 'lucide-react';
 
 export type User = {
@@ -187,7 +188,7 @@ export default function Home() {
               <ChevronLeft size={20} />
             </button>
             
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, minWidth: '140px', textAlign: 'center', color: '#1a1a1a' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, minWidth: '140px', textAlign: 'center', color: 'var(--foreground)' }}>
               {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
             </h2>
 
@@ -297,6 +298,7 @@ export default function Home() {
             </div>
           </div>
 
+          <ThemeToggle />
           <div style={{ position: 'relative' }} ref={settingsRef}>
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
@@ -305,7 +307,7 @@ export default function Home() {
                 backgroundColor: 'var(--surface)', color: 'var(--foreground)', border: '1px solid var(--border)',
                 borderRadius: '6px', cursor: 'pointer', transition: 'all 0.15s'
               }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--surface-hover)'; }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--surface)'; }}
             >
               <MoreVertical size={18} />

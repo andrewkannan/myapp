@@ -63,7 +63,7 @@ export default function MobileSchedulePage() {
   if (!session || loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#fbfbfd' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid #e5e5ea', borderTopColor: '#007aff', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid #e5e5ea', borderTopcolor: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -106,13 +106,13 @@ export default function MobileSchedulePage() {
   };
 
   return (
-    <div className="animate-fade-in" style={{ backgroundColor: '#f5f5f7', minHeight: '100vh', padding: '1.5rem', paddingBottom: '4rem', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+    <div className="animate-fade-in" style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '1.5rem', paddingBottom: '4rem', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
       <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', position: 'relative', zIndex: 50 }}>
         <div>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', margin: '0 0 0.25rem 0', lineHeight: 1.1 }}>
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.02em', margin: '0 0 0.25rem 0', lineHeight: 1.1 }}>
             {greeting()},<br/>{session.fullName?.split(' ')[0] || session.abbreviation}
           </h1>
-          <p style={{ color: '#86868b', fontSize: '1.125rem', fontWeight: 500, margin: 0 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem', fontWeight: 500, margin: 0 }}>
             {new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(today)}
           </p>
         </div>
@@ -120,26 +120,26 @@ export default function MobileSchedulePage() {
         <div style={{ position: 'relative' }} ref={menuRef}>
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
-            style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#e8e8ed', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 'none', color: '#1d1d1f' }}
+            style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#e8e8ed', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 'none', color: 'var(--foreground)' }}
           >
             <MoreVertical size={20} />
           </button>
           
           {menuOpen && (
-            <div className="animate-menu" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', width: '220px', backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '16px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <button onClick={() => router.push('/?view=grid')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+            <div className="animate-menu" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', width: '220px', backgroundColor: 'var(--glass-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '16px', padding: '0.5rem', boxShadow: '0 10px 40px var(--shadow-color)', border: '1px solid var(--glass-border)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <button onClick={() => router.push('/?view=grid')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: 'var(--foreground)', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <CalendarDays size={18} color="#007aff" /> Roster
               </button>
-              <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+              <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: 'var(--foreground)', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <Activity size={18} color="#34c759" /> Leaves
               </button>
-              <button onClick={() => router.push('/leaves?tab=timeoff')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+              <button onClick={() => router.push('/leaves?tab=timeoff')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: 'var(--foreground)', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <Clock size={18} color="#ff9500" /> Time Off
               </button>
               {session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
                 <>
                   <div style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.1)', margin: '4px 8px' }} />
-                  <button onClick={() => router.push('/admin')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+                  <button onClick={() => router.push('/admin')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: 'var(--foreground)', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                     <Settings size={18} color="#5856d6" /> Admin Dashboard
                   </button>
                 </>
@@ -151,8 +151,8 @@ export default function MobileSchedulePage() {
 
       {error && (
         <div style={{ backgroundColor: '#fef2f2', padding: '1.5rem', borderRadius: '24px', border: '1px solid #fecaca', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-          <p style={{ color: '#991b1b', margin: 0, fontWeight: 500 }}>{error}</p>
-          <button onClick={fetchSchedule} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', backgroundColor: '#ef4444', color: 'white', border: 'none', fontWeight: 600, fontSize: '1rem' }}>Retry</button>
+          <p style={{ color: 'var(--danger-text)', margin: 0, fontWeight: 500 }}>{error}</p>
+          <button onClick={fetchSchedule} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', backgroundcolor: 'var(--danger-text)', color: 'white', border: 'none', fontWeight: 600, fontSize: '1rem' }}>Retry</button>
         </div>
       )}
 
@@ -218,12 +218,12 @@ export default function MobileSchedulePage() {
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#86868b' }}>
+                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: 'var(--background)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)' }}>
                         <Moon size={28} />
                       </div>
                       <div>
-                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#86868b' }}>Off Day</h3>
-                        <p style={{ margin: 0, color: '#86868b', fontSize: '1rem' }}>No schedule for today</p>
+                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--text-muted)' }}>Off Day</h3>
+                        <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '1rem' }}>No schedule for today</p>
                       </div>
                     </div>
                   )
@@ -236,7 +236,7 @@ export default function MobileSchedulePage() {
                           {l.type === 'TO' ? <Clock size={28} /> : <Calendar size={28} />}
                         </div>
                         <div style={{ flex: 1 }}>
-                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f' }}>
+                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--foreground)' }}>
                             {l.type === 'TO' ? 'Time Off' : 'On Leave'}
                           </h3>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: l.type === 'TO' ? '#d97706' : (isToday ? '#15803d' : '#ef4444'), fontWeight: 600, fontSize: '1rem', flexWrap: 'wrap' }}>
@@ -247,11 +247,11 @@ export default function MobileSchedulePage() {
                               </span>
                             )}
                             {l.status === 'PENDING' && (
-                              <span style={{ backgroundColor: '#fef9c3', color: '#854d0e', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 700 }}>PENDING</span>
+                              <span style={{ backgroundColor: 'var(--warning-light)', color: 'var(--warning-text)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 700 }}>PENDING</span>
                             )}
                           </div>
                           {l.remarks && (
-                            <p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                            <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
                               "{l.remarks}"
                             </p>
                           )}
@@ -290,7 +290,7 @@ export default function MobileSchedulePage() {
                             })()}
                           </div>
                           <div style={{ flex: 1 }}>
-                            <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                               {locName && <span style={{ color: isToday ? '#15803d' : '#86868b', fontSize: '1rem', fontWeight: 600 }}>{locName}</span>}
                               {base}
                               {time && (

@@ -28,8 +28,8 @@ function toInputDate(d: Date) {
 }
 
 const PERIOD_LABELS: Record<Period, { label: string; color: string; bg: string }> = {
-  Full: { label: 'Full Day', color: '#1d4ed8', bg: '#EFF6FF' },
-  AM:   { label: 'AM Only',  color: '#0369a1', bg: '#E0F2FE' },
+  Full: { label: 'Full Day', color: 'var(--primary)', bg: '#EFF6FF' },
+  AM:   { label: 'AM Only',  color: 'var(--primary)', bg: '#E0F2FE' },
   PM:   { label: 'PM Only',  color: '#c2410c', bg: '#FFF7ED' },
 };
 
@@ -406,7 +406,7 @@ export default function AssignmentModal({
                             ) : (
                               <span style={{
                                 fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px',
-                                borderRadius: '4px', backgroundColor: '#FEE2E2', color: '#DC2626'
+                                borderRadius: '4px', backgroundColor: 'var(--danger-light)', color: 'var(--danger-text)'
                               }}>
                                 Cancelled
                               </span>
@@ -570,7 +570,7 @@ export default function AssignmentModal({
             </div>
 
             {error && (
-              <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '6px', padding: '0.5rem 0.75rem', color: '#DC2626', fontSize: '0.8rem', fontWeight: 500 }}>
+              <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '6px', padding: '0.5rem 0.75rem', color: 'var(--danger-text)', fontSize: '0.8rem', fontWeight: 500 }}>
                 {error}
               </div>
             )}

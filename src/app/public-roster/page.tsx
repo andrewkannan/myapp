@@ -143,7 +143,7 @@ export default function PublicRoster() {
               <ChevronLeft size={20} />
             </button>
             
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, minWidth: '140px', textAlign: 'center', color: '#1a1a1a' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, minWidth: '140px', textAlign: 'center', color: 'var(--foreground)' }}>
               {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
             </h2>
 
@@ -175,9 +175,9 @@ export default function PublicRoster() {
             {filterOpen && data && (
               <div className="animate-menu" style={{
                 position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem',
-                backgroundColor: 'white', border: '1px solid var(--border)', borderRadius: '12px',
+                backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px',
                 padding: '1rem', width: '320px', zIndex: 100,
-                boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+                boxShadow: '0 10px 40px var(--shadow-color)'
               }}>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem', color: '#111827' }}>Filter Staff</h3>
                 
@@ -214,7 +214,7 @@ export default function PublicRoster() {
                 {(filterUserIds.length > 0 || modalityFilter.length > 0) && (
                   <button 
                     onClick={() => { setFilterUserIds([]); setModalityFilter([]); }}
-                    style={{ marginTop: '1rem', width: '100%', padding: '0.5rem', borderRadius: '8px', backgroundColor: '#f3f4f6', color: '#4b5563', border: 'none', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}
+                    style={{ marginTop: '1rem', width: '100%', padding: '0.5rem', borderRadius: '8px', backgroundColor: 'var(--surface-hover)', color: '#4b5563', border: 'none', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}
                   >
                     Clear Filters
                   </button>
@@ -229,7 +229,7 @@ export default function PublicRoster() {
         </div>
       </header>
 
-      <div style={{ flex: 1, overflow: 'hidden', backgroundColor: '#f9fafb' }}>
+      <div style={{ flex: 1, overflow: 'hidden', backgroundColor: 'var(--surface-hover)' }}>
         {!data ? (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {loading ? 'Loading roster data...' : 'Failed to load data'}

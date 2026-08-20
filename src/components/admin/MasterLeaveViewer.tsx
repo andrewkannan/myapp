@@ -93,7 +93,7 @@ export function MasterLeaveViewer() {
                     </td>
                     {days.map(d => {
                       if (d > daysInMonth) {
-                        return <td key={d} style={{ border: '1px solid var(--border)', backgroundColor: '#f3f4f6' }}></td>;
+                        return <td key={d} style={{ border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)' }}></td>;
                       }
 
                       const cellLeaves = leavesByKey.get(`${mIndex}-${d}`) || [];
@@ -122,10 +122,10 @@ export function MasterLeaveViewer() {
                                 textOverflow: 'ellipsis',
                                 textAlign: 'center'
                               }} title={leave.user?.fullName || leave.user?.abbreviation}>
-                                {leave.period === 'AM' && <span style={{ color: '#0369a1', marginRight: '2px' }}>am</span>}
+                                {leave.period === 'AM' && <span style={{ color: 'var(--primary)', marginRight: '2px' }}>am</span>}
                                 {leave.period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
                                 {leave.user?.abbreviation || 'Unk'}
-                                {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: '#6b7280', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
+                                {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: 'var(--text-muted)', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
                               </div>
                             ))}
                           </div>

@@ -66,7 +66,7 @@ function LoginContent() {
 
         {error && (
           <div style={{
-            backgroundColor: '#fee2e2',
+            backgroundColor: 'var(--danger-light)',
             color: 'var(--danger)',
             padding: '0.75rem',
             borderRadius: '6px',
@@ -157,9 +157,9 @@ function LoginContent() {
           style={{
             width: '100%',
             padding: '0.875rem',
-            backgroundColor: 'white',
-            color: '#333',
-            border: '1px solid #d1d5db',
+            backgroundColor: 'var(--surface)',
+            color: 'var(--foreground)',
+            border: '1px solid var(--border)',
             borderRadius: '6px',
             fontSize: '1rem',
             fontWeight: 500,

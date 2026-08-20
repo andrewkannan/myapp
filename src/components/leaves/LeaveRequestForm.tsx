@@ -90,19 +90,19 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {error && <div style={{ color: '#b91c1c', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>{error}</div>}
-      {success && <div style={{ color: '#15803d', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>
+      {error && <div style={{ color: 'var(--danger-text)', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>{error}</div>}
+      {success && <div style={{ color: 'var(--success-text)', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>
         {isScheduler ? 'Leave assigned and auto-approved successfully!' : 'Leave request submitted successfully! (Pending Approval)'}
       </div>}
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {isScheduler && (
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Apply on behalf of (Optional)</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Apply on behalf of (Optional)</label>
             <select 
               value={targetUserId}
               onChange={(e) => setTargetUserId(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)', fontSize: '1rem' }}
             >
               <option value="">-- Apply for myself --</option>
               {users.map(u => (
@@ -113,31 +113,31 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Start Date</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Start Date</label>
             <input 
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)', fontSize: '1rem' }}
               required
             />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>End Date (Optional)</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--foreground)' }}>End Date (Optional)</label>
             <input 
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)', fontSize: '1rem' }}
             />
           </div>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Leave Type</label>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Leave Type</label>
           <select 
             value={type}
             onChange={(e) => setType(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)', fontSize: '1rem' }}
           >
             <option value="AL">Annual Leave (AL)</option>
             <option value="MC">Medical Certificate (MC)</option>
@@ -151,11 +151,11 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Period</label>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Period</label>
           <select 
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)', fontSize: '1rem' }}
           >
             <option value="FULL">Full Day</option>
             <option value="AM">Morning (AM)</option>
@@ -165,13 +165,13 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Remarks (Optional)</label>
+        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Remarks (Optional)</label>
         <input 
           type="text" 
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
           placeholder="Reason or notes for your manager"
-          style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+          style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface-hover)', fontSize: '1rem' }}
         />
       </div>
 
@@ -179,7 +179,7 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
         <button 
           type="submit" 
           disabled={loading}
-          style={{ width: '100%', padding: '0.875rem', backgroundColor: '#007aff', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
+          style={{ width: '100%', padding: '0.875rem', backgroundcolor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
         >
           {loading ? 'Submitting...' : 'Submit Request'}
         </button>

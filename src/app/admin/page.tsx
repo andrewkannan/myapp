@@ -75,7 +75,7 @@ export default function AdminDashboard() {
             }}
             style={{ 
               display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', 
-              backgroundColor: '#fee2e2', color: 'var(--danger)', border: 'none', cursor: 'pointer',
+              backgroundColor: 'var(--danger-light)', color: 'var(--danger)', border: 'none', cursor: 'pointer',
               borderRadius: '6px', fontWeight: 500
             }}>
             <LogOut size={18} />

@@ -70,7 +70,7 @@ export function TimeOffManager() {
       </div>
 
       {error && (
-        <div style={{ padding: '1rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '1rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: 'var(--danger-text)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{error}</span>
           <button onClick={fetchRecords} className="btn btn-danger">Retry</button>
         </div>
@@ -111,11 +111,11 @@ export function TimeOffManager() {
                     <>
                       <button 
                         className="btn-ghost"
-                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: '#166534' }}
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--success-text)' }}
                         onClick={() => handleAction(r.id, 'APPROVED')}>Approve</button>
                       <button 
                         className="btn-ghost"
-                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: '#991b1b' }}
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)' }}
                         onClick={() => handleAction(r.id, 'REJECTED')}>Reject</button>
                     </>
                   )}

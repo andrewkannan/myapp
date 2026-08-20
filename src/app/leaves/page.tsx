@@ -64,11 +64,11 @@ function LeavesContent() {
   if (!session) return null;
 
   return (
-    <div className="animate-fade-in" style={{ backgroundColor: '#f9fafb', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header className="animate-slide-up" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '1rem 1.5rem', position: 'sticky', top: 0, zIndex: 10 }}>
+    <div className="animate-fade-in" style={{ backgroundColor: 'var(--surface-hover)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header className="animate-slide-up" style={{ backgroundColor: 'var(--surface)', borderBottom: '1px solid var(--border)', padding: '1rem 1.5rem', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button onClick={() => router.push('/schedule')} style={{ display: 'flex', alignItems: 'center', color: '#6b7280', border: 'none', background: 'transparent' }}>
+            <button onClick={() => router.push('/schedule')} style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', border: 'none', background: 'transparent' }}>
               <ChevronLeft size={24} />
               <span className="hidden sm:inline">Back to Schedule</span>
             </button>
@@ -121,7 +121,7 @@ function LeavesContent() {
                 const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
                 if (!isRestrictedRole) {
                   return (
-                    <div style={{ flex: 1, backgroundColor: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
+                    <div style={{ flex: 1, backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
                       <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Calendar size={20} color="#007aff" /> Apply for Leave
                       </h2>
@@ -132,18 +132,18 @@ function LeavesContent() {
                 return null;
               })()}
 
-              <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: '#1d1d1f' }}>Leave History</h2>
+              <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--foreground)' }}>Leave History</h2>
               {userLeaves.length === 0 ? (
-                <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#f5f5f7', borderRadius: '24px', color: '#86868b' }}>
+                <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '24px', color: 'var(--text-muted)' }}>
                   No leave records found.
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {userLeaves.map((leave: any) => (
-                    <div key={leave.id} style={{ backgroundColor: '#ffffff', padding: '1.25rem 1.5rem', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div key={leave.id} style={{ backgroundColor: 'var(--surface)', padding: '1.25rem 1.5rem', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#1d1d1f', marginBottom: '0.25rem' }}>{new Date(leave.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                        <div style={{ fontSize: '0.9rem', color: '#86868b', fontWeight: 500 }}>{leave.type} • {leave.period}</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.25rem' }}>{new Date(leave.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>{leave.type} • {leave.period}</div>
                       </div>
                       <span style={{
                         padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '999px', fontWeight: 600,

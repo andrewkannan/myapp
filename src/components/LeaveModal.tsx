@@ -79,7 +79,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', width: '90%', maxWidth: '400px' }}>
+      <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', width: '90%', maxWidth: '400px' }}>
         <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>{leave ? 'Edit Leave' : 'Apply Leave'}</h2>
         <p style={{ margin: '0 0 1rem 0', color: '#666' }}>{date.toLocaleDateString()}</p>
         
@@ -127,7 +127,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
             <button type="button" onClick={onClose} className="btn btn-ghost" style={{ flex: 1 }}>Cancel</button>
             {leave && (
-              <button type="button" disabled={loading} onClick={handleDelete} style={{ flex: 1, backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+              <button type="button" disabled={loading} onClick={handleDelete} style={{ flex: 1, backgroundcolor: 'var(--danger-text)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
             )}
             <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>{loading ? 'Saving...' : (leave ? 'Save' : 'Apply')}</button>
           </div>

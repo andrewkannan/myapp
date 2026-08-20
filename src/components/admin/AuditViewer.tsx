@@ -37,7 +37,7 @@ export function AuditViewer() {
       </div>
 
       {error && (
-        <div style={{ padding: '1rem', marginBottom: '1rem', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '1rem', marginBottom: '1rem', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', color: 'var(--danger-text)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{error}</span>
           <button onClick={fetchLogs} className="btn btn-danger">Retry</button>
         </div>
