@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Calendar, CheckCircle2, Navigation, MoreVertical, CalendarDays, Activity, Clock, Settings } from 'lucide-react';
+import { MapPin, Calendar, CheckCircle2, Navigation, MoreVertical, CalendarDays, Activity, Clock, Settings, Moon } from 'lucide-react';
 
 export default function MobileSchedulePage() {
   const [session, setSession] = useState<any>(null);
