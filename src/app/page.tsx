@@ -358,6 +358,7 @@ export default function Home() {
             month={month} 
             currentUser={currentUser}
             filterUserIds={effectiveFilterIds}
+            activeModalities={modalityFilter}
             onRefresh={() => fetchRoster(year, month, true)}
           />
         ) : (

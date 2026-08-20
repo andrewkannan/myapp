@@ -11,6 +11,7 @@ interface RosterGridProps {
   month: number;
   currentUser: User;
   filterUserIds: string[];
+  activeModalities?: string[];
   onRefresh: () => void;
 }
 
@@ -50,7 +51,7 @@ function getStationColor(stationName: string, locationName: string): string {
   return LOCATION_COLORS[locUpper] || '#F8F8F8';
 }
 
-export default function RosterGrid({ data, year, month, currentUser, filterUserIds, onRefresh }: RosterGridProps) {
+export default function RosterGrid({ data, year, month, currentUser, filterUserIds, activeModalities, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
@@ -72,21 +73,44 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     return new Date(year, month - 1, i + 1);
   }), [year, month, daysInMonth]);
 
-  // Group stations by location
-  const stationsByLocation = useMemo(() => data.locations.map(loc => ({
-    ...loc,
-    stations: data.stations.filter(s => s.locationId === loc.id)
-  })).filter(loc => loc.stations.length > 0), [data.stations, data.locations]);
+  // Group stations by location and filter by active modality
+  const stationsByLocation = useMemo(() => {
+    return data.locations.map(loc => {
+      const stations = data.stations.filter(s => {
+        if (s.locationId !== loc.id) return false;
+        if (activeModalities && activeModalities.length > 0) {
+          const upperName = s.name.toUpperCase();
+          const hasMod = activeModalities.some(m => upperName.includes(m.toUpperCase()));
+          if (!hasMod) return false;
+        }
+        return true;
+      });
+      return { ...loc, stations };
+    }).filter(loc => loc.stations.length > 0);
+  }, [data.stations, data.locations, activeModalities]);
 
   // Define absence columns — Off / Leave / MC only
   const absences = ['Off', 'Leave', 'MC'] as const;
 
 
-  // Parse station name into base name + optional time pill (e.g. "MRI 3T 830" → { base: "MRI 3T", time: "830" })
-  const parseStationDisplay = (name: string): { base: string; time: string | null } => {
-    const match = name.match(/^(.*?)\s+(830|930|1030|1230)$/);
-    if (match) return { base: match[1], time: match[2] };
-    return { base: name, time: null };
+  // Parse station name into base name + optional time pill, and split into two lines if requested
+  const parseStationDisplay = (name: string): { line1: string; line2?: string; time: string | null } => {
+    let base = name;
+    let time = null;
+    const match = name.match(/^(.*?)\s+(830|930|1030|1230|8\.30|9\.30)$/);
+    if (match) {
+      base = match[1];
+      time = match[2].replace('.', '');
+    }
+
+    if (base.toUpperCase() === 'LUMA MRI') {
+      return { line1: 'LUMA', line2: 'MRI', time };
+    }
+    if (base.toUpperCase() === 'TUCKER MRI') {
+      return { line1: 'TUCKER', line2: 'MRI', time };
+    }
+
+    return { line1: base, time };
   };
 
   const handleCellClick = (date: Date, station: Station | null, status: 'Scheduled' | 'Leave' | 'MC' | 'Off') => {
@@ -185,7 +209,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
             <tr>
               {stationsByLocation.flatMap(loc => loc.stations).map(station => {
                 const locName = stationsByLocation.find(l => l.id === station.locationId)?.name || '';
-                const { base, time } = parseStationDisplay(station.name);
+                const { line1, line2, time } = parseStationDisplay(station.name);
                 return (
                 <th key={station.id} style={{ 
                   border: '1px solid var(--border)', padding: '2px 1px', textAlign: 'center', 
@@ -194,7 +218,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   whiteSpace: 'nowrap', lineHeight: 1.2,
                   width: '50px'
                 }}>
-                  <div>{base}</div>
+                  <div>{line1}</div>
+                  {line2 && <div>{line2}</div>}
                   {time && (
                     <div style={{
                       marginTop: '1px',

@@ -240,8 +240,9 @@ export default function PublicRoster() {
             year={year} 
             month={month} 
             onRefresh={() => fetchRoster(year, month, true)}
-            currentUser={{ id: 'public', abbreviation: 'PUB', fullName: 'Public Viewer', role: 'VIEWER' }}
+            currentUser={{ id: 'public', abbreviation: 'PUB', fullName: 'Public Viewer', role: 'VIEWER' } as any}
             filterUserIds={effectiveFilterIds}
+            activeModalities={modalityFilter}
           />
         )}
       </div>
