@@ -127,7 +127,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
             <button type="button" onClick={onClose} className="btn btn-ghost" style={{ flex: 1 }}>Cancel</button>
             {leave && (
-              <button type="button" disabled={loading} onClick={handleDelete} style={{ flex: 1, backgroundcolor: 'var(--danger-text)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+              <button type="button" disabled={loading} onClick={handleDelete} style={{ flex: 1, backgroundColor: 'var(--danger-text)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
             )}
             <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>{loading ? 'Saving...' : (leave ? 'Save' : 'Apply')}</button>
           </div>

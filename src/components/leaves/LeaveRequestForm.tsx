@@ -175,11 +175,11 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
         />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+      <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
         <button 
           type="submit" 
           disabled={loading}
-          style={{ width: '100%', padding: '0.875rem', backgroundcolor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
+          style={{ width: '100%', padding: '0.875rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
         >
           {loading ? 'Submitting...' : 'Submit Request'}
         </button>

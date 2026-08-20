@@ -165,7 +165,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
           </div>
 
           <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
-            <button type="submit" style={{ width: '100%', padding: '0.875rem', backgroundcolor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}>
+            <button type="submit" style={{ width: '100%', padding: '0.875rem', backgroundColor: '#007aff', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}>
               Submit
             </button>
           </div>

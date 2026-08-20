@@ -66,9 +66,9 @@ export default function MobileSchedulePage() {
 
   if (!session || loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#fbfbfd' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid #e5e5ea', borderTopcolor: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--background)' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid #e5e5ea', borderTopColor: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
+        <p style={{ marginTop: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Syncing schedule...</p>
       </div>
     );
   }
@@ -154,9 +154,13 @@ export default function MobileSchedulePage() {
       </header>
 
       {error && (
-        <div style={{ backgroundColor: '#fef2f2', padding: '1.5rem', borderRadius: '24px', border: '1px solid #fecaca', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-          <p style={{ color: 'var(--danger-text)', margin: 0, fontWeight: 500 }}>{error}</p>
-          <button onClick={fetchSchedule} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', backgroundcolor: 'var(--danger-text)', color: 'white', border: 'none', fontWeight: 600, fontSize: '1rem' }}>Retry</button>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--background)', padding: '2rem', textAlign: 'center' }}>
+          <div style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-text)', padding: '1rem', borderRadius: '50%', marginBottom: '1.5rem' }}>
+            <Activity size={32} />
+          </div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text)' }}>Failed to Sync</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>{error}</p>
+          <button onClick={() => fetchSchedule(true)} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', backgroundColor: 'var(--danger-text)', color: 'white', border: 'none', fontWeight: 600, fontSize: '1rem' }}>Retry</button>
         </div>
       )}
 
