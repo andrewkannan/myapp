@@ -9,121 +9,154 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const { records } = await request.json();
-    if (!Array.isArray(records) || records.length === 0) {
-      return NextResponse.json({ error: 'No records provided' }, { status: 400 });
+    const { type, records } = await request.json();
+    if (!type || !Array.isArray(records) || records.length === 0) {
+      return NextResponse.json({ error: 'Missing type or records' }, { status: 400 });
     }
 
     const users = await prisma.user.findMany();
-    const stations = await prisma.station.findMany();
+    const stations = await prisma.station.findMany({ include: { location: true } });
 
-    const createdShifts: number[] = [];
-    const createdLeaves: number[] = [];
-    const createdTimeOffs: number[] = [];
+    const created: number[] = [];
     const errors: string[] = [];
 
-    // Use a transaction for all inserts to ensure fast performance and safety
     await prisma.$transaction(async (tx) => {
       for (const [index, record] of records.entries()) {
-        const { date, staffAbbreviation, recordType, value, period, remarks } = record;
-        const rowNum = index + 1; // Excel row number (approx)
+        const rowNum = index + 2; // +2 because row 1 is header, data starts at row 2
 
-        if (!date || !staffAbbreviation || !recordType || !value) {
-          errors.push(`Row ${rowNum}: Missing required fields.`);
-          continue;
-        }
+        // ── ROSTER ──
+        if (type === 'roster') {
+          const { date, staffAbbreviation, location, station, shiftPeriod, startTime, endTime, status, remarks } = record;
 
-        const user = users.find(u => u.abbreviation?.toUpperCase() === staffAbbreviation.toUpperCase());
-        if (!user) {
-          errors.push(`Row ${rowNum}: Staff abbreviation '${staffAbbreviation}' not found.`);
-          continue;
-        }
-
-        // Fix the date parser to treat string as local date correctly
-        const parsedDate = new Date(date);
-        if (isNaN(parsedDate.getTime())) {
-          errors.push(`Row ${rowNum}: Invalid date format '${date}'.`);
-          continue;
-        }
-        parsedDate.setHours(12, 0, 0, 0); // Noon to avoid timezone issues
-
-        const type = recordType.toUpperCase();
-
-        if (type === 'ROSTER') {
-          const station = stations.find(s => s.name.toUpperCase() === value.toUpperCase());
-          if (!station) {
-            errors.push(`Row ${rowNum}: Station '${value}' not found.`);
+          if (!date || !staffAbbreviation || !station) {
+            errors.push(`Row ${rowNum}: Missing required fields (Date, Staff_Abbreviation, Station).`);
             continue;
           }
-          
+
+          const user = users.find(u => u.abbreviation?.toUpperCase() === staffAbbreviation.toUpperCase());
+          if (!user) { errors.push(`Row ${rowNum}: Staff '${staffAbbreviation}' not found.`); continue; }
+
+          const parsedDate = new Date(date);
+          if (isNaN(parsedDate.getTime())) { errors.push(`Row ${rowNum}: Invalid date '${date}'.`); continue; }
+          parsedDate.setHours(12, 0, 0, 0);
+
+          // Match station by name, optionally filtering by location
+          let matchedStation = stations.find(s => {
+            const nameMatch = s.name.toUpperCase() === station.toUpperCase();
+            if (location) {
+              return nameMatch && s.location.name.toUpperCase() === location.toUpperCase();
+            }
+            return nameMatch;
+          });
+
+          if (!matchedStation) { errors.push(`Row ${rowNum}: Station '${station}'${location ? ` at '${location}'` : ''} not found.`); continue; }
+
           await tx.shift.create({
             data: {
               date: parsedDate,
               userId: user.id,
-              stationId: station.id,
-              shiftPeriod: period || 'Full',
-              status: 'Scheduled',
-              remarks: remarks || null
+              stationId: matchedStation.id,
+              shiftPeriod: shiftPeriod || 'Full',
+              startTime: startTime || null,
+              endTime: endTime || null,
+              status: status || 'Scheduled',
+              remarks: remarks || null,
             }
           });
-          createdShifts.push(rowNum);
+          created.push(rowNum);
 
-        } else if (type === 'LEAVE') {
+        // ── LEAVE ──
+        } else if (type === 'leave') {
+          const { date, staffAbbreviation, leaveType, period, status, remarks } = record;
+
+          if (!date || !staffAbbreviation || !leaveType) {
+            errors.push(`Row ${rowNum}: Missing required fields (Date, Staff_Abbreviation, Leave_Type).`);
+            continue;
+          }
+
+          const user = users.find(u => u.abbreviation?.toUpperCase() === staffAbbreviation.toUpperCase());
+          if (!user) { errors.push(`Row ${rowNum}: Staff '${staffAbbreviation}' not found.`); continue; }
+
+          const parsedDate = new Date(date);
+          if (isNaN(parsedDate.getTime())) { errors.push(`Row ${rowNum}: Invalid date '${date}'.`); continue; }
+          parsedDate.setHours(12, 0, 0, 0);
+
+          const validTypes = ['AL', 'MC', 'UPL', 'OFF'];
+          const lt = leaveType.toUpperCase();
+          if (!validTypes.includes(lt)) { errors.push(`Row ${rowNum}: Invalid Leave_Type '${leaveType}'. Use: ${validTypes.join(', ')}`); continue; }
+
           await tx.leave.create({
             data: {
               userId: user.id,
               date: parsedDate,
-              period: period || 'FULL',
-              type: value.toUpperCase(),
-              status: 'APPROVED',
-              remarks: remarks || null
+              period: (period || 'FULL').toUpperCase(),
+              type: lt,
+              status: (status || 'APPROVED').toUpperCase(),
+              remarks: remarks || null,
             }
           });
-          createdLeaves.push(rowNum);
+          created.push(rowNum);
 
-        } else if (type === 'TIMEOFF') {
-          const hours = parseFloat(period) || 0;
+        // ── TIME-OFF ──
+        } else if (type === 'timeoff') {
+          const { date, staffAbbreviation, reason, studyAccNo, startTime, endTime, hours, status, remarks } = record;
+
+          if (!date || !staffAbbreviation || !reason) {
+            errors.push(`Row ${rowNum}: Missing required fields (Date, Staff_Abbreviation, Reason).`);
+            continue;
+          }
+
+          const user = users.find(u => u.abbreviation?.toUpperCase() === staffAbbreviation.toUpperCase());
+          if (!user) { errors.push(`Row ${rowNum}: Staff '${staffAbbreviation}' not found.`); continue; }
+
+          const parsedDate = new Date(date);
+          if (isNaN(parsedDate.getTime())) { errors.push(`Row ${rowNum}: Invalid date '${date}'.`); continue; }
+          parsedDate.setHours(12, 0, 0, 0);
+
+          const parsedHours = parseFloat(hours) || 0;
+
           await tx.timeOffRecord.create({
             data: {
               userId: user.id,
               date: parsedDate,
-              reason: value.toUpperCase(),
-              hours: hours,
-              status: 'APPROVED',
-              approvedById: session.id
+              reason: reason,
+              studyAccNo: studyAccNo || null,
+              startTime: startTime || null,
+              endTime: endTime || null,
+              hours: parsedHours,
+              status: (status || 'APPROVED').toUpperCase(),
+              approvedById: (status || 'APPROVED').toUpperCase() === 'APPROVED' ? session.id : null,
             }
           });
-          createdTimeOffs.push(rowNum);
+          created.push(rowNum);
 
         } else {
-          errors.push(`Row ${rowNum}: Unknown Record_Type '${recordType}'.`);
+          errors.push(`Row ${rowNum}: Unknown upload type '${type}'.`);
         }
       }
     });
 
-    if (createdShifts.length > 0 || createdLeaves.length > 0 || createdTimeOffs.length > 0) {
+    // Audit log
+    if (created.length > 0) {
       await prisma.auditLog.create({
         data: {
           userId: session.id,
           action: 'BULK_UPLOAD',
-          details: `Uploaded ${createdShifts.length} shifts, ${createdLeaves.length} leaves, ${createdTimeOffs.length} timeoffs. Errors: ${errors.length}`
+          details: `Type: ${type.toUpperCase()}. Created: ${created.length}. Errors: ${errors.length}.`
         }
       });
     }
 
     return NextResponse.json({
       success: true,
-      stats: {
-        shifts: createdShifts.length,
-        leaves: createdLeaves.length,
-        timeOffs: createdTimeOffs.length,
-        errors: errors.length
-      },
-      errors
+      type,
+      created: created.length,
+      errorCount: errors.length,
+      errors,
     });
 
-  } catch (error) {
-    console.error('Error processing bulk upload:', error);
-    return NextResponse.json({ error: 'Internal server error processing bulk upload' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Bulk upload error:', error);
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
