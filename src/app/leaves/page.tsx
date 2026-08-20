@@ -1,25 +1,28 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Calendar, Activity } from 'lucide-react';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 import LeaveRequestForm from '@/components/leaves/LeaveRequestForm';
 import { TimeOffSubmitter } from '@/components/leaves/TimeOffSubmitter';
 
-export default function LeavesPage() {
+function LeavesContent() {
   const [session, setSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'leaves' | 'timeoff'>('leaves');
   const [userLeaves, setUserLeaves] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('tab') === 'timeoff') {
+    if (searchParams.get('tab') === 'timeoff') {
       setActiveTab('timeoff');
+    } else {
+      setActiveTab('leaves');
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -104,7 +107,7 @@ export default function LeavesPage() {
               }}
             >
               <Activity size={18} />
-              Time-Off & Overtime
+              Time Off
             </button>
           </nav>
         </aside>
@@ -152,5 +155,13 @@ export default function LeavesPage() {
 
       </main>
     </div>
+  );
+}
+
+export default function LeavesPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}>
+      <LeavesContent />
+    </Suspense>
   );
 }
