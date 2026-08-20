@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const endDate = new Date(year, month, 0);
 
     // Fetch all locations, stations, and users
-    const [locations, stations, users, shifts, leaves] = await Promise.all([
+    const [locations, stations, users, shifts, leaves, systemModalities] = await Promise.all([
       prisma.location.findMany(),
       prisma.station.findMany(),
       prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } }),
@@ -28,10 +28,11 @@ export async function GET(request: Request) {
           status: 'APPROVED'
         },
         include: { user: true }
-      })
+      }),
+      prisma.systemModality.findMany({ orderBy: { name: 'asc' } })
     ]);
 
-    return NextResponse.json({ locations, stations, users, shifts, leaves });
+    return NextResponse.json({ locations, stations, users, shifts, leaves, modalities: systemModalities.map(m => m.name) });
   } catch (error) {
     console.error('Error fetching roster:', error);
     return NextResponse.json({ error: 'Failed to fetch roster data' }, { status: 500 });

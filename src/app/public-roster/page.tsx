@@ -189,7 +189,7 @@ export default function PublicRoster() {
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.25rem' }}>By Modality</label>
                   <Select
                     isMulti
-                    options={Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => ({ value: mod, label: mod }))}
+                    options={(data.modalities || []).map(mod => ({ value: mod, label: mod }))}
                     value={modalityFilter.map(m => ({ value: m, label: m }))}
                     onChange={(selected) => setModalityFilter(selected ? selected.map((s: any) => s.value) : [])}
                     placeholder="Select modalities..."
