@@ -280,7 +280,7 @@ export default function MobileSchedulePage() {
 
                       return (
                         <div key={`shift-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
-                          <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                          <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                             {(() => {
                               const upperLoc = locName.toUpperCase();
                               let logoSrc = null;
