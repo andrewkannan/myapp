@@ -2,17 +2,25 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/components/ToastProvider';
-import { Calendar } from 'lucide-react';
+import { Calendar, Plus, X } from 'lucide-react';
 
 export function MasterLeaveViewer() {
   const { toast } = useToast();
   const [leaves, setLeaves] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({ userId: '', date: '', type: 'AL', period: 'FULL', remarks: '' });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchLeaves();
   }, [year]);
+
+  useEffect(() => {
+    fetch('/api/users').then(r => r.json()).then(d => setUsers(Array.isArray(d) ? d : []));
+  }, []);
 
   const fetchLeaves = async () => {
     setLoading(true);
@@ -32,6 +40,36 @@ export function MasterLeaveViewer() {
     }
   };
 
+  const handleAdd = async () => {
+    if (!addForm.userId || !addForm.date) {
+      toast('Please select a staff member and date', 'error');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/leaves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetUserId: addForm.userId,
+          dates: [addForm.date],
+          type: addForm.type,
+          period: addForm.period,
+          remarks: addForm.remarks || null,
+        })
+      });
+      if (!res.ok) throw new Error('Failed to create');
+      toast('Leave record added', 'success');
+      setShowAdd(false);
+      setAddForm({ userId: '', date: '', type: 'AL', period: 'FULL', remarks: '' });
+      fetchLeaves();
+    } catch (err: any) {
+      toast(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
@@ -46,14 +84,24 @@ export function MasterLeaveViewer() {
     return map;
   }, [leaves]);
 
+  const inputStyle: React.CSSProperties = { padding: '0.4rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.8rem', width: '100%' };
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Master Leave Overview</h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Yearly view of all staff leave.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button
+            className="btn btn-primary"
+            style={{ padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem' }}
+            onClick={() => setShowAdd(!showAdd)}
+          >
+            {showAdd ? <X size={16} /> : <Plus size={16} />}
+            {showAdd ? 'Cancel' : 'Add Leave'}
+          </button>
           <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>Year:</label>
           <input 
             type="number" 
@@ -64,6 +112,51 @@ export function MasterLeaveViewer() {
           />
         </div>
       </div>
+
+      {showAdd && (
+        <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '10px', backgroundColor: 'var(--surface)', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Add Leave Record</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.5rem' }}>
+            <div>
+              <label style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>Staff *</label>
+              <select style={inputStyle} value={addForm.userId} onChange={e => setAddForm({...addForm, userId: e.target.value})}>
+                <option value="">Select staff</option>
+                {users.filter(u => u.isActive !== false).map(u => <option key={u.id} value={u.id}>{u.abbreviation} - {u.fullName}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>Date *</label>
+              <input type="date" style={inputStyle} value={addForm.date} onChange={e => setAddForm({...addForm, date: e.target.value})} />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>Leave Type</label>
+              <select style={inputStyle} value={addForm.type} onChange={e => setAddForm({...addForm, type: e.target.value})}>
+                <option value="AL">AL (Annual Leave)</option>
+                <option value="MC">MC (Medical)</option>
+                <option value="UPL">UPL (Unpaid Leave)</option>
+                <option value="OFF">OFF (Day Off)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>Period</label>
+              <select style={inputStyle} value={addForm.period} onChange={e => setAddForm({...addForm, period: e.target.value})}>
+                <option value="FULL">Full Day</option>
+                <option value="AM">AM (Morning)</option>
+                <option value="PM">PM (Afternoon)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>Remarks</label>
+              <input type="text" style={inputStyle} placeholder="Optional" value={addForm.remarks} onChange={e => setAddForm({...addForm, remarks: e.target.value})} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn btn-primary" style={{ padding: '0.4rem 1.25rem' }} onClick={handleAdd} disabled={submitting}>
+              {submitting ? 'Adding...' : 'Add & Approve'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="skeleton" style={{ flex: 1, width: '100%', borderRadius: '8px' }}></div>
@@ -80,7 +173,6 @@ export function MasterLeaveViewer() {
             </thead>
             <tbody>
               {months.map((monthName, mIndex) => {
-                // Get number of days in this month
                 const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
                 
                 return (
@@ -97,7 +189,6 @@ export function MasterLeaveViewer() {
                       }
 
                       const cellLeaves = leavesByKey.get(`${mIndex}-${d}`) || [];
-
                       const isWeekend = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6;
 
                       return (
