@@ -232,11 +232,20 @@ export default function MobileSchedulePage() {
                       return (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
                           <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#007aff', overflow: 'hidden' }}>
-                            {locName.toUpperCase() === 'OIC' ? (
-                              <img src="/asiamedic-logo.png?v=2" alt="OIC" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
-                            ) : (
-                              <MapPin size={28} strokeWidth={2.5} />
-                            )}
+                            {(() => {
+                              const upperLoc = locName.toUpperCase();
+                              let logoSrc = null;
+                              if (upperLoc === 'OIC') logoSrc = '/asiamedic-logo.png?v=2';
+                              else if (upperLoc === 'ICON') logoSrc = '/icon-logo.jpg?v=1';
+                              else if (upperLoc === 'NOVENA') logoSrc = '/asiamedic-sunway-logo.png?v=1';
+                              else if (['ANSON', 'CAMDEN', 'JURONG'].includes(upperLoc)) logoSrc = '/ata-logo.png?v=1';
+                              
+                              return logoSrc ? (
+                                <img src={logoSrc} alt={locName} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} />
+                              ) : (
+                                <MapPin size={28} strokeWidth={2.5} />
+                              );
+                            })()}
                           </div>
                           <div style={{ flex: 1 }}>
                             <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
