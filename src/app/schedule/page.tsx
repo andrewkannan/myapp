@@ -237,7 +237,7 @@ export default function MobileSchedulePage() {
                               let logoSrc = null;
                               if (upperLoc === 'OIC') logoSrc = '/asiamedic-logo.png?v=2';
                               else if (upperLoc === 'ICON') logoSrc = '/icon-logo.jpg?v=1';
-                              else if (upperLoc === 'NOVENA') logoSrc = '/asiamedic-sunway-logo.png?v=1';
+                              else if (upperLoc === 'NOVENA') logoSrc = '/asiamedic-sunway-logo.png?v=2';
                               else if (upperLoc === 'TUCKER') logoSrc = '/tucker-logo.png?v=1';
                               else if (['ANSON', 'CAMDEN', 'JURONG'].includes(upperLoc)) logoSrc = '/ata-logo.png?v=1';
                               
