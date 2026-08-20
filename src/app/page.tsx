@@ -59,6 +59,7 @@ export type RosterData = {
   users: User[];
   shifts: Shift[];
   leaves: Leave[];
+  modalities?: string[];
   publicHolidays?: { id: string; date: string; name: string }[];
 };
 
@@ -235,7 +236,7 @@ export default function Home() {
                     <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Modality</label>
                     <Select
                       isMulti
-                      options={Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => ({ value: mod, label: mod }))}
+                      options={(data.modalities || []).map(mod => ({ value: mod, label: mod }))}
                       value={modalityFilter.map(m => ({ value: m, label: m }))}
                       onChange={(selected) => setModalityFilter(selected ? selected.map((s: any) => s.value) : [])}
                       placeholder="Select modalities..."
