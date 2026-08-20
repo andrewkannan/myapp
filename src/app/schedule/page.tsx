@@ -221,8 +221,14 @@ export default function MobileSchedulePage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {shifts.map((shift, i) => {
                       const stName = shift.station?.name || 'Unknown Station';
-                      const locName = shift.station?.location?.name || '';
-                      const { base, time } = parseStationDisplay(stName);
+                      let locName = shift.station?.location?.name || '';
+                      let { base, time } = parseStationDisplay(stName);
+                      
+                      if (base.toUpperCase() === 'TUCKER') {
+                        locName = 'TUCKER';
+                        base = 'MRI';
+                      }
+
                       return (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
                           <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#007aff', overflow: 'hidden' }}>
