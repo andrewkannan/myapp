@@ -150,7 +150,7 @@ export default function LeavesPage() {
           )}
         </section>
 
-      </div>
+      </main>
     </div>
   );
 }
