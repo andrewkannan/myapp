@@ -116,9 +116,11 @@ function LeavesContent() {
         <section style={{ flex: 1, minWidth: 0, width: '100%' }}>
           {activeTab === 'leaves' && (
             <div>
-              <div style={{ backgroundColor: '#ffffff', borderRadius: '32px', padding: '2rem', marginBottom: '2.5rem', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
-                <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1.5rem', color: '#1d1d1f' }}>Request New Leave</h2>
-                <LeaveRequestForm onSuccess={fetchLeaves} />
+              <div style={{ flex: 1, backgroundColor: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Calendar size={20} color="#007aff" /> Apply for Leave
+                </h2>
+                <LeaveRequestForm onSuccess={fetchLeaves} session={session} />
               </div>
 
               <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: '#1d1d1f' }}>Leave History</h2>

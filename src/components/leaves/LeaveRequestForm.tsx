@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void }) {
+export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: () => void, session?: any }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -13,6 +13,18 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
   const [type, setType] = useState('AL');
   const [period, setPeriod] = useState('FULL');
   const [remarks, setRemarks] = useState('');
+  
+  const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
+  const [users, setUsers] = useState<any[]>([]);
+  const [targetUserId, setTargetUserId] = useState('');
+
+  useEffect(() => {
+    if (isScheduler) {
+      fetch('/api/users')
+        .then(res => res.json())
+        .then(data => setUsers(data));
+    }
+  }, [isScheduler]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +38,6 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
     setSuccess(false);
 
     try {
-      // Just submitting single dates for now based on the date picker
       const res = await fetch('/api/leaves', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,7 +45,8 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
           dates: [dateStr],
           type,
           period,
-          remarks
+          remarks,
+          ...(isScheduler && targetUserId ? { targetUserId } : {})
         })
       });
 
@@ -58,9 +70,26 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {error && <div style={{ color: '#b91c1c', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>{error}</div>}
-      {success && <div style={{ color: '#15803d', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>Leave request submitted successfully! (Pending Approval)</div>}
+      {success && <div style={{ color: '#15803d', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>
+        {isScheduler && targetUserId ? 'Leave assigned and auto-approved successfully!' : 'Leave request submitted successfully! (Pending Approval)'}
+      </div>}
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {isScheduler && (
+          <div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Apply on behalf of (Optional)</label>
+            <select 
+              value={targetUserId}
+              onChange={(e) => setTargetUserId(e.target.value)}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+            >
+              <option value="">-- Apply for myself --</option>
+              {users.map(u => (
+                <option key={u.id} value={u.id}>{u.fullName || u.abbreviation} ({u.abbreviation})</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Date</label>
           <input 

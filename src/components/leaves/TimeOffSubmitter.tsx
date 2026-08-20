@@ -13,9 +13,18 @@ export function TimeOffSubmitter({ session }: { session: any }) {
   const [hours, setHours] = useState('');
   const [isClaim, setIsClaim] = useState(false);
 
+  const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
+  const [users, setUsers] = useState<any[]>([]);
+  const [targetUserId, setTargetUserId] = useState('');
+
   useEffect(() => {
     fetchRecords();
-  }, []);
+    if (isScheduler) {
+      fetch('/api/users')
+        .then(res => res.json())
+        .then(data => setUsers(data));
+    }
+  }, [isScheduler]);
 
   useEffect(() => {
     if (startTime && endTime) {
@@ -50,7 +59,8 @@ export function TimeOffSubmitter({ session }: { session: any }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        date, reason, studyAccNo, startTime, endTime, hours: submittedHours
+        date, reason, studyAccNo, startTime, endTime, hours: submittedHours,
+        ...(isScheduler && targetUserId ? { targetUserId } : {})
       })
     });
 
@@ -62,7 +72,8 @@ export function TimeOffSubmitter({ session }: { session: any }) {
       setEndTime('');
       setHours('');
       setIsClaim(false);
-      fetchRecords();
+      if (!targetUserId) fetchRecords(); // Only refresh if it's our own record
+      else alert('Time Off applied and auto-approved for staff!');
     } else {
       alert('Failed to submit');
     }
@@ -97,6 +108,22 @@ export function TimeOffSubmitter({ session }: { session: any }) {
               <input type="radio" checked={isClaim} onChange={() => setIsClaim(true)} /> Claim (-)
             </label>
           </div>
+
+          {isScheduler && (
+            <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1d1d1f' }}>Apply on behalf of (Optional)</label>
+              <select 
+                value={targetUserId}
+                onChange={(e) => setTargetUserId(e.target.value)}
+                style={{ padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '0.9rem' }}
+              >
+                <option value="">-- Apply for myself --</option>
+                {users.map(u => (
+                  <option key={u.id} value={u.id}>{u.fullName || u.abbreviation} ({u.abbreviation})</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Date</label>

@@ -11,18 +11,22 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { dates, type, period, remarks } = body;
+    const { dates, type, period, remarks, targetUserId } = body;
 
     if (!dates || !Array.isArray(dates) || dates.length === 0) {
       return NextResponse.json({ error: 'Dates are required' }, { status: 400 });
     }
 
-    const leaveDataBatch = dates.map(d => ({
-      userId: session.id,
+    const isScheduler = session.permissions?.includes('ROSTER_EDIT') || session.role === 'ADMIN';
+    const finalUserId = isScheduler && targetUserId ? targetUserId : session.id;
+    const finalStatus = isScheduler && targetUserId ? 'APPROVED' : 'PENDING';
+
+    const leaveDataBatch = dates.map((d: any) => ({
+      userId: finalUserId,
       date: new Date(d),
       type: type || 'AL',
       period: period || 'FULL',
-      status: 'PENDING',
+      status: finalStatus,
       remarks: remarks || null
     }));
 
@@ -31,7 +35,7 @@ export async function POST(request: Request) {
     });
 
     await prisma.auditLog.create({
-      data: { userId: session.id, action: 'CREATE_LEAVE', details: `Requested ${created.count} days of ${type}` }
+      data: { userId: session.id, action: 'CREATE_LEAVE', details: `Requested ${created.count} days of ${type}${isScheduler && targetUserId ? ' for user ' + targetUserId : ''}` }
     });
 
     return NextResponse.json({ success: true, count: created.count });
