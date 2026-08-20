@@ -114,7 +114,7 @@ export default function MobileSchedulePage() {
       <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', position: 'relative', zIndex: 50 }}>
         <div>
           <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.02em', margin: '0 0 0.25rem 0', lineHeight: 1.1 }}>
-            {greeting()},<br/>{session.fullName?.split(' ')[0] || session.abbreviation}
+            {greeting()},<br/>{session.fullName || session.abbreviation}
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem', fontWeight: 500, margin: 0 }}>
             {new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(today)}
