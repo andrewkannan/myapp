@@ -33,6 +33,7 @@ export async function PUT(request: Request, context: any) {
 export async function DELETE(request: Request, context: any) {
   try {
     const params = await context.params;
+    const session = await getSession();
     const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
     if (!session || !isScheduler) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
