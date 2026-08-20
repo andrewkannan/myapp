@@ -133,9 +133,9 @@ export default function Home() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchRoster = async (y: number, m: number, force = false) => {
+  const fetchRoster = async (y: number, m: number, showLoader = false) => {
     try {
-      if (force) setLoading(true);
+      if (showLoader) setLoading(true);
       const res = await fetch(`/api/roster?year=${y}&month=${m}`);
       if (!res.ok) throw new Error('Failed to load roster');
       const json = await res.json();
@@ -359,7 +359,7 @@ export default function Home() {
             currentUser={currentUser}
             filterUserIds={effectiveFilterIds}
             activeModalities={modalityFilter}
-            onRefresh={() => fetchRoster(year, month, true)}
+            onRefresh={() => fetchRoster(year, month, false)}
           />
         ) : (
           <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>

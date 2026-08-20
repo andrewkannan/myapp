@@ -248,8 +248,7 @@ export default function AssignmentModal({
       const results = await Promise.all(promises);
       if (results.every(r => r.ok)) {
         onRefresh();
-        setSelectedUserIds([]);
-        setRemarks('');
+        onClose();
       } else {
         setError('Some assignments failed. Please try again.');
       }
@@ -265,6 +264,7 @@ export default function AssignmentModal({
     try {
       await fetch(`/api/roster?id=${shiftId}`, { method: 'DELETE' });
       onRefresh();
+      onClose();
     } finally { setLoading(false); }
   };
 
@@ -281,6 +281,7 @@ export default function AssignmentModal({
         })
       });
       onRefresh();
+      onClose();
     } finally { setLoading(false); }
   };
 
