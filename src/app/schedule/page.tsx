@@ -227,7 +227,7 @@ export default function MobileSchedulePage() {
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
                           <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#007aff', overflow: 'hidden' }}>
                             {locName.toUpperCase() === 'OIC' ? (
-                              <img src="/asiamedic-logo.png" alt="OIC" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
+                              <img src="/asiamedic-logo.png?v=2" alt="OIC" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
                             ) : (
                               <MapPin size={28} strokeWidth={2.5} />
                             )}
