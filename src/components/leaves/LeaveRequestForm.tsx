@@ -71,7 +71,7 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {error && <div style={{ color: '#b91c1c', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>{error}</div>}
       {success && <div style={{ color: '#15803d', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>
-        {isScheduler && targetUserId ? 'Leave assigned and auto-approved successfully!' : 'Leave request submitted successfully! (Pending Approval)'}
+        {isScheduler ? 'Leave assigned and auto-approved successfully!' : 'Leave request submitted successfully! (Pending Approval)'}
       </div>}
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

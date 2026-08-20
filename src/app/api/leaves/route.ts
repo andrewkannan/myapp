@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
     const isScheduler = session.permissions?.includes('ROSTER_EDIT') || session.role === 'ADMIN';
     const finalUserId = isScheduler && targetUserId ? targetUserId : session.id;
-    const finalStatus = isScheduler && targetUserId ? 'APPROVED' : 'PENDING';
+    const finalStatus = isScheduler ? 'APPROVED' : 'PENDING';
 
     const leaveDataBatch = dates.map((d: any) => ({
       userId: finalUserId,
