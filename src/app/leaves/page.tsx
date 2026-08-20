@@ -116,12 +116,20 @@ function LeavesContent() {
         <section style={{ flex: 1, minWidth: 0, width: '100%' }}>
           {activeTab === 'leaves' && (
             <div>
-              <div style={{ flex: 1, backgroundColor: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Calendar size={20} color="#007aff" /> Apply for Leave
-                </h2>
-                <LeaveRequestForm onSuccess={fetchLeaves} session={session} />
-              </div>
+              {(() => {
+                const isRestrictedRole = ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
+                if (!isRestrictedRole) {
+                  return (
+                    <div style={{ flex: 1, backgroundColor: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
+                      <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Calendar size={20} color="#007aff" /> Apply for Leave
+                      </h2>
+                      <LeaveRequestForm onSuccess={fetchLeaves} session={session} />
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: '#1d1d1f' }}>Leave History</h2>
               {userLeaves.length === 0 ? (

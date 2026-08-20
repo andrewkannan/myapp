@@ -68,7 +68,7 @@ export default function PublicRoster() {
   const [loading, setLoading] = useState(true);
   
   const [filterUserIds, setFilterUserIds] = useState<string[]>([]);
-  const [modalityFilter, setModalityFilter] = useState<string>('All');
+  const [modalityFilter, setModalityFilter] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -77,9 +77,9 @@ export default function PublicRoster() {
     if (filterUserIds.length > 0) {
       filterUserIds.forEach(id => ids.add(id));
     }
-    if (modalityFilter !== 'All' && data) {
+    if (modalityFilter.length > 0 && data) {
       data.users.forEach(u => {
-        if (u.modality && u.modality.includes(modalityFilter)) {
+        if (u.modality && modalityFilter.some(m => u.modality!.includes(m))) {
           ids.add(u.id);
         }
       });
@@ -165,10 +165,10 @@ export default function PublicRoster() {
               onClick={() => setFilterOpen(!filterOpen)} 
               className="btn btn-secondary"
               title="Filter by Modality or Staff"
-              style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: (filterUserIds.length > 0 || modalityFilter !== 'All') ? '#eff6ff' : 'transparent', border: (filterUserIds.length > 0 || modalityFilter !== 'All') ? '1px solid #bfdbfe' : '1px solid transparent', color: (filterUserIds.length > 0 || modalityFilter !== 'All') ? '#2563eb' : 'inherit' }}
+              style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: (filterUserIds.length > 0 || modalityFilter.length > 0) ? '#eff6ff' : 'transparent', border: (filterUserIds.length > 0 || modalityFilter.length > 0) ? '1px solid #bfdbfe' : '1px solid transparent', color: (filterUserIds.length > 0 || modalityFilter.length > 0) ? '#2563eb' : 'inherit' }}
             >
               <Filter size={18} />
-              {(filterUserIds.length > 0 || modalityFilter !== 'All') && (
+              {(filterUserIds.length > 0 || modalityFilter.length > 0) && (
                 <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Active</span>
               )}
             </button>
@@ -183,16 +183,17 @@ export default function PublicRoster() {
                 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.25rem' }}>By Modality</label>
-                  <select 
-                    value={modalityFilter}
-                    onChange={e => setModalityFilter(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '0.875rem' }}
-                  >
-                    <option value="All">All Modalities</option>
-                    {Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(s => s.trim()).filter(Boolean)))).sort().map(m => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </select>
+                  <Select
+                    isMulti
+                    options={Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => ({ value: mod, label: mod }))}
+                    value={modalityFilter.map(m => ({ value: m, label: m }))}
+                    onChange={(selected) => setModalityFilter(selected ? selected.map((s: any) => s.value) : [])}
+                    placeholder="Select modalities..."
+                    styles={{
+                      control: (base) => ({ ...base, fontSize: '0.875rem', borderRadius: '8px', borderColor: '#d1d5db' }),
+                      menu: (base) => ({ ...base, fontSize: '0.875rem' })
+                    }}
+                  />
                 </div>
 
                 <div>
@@ -210,9 +211,9 @@ export default function PublicRoster() {
                   />
                 </div>
 
-                {(filterUserIds.length > 0 || modalityFilter !== 'All') && (
+                {(filterUserIds.length > 0 || modalityFilter.length > 0) && (
                   <button 
-                    onClick={() => { setFilterUserIds([]); setModalityFilter('All'); }}
+                    onClick={() => { setFilterUserIds([]); setModalityFilter([]); }}
                     style={{ marginTop: '1rem', width: '100%', padding: '0.5rem', borderRadius: '8px', backgroundColor: '#f3f4f6', color: '#4b5563', border: 'none', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}
                   >
                     Clear Filters

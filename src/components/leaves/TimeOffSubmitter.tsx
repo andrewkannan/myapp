@@ -79,6 +79,8 @@ export function TimeOffSubmitter({ session }: { session: any }) {
     }
   };
 
+  const isRestrictedRole = ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
@@ -95,10 +97,11 @@ export function TimeOffSubmitter({ session }: { session: any }) {
       </div>
 
       {/* Submission Form */}
-      <div style={{ backgroundColor: '#ffffff', padding: '1.5rem', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', color: '#1d1d1f' }}>Submit New Entry</h2>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+      {!isRestrictedRole && (
+        <div style={{ backgroundColor: '#ffffff', padding: '1.5rem', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', color: '#1d1d1f' }}>Submit New Entry</h2>
+          
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1d1d1f' }}>Entry Type:</span>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#15803d', fontWeight: 600 }}>
@@ -162,6 +165,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
           </div>
         </form>
       </div>
+      )}
 
       {/* Ledger List (Mobile Friendly) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

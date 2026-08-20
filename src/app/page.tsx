@@ -70,7 +70,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   
   const [filterUserIds, setFilterUserIds] = useState<string[]>([]);
-  const [modalityFilter, setModalityFilter] = useState<string>('All');
+  const [modalityFilter, setModalityFilter] = useState<string[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -81,9 +81,9 @@ export default function Home() {
     if (filterUserIds.length > 0) {
       filterUserIds.forEach(id => ids.add(id));
     }
-    if (modalityFilter !== 'All' && data) {
+    if (modalityFilter.length > 0 && data) {
       data.users.forEach(u => {
-        if (u.modality && u.modality.includes(modalityFilter)) {
+        if (u.modality && modalityFilter.some(m => u.modality!.includes(m))) {
           ids.add(u.id);
         }
       });
@@ -181,39 +181,46 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button 
               onClick={() => setCurrentDate(new Date(year, month - 2, 1))}
-              style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center' }}
+              className="btn btn-secondary"
+              style={{ padding: '0.4rem', border: '1px solid transparent' }}
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={20} />
             </button>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 500, minWidth: '140px', textAlign: 'center' }}>
+            
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, minWidth: '140px', textAlign: 'center', color: '#1a1a1a' }}>
               {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
             </h2>
+
             <button 
               onClick={() => setCurrentDate(new Date(year, month, 1))}
-              style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center' }}
+              className="btn btn-secondary"
+              style={{ padding: '0.4rem', border: '1px solid transparent' }}
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={20} />
             </button>
           </div>
-          
-          {/* Filters */}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {loading && <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Loading...</span>}
+
           {data && (
             <div style={{ position: 'relative' }} ref={filterRef}>
               <button 
                 onClick={() => setFilterOpen(!filterOpen)}
-                className={`btn ${filterUserIds.length > 0 || modalityFilter !== 'All' ? 'btn-primary' : 'btn-ghost'}`}
+                className={`btn ${filterUserIds.length > 0 || modalityFilter.length > 0 ? 'btn-primary' : 'btn-ghost'}`}
                 style={{ padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
                 <Filter size={18} />
                 <span>Filters</span>
-                {(filterUserIds.length > 0 || modalityFilter !== 'All') && (
+                {(filterUserIds.length > 0 || modalityFilter.length > 0) && (
                   <span style={{ 
                     backgroundColor: 'rgba(255,255,255,0.2)', 
                     padding: '2px 6px', 
                     borderRadius: '10px', 
                     fontSize: '0.75rem' 
                   }}>
-                    {(filterUserIds.length > 0 ? 1 : 0) + (modalityFilter !== 'All' ? 1 : 0)}
+                    {(filterUserIds.length > 0 ? 1 : 0) + (modalityFilter.length > 0 ? 1 : 0)}
                   </span>
                 )}
               </button>
@@ -222,16 +229,23 @@ export default function Home() {
                 <div className="glass-popover" style={{ position: 'absolute', left: 0, top: '100%', marginTop: '0.5rem', width: '300px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 100 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Modality</label>
-                    <select 
-                      className="input-field" 
-                      value={modalityFilter} 
-                      onChange={e => setModalityFilter(e.target.value)}
-                    >
-                      <option value="All">All Modalities</option>
-                      {Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => (
-                        <option key={mod} value={mod}>{mod}</option>
-                      ))}
-                    </select>
+                    <Select
+                      isMulti
+                      options={Array.from(new Set(data.users.flatMap(u => (u.modality || '').split(',').map(m => m.trim())).filter(Boolean))).sort().map(mod => ({ value: mod, label: mod }))}
+                      value={modalityFilter.map(m => ({ value: m, label: m }))}
+                      onChange={(selected) => setModalityFilter(selected ? selected.map((s: any) => s.value) : [])}
+                      placeholder="Select modalities..."
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          fontSize: '0.875rem',
+                          borderColor: 'var(--border)',
+                          minHeight: '38px',
+                          borderRadius: '6px'
+                        }),
+                        menu: (base) => ({ ...base, fontSize: '0.875rem', zIndex: 100 })
+                      }}
+                    />
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -242,7 +256,7 @@ export default function Home() {
                       value={data.users
                         .filter(u => filterUserIds.includes(u.id))
                         .map(u => ({ value: u.id, label: `${u.abbreviation || '?'} - ${u.fullName}` }))}
-                      onChange={(selected) => setFilterUserIds(selected.map(s => s.value))}
+                      onChange={(selected) => setFilterUserIds(selected ? selected.map((s: any) => s.value) : [])}
                       placeholder="Select staff..."
                       styles={{
                         control: (base) => ({
@@ -257,11 +271,11 @@ export default function Home() {
                     />
                   </div>
 
-                  {(filterUserIds.length > 0 || modalityFilter !== 'All') && (
+                  {(filterUserIds.length > 0 || modalityFilter.length > 0) && (
                     <button 
                       onClick={() => {
                         setFilterUserIds([]);
-                        setModalityFilter('All');
+                        setModalityFilter([]);
                       }}
                       className="btn btn-ghost" 
                       style={{ width: '100%', color: 'var(--danger)', marginTop: '0.5rem' }}
