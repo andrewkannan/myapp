@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { RosterData, Shift, Station, User } from '@/app/page';
 import AssignmentModal from './AssignmentModal';
+import LeaveModal from './LeaveModal';
 
 interface RosterGridProps {
   data: RosterData;
@@ -52,6 +53,8 @@ function getStationColor(stationName: string, locationName: string): string {
 export default function RosterGrid({ data, year, month, currentUser, filterUserIds, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [selectedLeaveCell, setSelectedLeaveCell] = useState<{ date: Date; leave?: any } | null>(null);
 
   const publicHolidaysMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -172,7 +175,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   </th>
                 );
               })}
-              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: '#1e40af' }}>
+              <th style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: '#1e40af', width: '135px' }}>
                 Leaves
               </th>
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px', width: '28px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.58rem', color: 'var(--text-muted)' }}>
@@ -207,24 +210,14 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 </th>
                 );
               })}
-              {absences.map(abs => {
-                const absHeaderStyle: Record<string, { bg: string; color: string; label: string }> = {
-                  'Off':   { bg: '#FEE2E2', color: '#991B1B', label: 'OFF' },
-                  'Leave': { bg: '#DBEAFE', color: '#1e40af', label: 'LEAVE' },
-                  'MC':    { bg: '#DCF5DC', color: '#166534', label: 'MC' },
-                };
-                const s = absHeaderStyle[abs] || absHeaderStyle['Off'];
-                return (
-                  <th key={abs} style={{
-                    border: '1px solid var(--border)', padding: '2px 1px',
-                    textAlign: 'center', fontSize: '0.58rem', fontWeight: 700,
-                    backgroundColor: s.bg, color: s.color,
-                    whiteSpace: 'nowrap', width: '45px',
-                  }}>
-                    {s.label}
-                  </th>
-                );
-              })}
+              <th style={{
+                border: '1px solid var(--border)', padding: '2px 1px',
+                textAlign: 'center', fontSize: '0.58rem', fontWeight: 700,
+                backgroundColor: '#DBEAFE', color: '#1e40af',
+                whiteSpace: 'nowrap', width: '135px',
+              }}>
+                LEAVES
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -358,33 +351,40 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                       </td>
                     );
                   })}
-                  {absences.map(abs => {
+                  {(() => {
                     const dayLeaves = leavesByDate.get(getLocalDateString(date)) || [];
-                    const actualLeaves = dayLeaves.filter(l => {
-                       if (abs === 'Leave' && ['AL', 'ML', 'CCL', 'UL', 'NS', 'HL', 'UPL'].includes(l.type)) return true;
-                       if (abs === 'MC' && l.type === 'MC') return true;
-                       if (abs === 'Off' && ['OFF', 'TO'].includes(l.type)) return true;
-                       return false;
-                    });
+                    const canEdit = currentUser.permissions?.includes('ROSTER_EDIT') || currentUser.role === 'ADMIN';
 
                     return (
                       <td 
-                        key={abs} 
+                        onClick={(e) => {
+                          if (!canEdit) return;
+                          if (e.target === e.currentTarget) {
+                            setSelectedLeaveCell({ date });
+                            setLeaveModalOpen(true);
+                          }
+                        }}
                         style={{ 
                           border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'top',
                           textAlign: 'left', lineHeight: 1.1,
-                          cursor: 'default',
+                          cursor: canEdit ? 'pointer' : 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
                       >
-                        {actualLeaves.map(leave => {
+                        {dayLeaves.map(leave => {
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
                           const isOther = filterUserIds.length > 0 && !isFiltered;
                           const period = leave.period;
                           return (
                             <span
                               key={leave.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!canEdit) return;
+                                setSelectedLeaveCell({ date, leave });
+                                setLeaveModalOpen(true);
+                              }}
                               title={leave.user.fullName || leave.user.abbreviation}
                               style={{
                                 display: isOther ? 'none' : 'inline-block',
@@ -397,19 +397,19 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 padding: '1px 3px',
                                 borderRadius: '3px',
                                 margin: '1px',
+                                cursor: canEdit ? 'pointer' : 'default',
                               }}
                             >
-                              {period === 'AM' && <span style={{ color: '#0369a1', marginRight: '2px' }}>am</span>}
-                              {period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
+                              <span style={{ color: '#0369a1', marginRight: '3px' }}>{leave.type}</span>
                               {leave.user.abbreviation}
-                              {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: '#6b7280', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
+                              {period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
                               {leave.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
                             </span>
                           );
                         })}
                       </td>
                     );
-                  })}
+                  })()}
                   
                   {/* Daily Staff Count */}
                   <td style={{ 
@@ -435,6 +435,16 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
           allLeaves={data.leaves}
           users={data.users}
           onClose={() => setModalOpen(false)}
+          onRefresh={onRefresh}
+        />
+      )}
+
+      {leaveModalOpen && selectedLeaveCell && (
+        <LeaveModal
+          date={selectedLeaveCell.date}
+          leave={selectedLeaveCell.leave}
+          users={data.users}
+          onClose={() => setLeaveModalOpen(false)}
           onRefresh={onRefresh}
         />
       )}
