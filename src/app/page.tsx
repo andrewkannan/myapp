@@ -169,60 +169,60 @@ export default function Home() {
   return (
     <main style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{ 
-        padding: '1rem 1.5rem', 
+        padding: '0.5rem 0.75rem', 
         borderBottom: '1px solid var(--border)', 
         backgroundColor: 'var(--surface)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        flexShrink: 0
+        flexShrink: 0,
+        gap: '0.25rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--primary)' }}>
-            AsiaMedic Roster
-          </h1>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button 
-              onClick={() => setCurrentDate(new Date(year, month - 2, 1))}
-              className="btn btn-secondary"
-              style={{ padding: '0.4rem', border: '1px solid transparent' }}
-            >
-              <ChevronLeft size={20} />
-            </button>
-            
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, minWidth: '140px', textAlign: 'center', color: 'var(--foreground)' }}>
-              {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-            </h2>
+        {/* Logo */}
+        <img src="/asiamedic-logo.png" alt="AsiaMedic" style={{ height: '32px', width: 'auto', flexShrink: 0 }} />
 
-            <button 
-              onClick={() => setCurrentDate(new Date(year, month, 1))}
-              className="btn btn-secondary"
-              style={{ padding: '0.4rem', border: '1px solid transparent' }}
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
+        {/* Month nav - compact */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+          <button 
+            onClick={() => setCurrentDate(new Date(year, month - 2, 1))}
+            className="btn btn-secondary"
+            style={{ padding: '0.3rem', border: 'none', background: 'none' }}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          
+          <h2 style={{ fontSize: '0.9rem', fontWeight: 700, minWidth: '60px', textAlign: 'center', color: 'var(--foreground)', whiteSpace: 'nowrap', margin: 0 }}>
+            {currentDate.toLocaleString('default', { month: 'short' })} {String(year).slice(2)}
+          </h2>
+
+          <button 
+            onClick={() => setCurrentDate(new Date(year, month, 1))}
+            className="btn btn-secondary"
+            style={{ padding: '0.3rem', border: 'none', background: 'none' }}
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {loading && <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Loading...</span>}
+        {/* Right section: filter + user + menu */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {loading && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>...</span>}
 
           {data && (
             <div style={{ position: 'relative' }} ref={filterRef}>
               <button 
                 onClick={() => setFilterOpen(!filterOpen)}
                 className={`btn ${filterUserIds.length > 0 || modalityFilter.length > 0 ? 'btn-primary' : 'btn-ghost'}`}
-                style={{ padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                style={{ padding: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
               >
                 <Filter size={18} />
-                <span>Filters</span>
                 {(filterUserIds.length > 0 || modalityFilter.length > 0) && (
                   <span style={{ 
-                    backgroundColor: 'rgba(255,255,255,0.2)', 
-                    padding: '2px 6px', 
-                    borderRadius: '10px', 
-                    fontSize: '0.75rem' 
+                    position: 'absolute', top: '-4px', right: '-4px',
+                    backgroundColor: 'var(--danger, #ef4444)', color: 'white',
+                    width: '16px', height: '16px', borderRadius: '50%',
+                    fontSize: '0.6rem', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
                     {(filterUserIds.length > 0 ? 1 : 0) + (modalityFilter.length > 0 ? 1 : 0)}
                   </span>
@@ -230,7 +230,7 @@ export default function Home() {
               </button>
 
               {filterOpen && (
-                <div className="glass-popover" style={{ position: 'absolute', left: 0, top: '100%', marginTop: '0.5rem', width: '300px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 100 }}>
+                <div className="glass-popover" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', width: '300px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 100 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Modality</label>
                     <Select
@@ -291,14 +291,9 @@ export default function Home() {
               )}
             </div>
           )}
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ textAlign: 'right', marginRight: '0.5rem' }}>
-            <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{currentUser.fullName}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
-              {currentUser.role || 'Staff'}
-            </div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--foreground)', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right' }}>
+            {currentUser.fullName?.split(' ')[0] || currentUser.fullName}
           </div>
 
           <div style={{ position: 'relative' }} ref={settingsRef}>
