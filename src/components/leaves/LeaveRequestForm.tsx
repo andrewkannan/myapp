@@ -9,7 +9,8 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const [dateStr, setDateStr] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [type, setType] = useState('AL');
   const [period, setPeriod] = useState('FULL');
   const [remarks, setRemarks] = useState('');
@@ -28,8 +29,8 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dateStr) {
-      setError('Please select a date.');
+    if (!startDate) {
+      setError('Please select a start date.');
       return;
     }
 
@@ -38,11 +39,24 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
     setSuccess(false);
 
     try {
+      const dates = [];
+      let current = new Date(startDate);
+      const end = endDate ? new Date(endDate) : new Date(startDate);
+
+      if (end < current) {
+        throw new Error('End date cannot be before start date.');
+      }
+
+      while (current <= end) {
+        dates.push(current.toISOString().split('T')[0]);
+        current.setDate(current.getDate() + 1);
+      }
+
       const res = await fetch('/api/leaves', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          dates: [dateStr],
+          dates,
           type,
           period,
           remarks,
@@ -56,7 +70,8 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
       }
 
       setSuccess(true);
-      setDateStr('');
+      setStartDate('');
+      setEndDate('');
       setRemarks('');
       router.refresh(); // Refresh the Server Component to show new history
       onSuccess?.();
@@ -90,15 +105,26 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
             </select>
           </div>
         )}
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Date</label>
-          <input 
-            type="date" 
-            value={dateStr}
-            onChange={(e) => setDateStr(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
-            required
-          />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Start Date</label>
+            <input 
+              type="date" 
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+              required
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>End Date (Optional)</label>
+            <input 
+              type="date" 
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
+            />
+          </div>
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Leave Type</label>

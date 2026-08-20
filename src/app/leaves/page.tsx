@@ -117,7 +117,8 @@ function LeavesContent() {
           {activeTab === 'leaves' && (
             <div>
               {(() => {
-                const isRestrictedRole = ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
+                const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
+                const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
                 if (!isRestrictedRole) {
                   return (
                     <div style={{ flex: 1, backgroundColor: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>

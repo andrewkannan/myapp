@@ -79,7 +79,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
     }
   };
 
-  const isRestrictedRole = ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
+  const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

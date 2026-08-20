@@ -96,7 +96,18 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
           
           <div>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Leave Type</label>
-            <input required type="text" value={type} onChange={e => setType(e.target.value.toUpperCase())} placeholder="e.g. AL, ADMIN-AL" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            <select required value={type} onChange={e => setType(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}>
+              <option value="AL">Annual Leave (AL)</option>
+              <option value="MC">Medical Certificate (MC)</option>
+              <option value="ML">Maternity Leave (ML)</option>
+              <option value="CCL">Child Care Leave (CCL)</option>
+              <option value="UL">Urgent Leave (UL)</option>
+              <option value="NS">Reservist Leave (NS)</option>
+              <option value="HL">Hospitalisation Leave (HL)</option>
+              <option value="TO">Time Off (TO)</option>
+              <option value="UPL">Unpaid Leave (UPL)</option>
+              <option value="OFF">Off</option>
+            </select>
           </div>
 
           <div>

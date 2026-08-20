@@ -400,8 +400,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 cursor: canEdit ? 'pointer' : 'default',
                               }}
                             >
-                              <span style={{ color: '#0369a1', marginRight: '3px' }}>{leave.type}</span>
                               {leave.user.abbreviation}
+                              <span style={{ color: '#0369a1', marginLeft: '3px' }}>{leave.type}</span>
                               {period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
                               {leave.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
                             </span>
