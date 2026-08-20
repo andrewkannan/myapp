@@ -143,13 +143,17 @@ export default function Home() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
   useEffect(() => {
     if (currentUser) {
-      fetchRoster(year, month);
+      fetchRoster(year, month, true);
+      const interval = setInterval(() => {
+        fetchRoster(year, month, false);
+      }, 15000);
+      return () => clearInterval(interval);
     }
   }, [year, month, currentUser]);
 

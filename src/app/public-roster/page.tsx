@@ -100,9 +100,9 @@ export default function PublicRoster() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchRoster = async (y: number, m: number, force = false) => {
+  const fetchRoster = async (y: number, m: number, showLoader = false) => {
     try {
-      if (force) setLoading(true);
+      if (showLoader) setLoading(true);
       const res = await fetch(`/api/roster/public?year=${y}&month=${m}`);
       if (!res.ok) throw new Error('Failed to load roster');
       const json = await res.json();
@@ -110,12 +110,16 @@ export default function PublicRoster() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRoster(year, month);
+    fetchRoster(year, month, true);
+    const interval = setInterval(() => {
+      fetchRoster(year, month, false);
+    }, 15000);
+    return () => clearInterval(interval);
   }, [year, month]);
 
   return (

@@ -35,8 +35,8 @@ export default function MobileSchedulePage() {
       });
   }, [router]);
 
-  const fetchSchedule = () => {
-    setLoading(true);
+  const fetchSchedule = (showLoader = true) => {
+    if (showLoader) setLoading(true);
     setError(null);
     fetch('/api/schedule')
       .then(res => {
@@ -46,17 +46,21 @@ export default function MobileSchedulePage() {
       .then(data => {
         setShifts(data.shifts || []);
         setLeaves(data.leaves || []);
-        setLoading(false);
+        if (showLoader) setLoading(false);
       })
       .catch(err => {
         setError(err.message);
-        setLoading(false);
+        if (showLoader) setLoading(false);
       });
   };
 
   useEffect(() => {
     if (session) {
-      fetchSchedule();
+      fetchSchedule(true);
+      const interval = setInterval(() => {
+        fetchSchedule(false);
+      }, 15000); // Poll every 15 seconds
+      return () => clearInterval(interval);
     }
   }, [session]);
 
