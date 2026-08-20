@@ -1,9 +1,10 @@
 'use client';
 import { useState, useRef } from 'react';
 import { Upload, FileDown, FileText, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useToast } from '@/components/ToastProvider';
 
-export default function BulkUploader() {
+export function BulkUploader() {
+  const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [previewData, setPreviewData] = useState<any[]>([]);
@@ -39,7 +40,7 @@ export default function BulkUploader() {
 
   const handleUpload = async () => {
     if (previewData.length === 0) {
-      toast.error('No valid data to upload.');
+      toast('No valid data to upload.', 'error');
       return;
     }
 
@@ -59,15 +60,15 @@ export default function BulkUploader() {
       
       setResult(json);
       if (json.errors?.length === 0) {
-        toast.success('Bulk upload completed successfully!');
+        toast('Bulk upload completed successfully!', 'success');
         setFile(null);
         setPreviewData([]);
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
-        toast.error(`Completed with ${json.errors.length} errors.`);
+        toast(`Completed with ${json.errors.length} errors.`, 'error');
       }
     } catch (err: any) {
-      toast.error(err.message);
+      toast(err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -136,7 +137,7 @@ export default function BulkUploader() {
       </div>
 
       {result && (
-        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: result.errors?.length ? '#fef2f2' : '#f0fdf4', borderRadius: '12px', border: \`1px solid \${result.errors?.length ? '#fecaca' : '#bbf7d0'}\` }}>
+        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: result.errors?.length ? '#fef2f2' : '#f0fdf4', borderRadius: '12px', border: `1px solid ${result.errors?.length ? '#fecaca' : '#bbf7d0'}` }}>
           <h3 style={{ fontWeight: 600, color: result.errors?.length ? '#991b1b' : '#166534', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {result.errors?.length ? <AlertTriangle size={20}/> : <CheckCircle size={20}/>}
             Upload Results

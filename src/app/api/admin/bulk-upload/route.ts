@@ -17,10 +17,10 @@ export async function POST(request: Request) {
     const users = await prisma.user.findMany();
     const stations = await prisma.station.findMany();
 
-    const createdShifts = [];
-    const createdLeaves = [];
-    const createdTimeOffs = [];
-    const errors = [];
+    const createdShifts: number[] = [];
+    const createdLeaves: number[] = [];
+    const createdTimeOffs: number[] = [];
+    const errors: string[] = [];
 
     // Use a transaction for all inserts to ensure fast performance and safety
     await prisma.$transaction(async (tx) => {
