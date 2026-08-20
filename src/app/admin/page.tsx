@@ -31,7 +31,7 @@ export default function AdminDashboard() {
       .then(data => {
         const user = data.user;
         const hasAdminAccess = user?.permissions?.some((p: string) => 
-          ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)
+          ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW', 'ROSTER_EDIT'].includes(p)
         );
         if (!user || !hasAdminAccess) {
           router.push('/');
