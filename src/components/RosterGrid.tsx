@@ -17,28 +17,28 @@ interface RosterGridProps {
 
 // Location band colors — matched to Excel column groupings
 const LOCATION_COLORS: Record<string, string> = {
-  'OIC':    'var(--band-oic)',
-  'NOVENA': 'var(--band-novena)',
-  'ICON':   'var(--band-icon)',
-  'ANSON':  'var(--band-anson)',
-  'CAMDEN': 'var(--band-camden)',
-  'JURONG': 'var(--band-jurong)',
+  'OIC':    '#EAF9F7', // very light teal/aqua
+  'NOVENA': '#E8F5E9', // soft sage green
+  'ICON':   '#EDE7F6', // soft lavender/purple
+  'ANSON':  '#E8F5E9', // same soft green as NOVENA
+  'CAMDEN': '#EDE7F6', // same soft purple as ICON (matches Excel)
+  'JURONG': '#E0F7FA', // soft cyan-teal
 };
 
 // Station-level color overrides (applied regardless of location)
 const STATION_COLORS: Record<string, string> = {
-  'BMD':        'var(--station-bmd)',
-  'MAM':        'var(--station-mam)',
-  'CT':         'var(--station-ct)',
-  'PET':        'var(--station-pet)',
-  'LUMA MRI':   'var(--station-luma)',
-  'MRI 3T 830': 'var(--station-mri)',
-  'MRI 3T 930': 'var(--station-mri)',
-  'MRI 2 830':  'var(--station-mri)',
-  'MRI 2 930':  'var(--station-mri)',
-  'MRI 3 830':  'var(--station-mri)',
-  'MRI 3 930':  'var(--station-mri)',
-  'TUCKER':     'var(--station-mri)',
+  'BMD':        '#F4FDC2', // pale yellow
+  'MAM':        '#F8D7EA', // soft pink — MAM is always pink across all locations
+  'CT':         '#E8E4FF', // soft violet — CT is always purple across all locations
+  'PET':        '#FFF3CC', // soft amber-yellow
+  'LUMA MRI':   '#F0F0F0', // neutral grey
+  'MRI 3T 830': '#D6F5F8', // soft cyan
+  'MRI 3T 930': '#D6F5F8',
+  'MRI 2 830':  '#D6F5F8',
+  'MRI 2 930':  '#D6F5F8',
+  'MRI 3 830':  '#D6F5F8',
+  'MRI 3 930':  '#D6F5F8',
+  'TUCKER':     '#D6F5F8',
 };
 
 function getStationColor(stationName: string, locationName: string): string {
@@ -175,14 +175,14 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 Date
               </th>
               {stationsByLocation.map(loc => {
-                // Use CSS variables for light/dark mode adaptability
+                // Use a slightly more saturated version of the band color for the header
                 const bandColor: Record<string, string> = {
-                  'OIC':    'var(--band-oic)',
-                  'NOVENA': 'var(--band-novena)',
-                  'ICON':   'var(--band-icon)',
-                  'ANSON':  'var(--band-anson)',
-                  'CAMDEN': 'var(--band-camden)',
-                  'JURONG': 'var(--band-jurong)',
+                  'OIC':    '#B2EBE6',
+                  'NOVENA': '#C8E6C9',
+                  'ICON':   '#D1C4E9',
+                  'ANSON':  '#C8E6C9',
+                  'CAMDEN': '#D1C4E9',
+                  'JURONG': '#B2EBF2',
                 };
                 const bg = bandColor[loc.name.toUpperCase()] || 'var(--header-bg)';
                 return (
@@ -257,7 +257,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               const dateKey = `${y}-${m}-${d}`;
               const phName = publicHolidaysMap.get(dateKey);
               const isPH = !!phName;
-              const rowBg = isPH ? 'var(--ph-bg)' : isSunday ? 'var(--weekend-bg)' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
+              const rowBg = isPH ? '#FEF2F2' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
               
               // Total columns for PH colspan
               const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences(3) + total
@@ -285,12 +285,15 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                 return (
                   <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
                     {dateCell}
-                    <td colSpan={totalCols} style={{ 
-                      border: '1px solid var(--border)', padding: '4px', textAlign: 'center',
-                      backgroundColor: 'var(--ph-bg)',
-                      color: 'var(--ph-text)',
-                      fontWeight: 700, fontStyle: 'italic',
-                      fontSize: '0.8rem'
+                    <td colSpan={totalCols} style={{
+                      border: '1px solid #FEE2E2',
+                      backgroundColor: '#FEF2F2',
+                      color: 'var(--danger-text)',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      padding: '2px',
+                      fontSize: '0.62rem',
+                      letterSpacing: '0.04em'
                     }}>
                       PUBLIC HOLIDAY — {phName}
                     </td>

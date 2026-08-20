@@ -5,72 +5,34 @@
   --brand-light: #e8f5e3;
   --brand-dark: #4a8a35;
 
-  /* Core palette - Light */
+  /* Core palette */
   --background: #f8fafc;
   --foreground: #0f172a;
   --surface: #ffffff;
-  --surface-hover: #f1f5f9;
   --border: #e2e8f0;
-  
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
-  
   --danger: #ef4444;
   --danger-light: #fef2f2;
-  --danger-border: #fca5a5;
-  --danger-text: #b91c1c;
-
   --warning: #f59e0b;
   --warning-light: #fefce8;
-  --warning-border: #fde047;
-  --warning-text: #a16207;
-
-  --success: #10b981;
-  --success-light: #ecfdf5;
-  --success-border: #6ee7b7;
-  --success-text: #047857;
-
+  --success: #22c55e;
+  --success-light: #f0fdf4;
   --text-muted: #64748b;
   --cell-hover: rgba(0,0,0,0.04);
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(0, 0, 0, 0.05);
-  --shadow-color: rgba(0,0,0,0.1);
 
   /* Roster-specific */
   --weekend-bg: #f1f5f9;
   --header-bg: #f8fafc;
-  --ph-bg: #FEF2F2;
-  --ph-text: #DC2626;
-
-  /* Band Colors Light */
-  --band-oic: #B2EBE6;
-  --band-novena: #C8E6C9;
-  --band-icon: #D1C4E9;
-  --band-anson: #C8E6C9;
-  --band-camden: #D1C4E9;
-  --band-jurong: #B2EBF2;
-  
-  /* Station Colors Light */
-  --station-bmd: #F4FDC2;
-  --station-mam: #F8D7EA;
-  --station-ct: #E8E4FF;
-  --station-pet: #FFF3CC;
-  --station-luma: #F0F0F0;
-  --station-mri: #D6F5F8;
-  
-  --leave-bg: #DBEAFE;
-  --leave-text: #1e40af;
-  --am-text: #0369a1;
-  --pm-text: #c2410c;
 
   /* Spacing scale */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
 
   /* Border radius */
   --radius-sm: 4px;
@@ -92,68 +54,8 @@
   --transition-slow: 0.3s ease;
 
   /* Typography */
-  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-}
-
-[data-theme='dark'] {
-  --background: #0f1115;
-  --foreground: #f1f5f9;
-  --surface: #1a1d24;
-  --surface-hover: #262a33;
-  --border: #2a2f3a;
-  
-  --primary: #3b82f6;
-  --primary-hover: #60a5fa;
-  --primary-light: #1e3a8a;
-  
-  --danger: #ef4444;
-  --danger-light: #451a1a;
-  --danger-border: #7f1d1d;
-  --danger-text: #fca5a5;
-
-  --warning: #f59e0b;
-  --warning-light: #422006;
-  --warning-border: #78350f;
-  --warning-text: #fcd34d;
-
-  --success: #10b981;
-  --success-light: #064e3b;
-  --success-border: #065f46;
-  --success-text: #6ee7b7;
-
-  --text-muted: #94a3b8;
-  --cell-hover: rgba(255,255,255,0.04);
-  --glass-bg: rgba(26, 29, 36, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --shadow-color: rgba(0,0,0,0.5);
-
-  /* Roster-specific */
-  --weekend-bg: #14171c;
-  --header-bg: #15181e;
-  --ph-bg: #2a1114;
-  --ph-text: #fca5a5;
-
-  /* Band Colors Dark - Deeper, saturated variants */
-  --band-oic: #0d3b38;
-  --band-novena: #103318;
-  --band-icon: #261642;
-  --band-anson: #103318;
-  --band-camden: #261642;
-  --band-jurong: #0d3840;
-
-  /* Station Colors Dark */
-  --station-bmd: #3b421a;
-  --station-mam: #4a1932;
-  --station-ct: #242042;
-  --station-pet: #423512;
-  --station-luma: #2a2a2a;
-  --station-mri: #1a4145;
-
-  --leave-bg: #1e3a8a;
-  --leave-text: #bfdbfe;
-  --am-text: #7dd3fc;
-  --pm-text: #fdba74;
 }
 
 /* ─── BASE RESET ──────────────────────────────────────── */

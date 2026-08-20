@@ -4,7 +4,6 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter } from 'lucide-react';
 
 export type User = {
@@ -298,7 +297,6 @@ export default function Home() {
             </div>
           </div>
 
-          <ThemeToggle />
           <div style={{ position: 'relative' }} ref={settingsRef}>
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
@@ -307,7 +305,7 @@ export default function Home() {
                 backgroundColor: 'var(--surface)', color: 'var(--foreground)', border: '1px solid var(--border)',
                 borderRadius: '6px', cursor: 'pointer', transition: 'all 0.15s'
               }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--surface-hover)'; }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--surface)'; }}
             >
               <MoreVertical size={18} />
