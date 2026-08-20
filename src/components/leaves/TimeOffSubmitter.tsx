@@ -18,6 +18,12 @@ export function TimeOffSubmitter({ session }: { session: any }) {
   const [targetUserId, setTargetUserId] = useState('');
 
   useEffect(() => {
+    const today = new Date();
+    const tzOffset = today.getTimezoneOffset() * 60000;
+    setDate(new Date(today.getTime() - tzOffset).toISOString().split('T')[0]);
+  }, []);
+
+  useEffect(() => {
     fetchRecords();
     if (isScheduler) {
       fetch('/api/users')

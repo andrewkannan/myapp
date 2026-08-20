@@ -20,6 +20,12 @@ export default function LeaveRequestForm({ onSuccess, session }: { onSuccess?: (
   const [targetUserId, setTargetUserId] = useState('');
 
   useEffect(() => {
+    const today = new Date();
+    const tzOffset = today.getTimezoneOffset() * 60000;
+    setStartDate(new Date(today.getTime() - tzOffset).toISOString().split('T')[0]);
+  }, []);
+
+  useEffect(() => {
     if (isScheduler) {
       fetch('/api/users')
         .then(res => res.json())
