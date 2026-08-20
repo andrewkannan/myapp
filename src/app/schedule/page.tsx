@@ -203,22 +203,49 @@ export default function MobileSchedulePage() {
               </div>
               
               <div style={cardStyle}>
-                {leaves.length > 0 ? (
-                  // ON LEAVE
+                {leaves.length === 0 && shifts.length === 0 ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#fef2f2', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#ef4444' }}>
-                      <Calendar size={28} />
+                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#86868b' }}>
+                      <Moon size={28} />
                     </div>
                     <div>
-                      <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f' }}>On Leave</h3>
-                      <p style={{ margin: 0, color: isToday ? '#15803d' : '#ef4444', fontWeight: 600, fontSize: '1rem' }}>
-                        {leaves.map(l => l.type).join(', ')}
-                      </p>
+                      <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#86868b' }}>Off Day</h3>
+                      <p style={{ margin: 0, color: '#86868b', fontSize: '1rem' }}>No schedule for today</p>
                     </div>
                   </div>
-                ) : shifts.length > 0 ? (
-                  // HAS SHIFTS
+                ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {/* Render Leaves */}
+                    {leaves.map((l, i) => (
+                      <div key={`leave-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderBottom: shifts.length > 0 || i < leaves.length - 1 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingBottom: shifts.length > 0 || i < leaves.length - 1 ? '1.5rem' : 0 }}>
+                        <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: l.type === 'TO' ? '#fef3c7' : (isToday ? '#dcfce7' : '#fef2f2'), display: 'flex', justifyContent: 'center', alignItems: 'center', color: l.type === 'TO' ? '#d97706' : (isToday ? '#16a34a' : '#ef4444') }}>
+                          {l.type === 'TO' ? <Clock size={28} /> : <Calendar size={28} />}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f' }}>
+                            {l.type === 'TO' ? 'Time Off' : 'On Leave'}
+                          </h3>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: l.type === 'TO' ? '#d97706' : (isToday ? '#15803d' : '#ef4444'), fontWeight: 600, fontSize: '1rem', flexWrap: 'wrap' }}>
+                            <span>{l.type}</span>
+                            {l.period && (
+                              <span style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
+                                {l.period}
+                              </span>
+                            )}
+                            {l.status === 'PENDING' && (
+                              <span style={{ backgroundColor: '#fef9c3', color: '#854d0e', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 700 }}>PENDING</span>
+                            )}
+                          </div>
+                          {l.remarks && (
+                            <p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                              "{l.remarks}"
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Render Shifts */}
                     {shifts.map((shift, i) => {
                       const stName = shift.station?.name || 'Unknown Station';
                       let locName = shift.station?.location?.name || '';
@@ -230,7 +257,7 @@ export default function MobileSchedulePage() {
                       }
 
                       return (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
+                        <div key={`shift-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
                           <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#007aff', overflow: 'hidden' }}>
                             {(() => {
                               const upperLoc = locName.toUpperCase();
@@ -266,17 +293,6 @@ export default function MobileSchedulePage() {
                         </div>
                       );
                     })}
-                  </div>
-                ) : (
-                  // OFF / NOT SCHEDULED
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', opacity: 0.7 }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#86868b' }}>
-                      <CheckCircle2 size={28} />
-                    </div>
-                    <div>
-                      <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f' }}>Not Scheduled</h3>
-                      <p style={{ margin: 0, color: '#86868b', fontWeight: 500, fontSize: '1rem' }}>Rest Day</p>
-                    </div>
                   </div>
                 )}
               </div>
