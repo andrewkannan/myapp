@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, ArrowLeft, Users, MapPin, Activity, List } from 'lucide-react';
+import { LogOut, ArrowLeft, Users, MapPin, Activity, List, Upload } from 'lucide-react';
 
 import { StaffManager } from '@/components/admin/StaffManager';
 import { FacilityManager } from '@/components/admin/FacilityManager';
@@ -10,9 +10,10 @@ import { AuditViewer } from '@/components/admin/AuditViewer';
 import { SystemListManager } from '@/components/admin/SystemListManager';
 import { MasterLeaveViewer } from '@/components/admin/MasterLeaveViewer';
 import { TimeOffManager } from '@/components/admin/TimeOffManager';
+import { BulkUploader } from '@/components/admin/BulkUploader';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff'>('staff');
+  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff' | 'upload'>('staff');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
@@ -137,6 +138,15 @@ export default function AdminDashboard() {
                 isMobile={isMobile}
               />
             )}
+            {currentUser.permissions?.includes('ROSTER_EDIT') && (
+              <TabButton 
+                active={activeTab === 'upload'} 
+                onClick={() => setActiveTab('upload')}
+                icon={<Upload size={18} />}
+                label="Bulk Upload"
+                isMobile={isMobile}
+              />
+            )}
             {currentUser.permissions?.includes('ROLE_MANAGE') && (
               <TabButton 
                 active={activeTab === 'lists'} 
@@ -171,6 +181,9 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: activeTab === 'facilities' ? 'block' : 'none', height: '100%' }}>
             <FacilityManager />
+          </div>
+          <div style={{ display: activeTab === 'upload' ? 'block' : 'none', height: '100%' }}>
+            <BulkUploader />
           </div>
           <div style={{ display: activeTab === 'lists' ? 'block' : 'none', height: '100%' }}>
             <SystemListManager />
