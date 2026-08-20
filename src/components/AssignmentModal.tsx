@@ -11,6 +11,7 @@ interface AssignmentModalProps {
   statusType: 'Scheduled' | 'Leave' | 'MC' | 'Off' | 'TimeOff';
   currentShifts: Shift[];
   allShifts: Shift[];
+  allLeaves: any[];
   users: User[];
   onClose: () => void;
   onRefresh: () => void;
@@ -128,7 +129,7 @@ function getRequiredModalities(stationName: string, allUsers: User[]): string[] 
 }
 
 export default function AssignmentModal({
-  date, station, statusType, currentShifts, allShifts, users, onClose, onRefresh
+  date, station, statusType, currentShifts, allShifts, allLeaves, users, onClose, onRefresh
 }: AssignmentModalProps) {
   const [mode, setMode] = useState<Mode>('single');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -163,8 +164,9 @@ export default function AssignmentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const conflictUserIds = useMemo(() => {
-    return allShifts
+  const conflictData = useMemo(() => {
+    const data: Record<string, string> = {};
+    allShifts
       .filter(s => {
         const sd = new Date(s.date);
         return sd.getDate() === date.getDate() &&
@@ -173,8 +175,29 @@ export default function AssignmentModal({
                s.status === 'Scheduled' &&
                s.stationId !== station?.id;
       })
-      .map(s => s.userId);
+      .forEach(s => {
+        data[s.userId] = s.station?.name || 'Another Station';
+      });
+    return data;
   }, [allShifts, date, station]);
+
+  const leaveData = useMemo(() => {
+    const activeLeaves = allLeaves.filter(l => {
+      const ld = new Date(l.date);
+      return ld.getDate() === date.getDate() &&
+             ld.getMonth() === date.getMonth() &&
+             ld.getFullYear() === date.getFullYear() &&
+             ['PENDING', 'APPROVED'].includes(l.status);
+    });
+
+    const leaveUserIds = activeLeaves.map(l => l.userId);
+    const leaveReasons: Record<string, string> = {};
+    activeLeaves.forEach(l => {
+      leaveReasons[l.userId] = l.remarks ? `${l.type} - ${l.remarks}` : l.type;
+    });
+
+    return { leaveUserIds, leaveReasons };
+  }, [allLeaves, date]);
 
   const estimatedDays = useMemo(() => {
     if (mode === 'single') return 1;
@@ -510,7 +533,9 @@ export default function AssignmentModal({
               <StaffPicker
                 users={eligibleUsers}
                 selectedIds={selectedUserIds}
-                conflictUserIds={conflictUserIds}
+                conflictData={conflictData}
+                leaveUserIds={leaveData.leaveUserIds}
+                leaveReasons={leaveData.leaveReasons}
                 onToggle={toggleUser}
               />
             </div>

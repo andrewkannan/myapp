@@ -172,8 +172,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   </th>
                 );
               })}
-              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: 'var(--danger)' }}>
-                Absences
+              <th colSpan={3} style={{ border: '1px solid var(--border)', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '0.6rem', color: '#1e40af' }}>
+                Leaves
               </th>
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px', width: '28px', textAlign: 'center', backgroundColor: 'var(--header-bg)', fontSize: '0.58rem', color: 'var(--text-muted)' }}>
                 #
@@ -359,8 +359,6 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                     );
                   })}
                   {absences.map(abs => {
-                    const shifts = getCellShifts(date, null, abs);
-                    
                     const dayLeaves = leavesByDate.get(getLocalDateString(date)) || [];
                     const actualLeaves = dayLeaves.filter(l => {
                        if (abs === 'Leave' && ['AL', 'ML', 'CCL', 'UL', 'NS', 'HL', 'UPL'].includes(l.type)) return true;
@@ -369,48 +367,17 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                        return false;
                     });
 
-                    const hasFilteredItem = shifts.some(s => filterUserIds.includes(s.userId)) || actualLeaves.some(l => filterUserIds.includes(l.userId));
-
                     return (
                       <td 
                         key={abs} 
-                        onClick={() => handleCellClick(date, null, abs)}
                         style={{ 
                           border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'top',
                           textAlign: 'left', lineHeight: 1.1,
-                          cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
+                          cursor: 'default',
                           transition: 'background-color 0.2s',
                           backgroundColor: (isWeekend ? 'var(--weekend-bg)' : 'transparent')
                         }}
-                        onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = (isWeekend ? 'var(--weekend-bg)' : 'transparent') }}
                       >
-                        {/* Plain text absence cell — Excel style */}
-                        {shifts.map(shift => {
-                          const isCancelled = shift.status === 'Cancelled';
-                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
-                          const isOther = filterUserIds.length > 0 && !isFiltered;
-                          return (
-                            <span
-                              key={shift.id}
-                              title={shift.user.fullName || shift.user.abbreviation}
-                              style={{
-                                display: isOther ? 'none' : 'inline-block',
-                                opacity: isOther ? 0.15 : 1,
-                                filter: isOther ? 'grayscale(100%)' : 'none',
-                                fontSize: '0.6rem',
-                                fontWeight: 700,
-                                color: isCancelled ? '#9CA3AF' : '#111',
-                                textDecoration: isCancelled ? 'line-through' : 'none',
-                                marginRight: '4px',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {shift.user.abbreviation}
-                              {shift.remarks && <span style={{ color: '#888', fontSize: '0.5rem', marginLeft: '3px' }}>{shift.remarks}</span>}
-                            </span>
-                          );
-                        })}
                         {actualLeaves.map(leave => {
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
                           const isOther = filterUserIds.length > 0 && !isFiltered;
@@ -465,6 +432,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
           statusType={selectedCell.status}
           currentShifts={getCellShifts(selectedCell.date, selectedCell.station?.id || null, selectedCell.status)}
           allShifts={data.shifts}
+          allLeaves={data.leaves}
           users={data.users}
           onClose={() => setModalOpen(false)}
           onRefresh={onRefresh}

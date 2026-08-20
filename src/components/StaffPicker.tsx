@@ -6,7 +6,9 @@ import { User } from '@/app/page';
 interface StaffPickerProps {
   users: User[];
   selectedIds: string[];
-  conflictUserIds?: string[]; // users already working elsewhere today
+  conflictData?: Record<string, string>; // mapping of userId to station name
+  leaveUserIds?: string[]; // users on leave today
+  leaveReasons?: Record<string, string>; // mapping of userId to leave remark
   onToggle: (userId: string) => void;
 }
 
@@ -21,7 +23,7 @@ function getUserColor(abbreviation: string) {
   };
 }
 
-export default function StaffPicker({ users, selectedIds, conflictUserIds = [], onToggle }: StaffPickerProps) {
+export default function StaffPicker({ users, selectedIds, conflictData = {}, leaveUserIds = [], leaveReasons = {}, onToggle }: StaffPickerProps) {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
@@ -60,13 +62,19 @@ export default function StaffPicker({ users, selectedIds, conflictUserIds = [], 
         {filtered.map(user => {
           const uc = getUserColor(user.abbreviation);
           const isSelected = selectedIds.includes(user.id);
-          const hasConflict = conflictUserIds.includes(user.id);
+          const hasConflict = !!conflictData[user.id];
+          const conflictStation = conflictData[user.id];
+          const isOnLeave = leaveUserIds.includes(user.id);
+          const leaveReason = leaveReasons[user.id] || 'On Leave';
 
           return (
             <button
               key={user.id}
-              onClick={() => onToggle(user.id)}
-              title={`${user.fullName || user.abbreviation}${hasConflict ? ' ⚠ Already working today' : ''}`}
+              onClick={(e) => {
+                if (isOnLeave) { e.preventDefault(); return; }
+                onToggle(user.id);
+              }}
+              title={`${user.fullName || user.abbreviation}${isOnLeave ? ` ✈ ${leaveReason}` : hasConflict ? ` ⚠ Already working at ${conflictStation}` : ''}`}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -74,16 +82,27 @@ export default function StaffPicker({ users, selectedIds, conflictUserIds = [], 
                 gap: '2px',
                 padding: '0.4rem 0.25rem',
                 borderRadius: '8px',
-                border: `2px solid ${isSelected ? uc.selectedBg : hasConflict ? '#F59E0B' : uc.border}`,
-                backgroundColor: isSelected ? uc.selectedBg : hasConflict ? '#FFFBEB' : uc.bg,
-                cursor: 'pointer',
+                border: `2px solid ${isSelected ? uc.selectedBg : isOnLeave ? '#d1d5db' : hasConflict ? '#F59E0B' : uc.border}`,
+                backgroundColor: isSelected ? uc.selectedBg : isOnLeave ? '#f3f4f6' : hasConflict ? '#FFFBEB' : uc.bg,
+                cursor: isOnLeave ? 'not-allowed' : 'pointer',
+                opacity: isOnLeave && !isSelected ? 0.6 : 1,
                 transition: 'all 0.15s ease',
                 outline: 'none',
                 position: 'relative',
               }}
             >
+              {/* Leave badge */}
+              {isOnLeave && !isSelected && (
+                <span style={{
+                  position: 'absolute', top: '-4px', right: '-4px',
+                  fontSize: '0.55rem', background: '#9ca3af', color: 'white',
+                  borderRadius: '50%', width: '14px', height: '14px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700
+                }}>✈</span>
+              )}
               {/* Conflict badge */}
-              {hasConflict && !isSelected && (
+              {hasConflict && !isSelected && !isOnLeave && (
                 <span style={{
                   position: 'absolute', top: '-4px', right: '-4px',
                   fontSize: '0.6rem', background: '#F59E0B', color: 'white',
