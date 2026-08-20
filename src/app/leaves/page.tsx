@@ -61,15 +61,20 @@ export default function LeavesPage() {
   if (!session) return null;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', color: '#4b5563', textDecoration: 'none', marginRight: '1rem', fontWeight: 500 }}>
-          <ChevronLeft size={20} /> Back to Roster
-        </Link>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', margin: 0, color: '#111827' }}>My Requests</h1>
-      </div>
+    <div className="animate-fade-in" style={{ backgroundColor: '#f9fafb', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header className="animate-slide-up" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '1rem 1.5rem', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button onClick={() => window.location.href = '/schedule'} style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
+              <ChevronLeft size={24} />
+              <span className="hidden sm:inline">Back to Roster</span>
+            </button>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>My Requests</h1>
+          </div>
+        </div>
+      </header>
 
-      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '2rem', alignItems: 'flex-start' }}>
+      <main className="animate-slide-up delay-1" style={{ flex: 1, padding: '2rem 1.5rem', maxWidth: '1200px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '2rem', alignItems: 'flex-start' }}>
         
         {/* Sidebar Nav */}
         <aside style={{ width: isMobile ? '100%' : '220px', flexShrink: 0 }}>
