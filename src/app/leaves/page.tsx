@@ -15,6 +15,13 @@ export default function LeavesPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'timeoff') {
+      setActiveTab('timeoff');
+    }
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -101,44 +108,33 @@ export default function LeavesPage() {
         <section style={{ flex: 1, minWidth: 0, width: '100%' }}>
           {activeTab === 'leaves' && (
             <div>
-              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem', color: '#111827' }}>Request New Leave</h2>
+              <div style={{ backgroundColor: '#ffffff', borderRadius: '32px', padding: '2rem', marginBottom: '2.5rem', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
+                <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1.5rem', color: '#1d1d1f' }}>Request New Leave</h2>
                 <LeaveRequestForm onSuccess={fetchLeaves} />
               </div>
 
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Leave History</h2>
+              <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: '#1d1d1f' }}>Leave History</h2>
               {userLeaves.length === 0 ? (
-                <p style={{ color: '#6b7280' }}>No leave records found.</p>
+                <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#f5f5f7', borderRadius: '24px', color: '#86868b' }}>
+                  No leave records found.
+                </div>
               ) : (
-                <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead>
-                      <tr style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                        <th style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>Date</th>
-                        <th style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>Type</th>
-                        <th style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>Period</th>
-                        <th style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {userLeaves.map((leave: any) => (
-                        <tr key={leave.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                          <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>{new Date(leave.date).toLocaleDateString()}</td>
-                          <td style={{ padding: '0.75rem', fontSize: '0.875rem', fontWeight: 600 }}>{leave.type}</td>
-                          <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>{leave.period}</td>
-                          <td style={{ padding: '0.75rem' }}>
-                            <span style={{
-                              padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 500,
-                              backgroundColor: leave.status === 'APPROVED' ? '#dcfce7' : leave.status === 'REJECTED' ? '#fee2e2' : '#fef9c3',
-                              color: leave.status === 'APPROVED' ? '#166534' : leave.status === 'REJECTED' ? '#991b1b' : '#854d0e'
-                            }}>
-                              {leave.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {userLeaves.map((leave: any) => (
+                    <div key={leave.id} style={{ backgroundColor: '#ffffff', padding: '1.25rem 1.5rem', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#1d1d1f', marginBottom: '0.25rem' }}>{new Date(leave.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div style={{ fontSize: '0.9rem', color: '#86868b', fontWeight: 500 }}>{leave.type} • {leave.period}</div>
+                      </div>
+                      <span style={{
+                        padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '999px', fontWeight: 600,
+                        backgroundColor: leave.status === 'APPROVED' ? '#dcfce7' : leave.status === 'REJECTED' ? '#fee2e2' : '#fef9c3',
+                        color: leave.status === 'APPROVED' ? '#166534' : leave.status === 'REJECTED' ? '#991b1b' : '#854d0e'
+                      }}>
+                        {leave.status}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

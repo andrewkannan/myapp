@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
-
 export async function GET(request: Request) {
   try {
     const session = await getSession();
@@ -22,7 +21,7 @@ export async function GET(request: Request) {
           date: { gte: today, lte: endOfRange },
           status: 'Scheduled'
         },
-        include: { station: true }
+        include: { station: { include: { location: true } } }
       }),
       prisma.leave.findMany({
         where: {
@@ -31,7 +30,7 @@ export async function GET(request: Request) {
           status: 'APPROVED'
         }
       }),
-      prisma.station.findMany()
+      prisma.station.findMany({ include: { location: true } })
     ]);
 
     return NextResponse.json({ shifts, leaves, stations });

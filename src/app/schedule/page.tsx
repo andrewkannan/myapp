@@ -133,13 +133,13 @@ export default function MobileSchedulePage() {
           
           {menuOpen && (
             <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', width: '220px', backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '16px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <button onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+              <button onClick={() => window.location.href = '/'} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <CalendarDays size={18} color="#007aff" /> Roster
               </button>
-              <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+              <button onClick={() => window.location.href = '/leaves'} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <Activity size={18} color="#34c759" /> Leaves
               </button>
-              <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+              <button onClick={() => window.location.href = '/leaves?tab=timeoff'} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <Clock size={18} color="#ff9500" /> Time Off
               </button>
               {session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
@@ -168,14 +168,25 @@ export default function MobileSchedulePage() {
           const isToday = index === 0;
 
           // Card Styles
+          // Card Styles
           const cardStyle = {
-            backgroundColor: '#ffffff',
+            backgroundColor: isToday ? '#f0fdf4' : '#ffffff',
             borderRadius: '32px',
             padding: '2rem',
-            boxShadow: isToday ? '0 14px 34px rgba(0,0,0,0.06)' : '0 4px 14px rgba(0,0,0,0.03)',
-            border: '1px solid rgba(0,0,0,0.02)',
+            boxShadow: isToday ? '0 14px 34px rgba(34, 197, 94, 0.12)' : '0 4px 14px rgba(0,0,0,0.03)',
+            border: isToday ? '2px solid #4ade80' : '1px solid rgba(0,0,0,0.02)',
             position: 'relative' as const,
             overflow: 'hidden' as const
+          };
+
+          const parseStationDisplay = (name: string) => {
+            if (!name) return { base: '', time: null };
+            const parts = name.split(' ');
+            const last = parts[parts.length - 1];
+            if (['830', '930', '1230', '230', '330', '430', '730', '1030', '1130'].includes(last)) {
+              return { base: parts.slice(0, -1).join(' '), time: last };
+            }
+            return { base: name, time: null };
           };
 
           return (
@@ -201,12 +212,12 @@ export default function MobileSchedulePage() {
                 {leaves.length > 0 ? (
                   // ON LEAVE
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#fef2f2', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ef4444' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#fef2f2', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#ef4444' }}>
                       <Calendar size={28} />
                     </div>
                     <div>
                       <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f' }}>On Leave</h3>
-                      <p style={{ margin: 0, color: '#ef4444', fontWeight: 600, fontSize: '1rem' }}>
+                      <p style={{ margin: 0, color: isToday ? '#15803d' : '#ef4444', fontWeight: 600, fontSize: '1rem' }}>
                         {leaves.map(l => l.type).join(', ')}
                       </p>
                     </div>
@@ -214,22 +225,37 @@ export default function MobileSchedulePage() {
                 ) : shifts.length > 0 ? (
                   // HAS SHIFTS
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {shifts.map((shift, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? '1px solid #f5f5f7' : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
-                        <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#007aff' }}>
-                          <MapPin size={28} strokeWidth={2.5} />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em' }}>
-                            {shift.station?.name || 'Unknown Station'}
-                          </h3>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#86868b', fontSize: '1rem', fontWeight: 500 }}>
-                            <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '4px', backgroundColor: shift.shiftPeriod === 'AM' ? '#ff9500' : shift.shiftPeriod === 'PM' ? '#5856d6' : '#34c759' }} />
-                            {shift.shiftPeriod === 'AM' ? 'Morning Shift' : shift.shiftPeriod === 'PM' ? 'Afternoon Shift' : 'Full Day Shift'}
+                    {shifts.map((shift, i) => {
+                      const stName = shift.station?.name || 'Unknown Station';
+                      const locName = shift.station?.location?.name || '';
+                      const { base, time } = parseStationDisplay(stName);
+                      return (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
+                          <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#007aff', overflow: 'hidden' }}>
+                            {locName.toUpperCase() === 'OIC' ? (
+                              <img src="/asiamedic-logo.png" alt="OIC" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
+                            ) : (
+                              <MapPin size={28} strokeWidth={2.5} />
+                            )}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              {locName && <span style={{ color: isToday ? '#15803d' : '#86868b', fontSize: '1rem', fontWeight: 600 }}>{locName}</span>}
+                              {base}
+                              {time && (
+                                <span style={{ backgroundColor: time === '830' ? '#0d9488' : time === '930' ? '#d97706' : '#1d4ed8', color: 'white', fontSize: '0.85rem', padding: '2px 8px', borderRadius: '99px', fontWeight: 800 }}>
+                                  {time}
+                                </span>
+                              )}
+                            </h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: isToday ? '#16a34a' : '#86868b', fontSize: '1rem', fontWeight: 500 }}>
+                              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '4px', backgroundColor: shift.shiftPeriod === 'AM' ? '#ff9500' : shift.shiftPeriod === 'PM' ? '#5856d6' : '#34c759' }} />
+                              {shift.shiftPeriod === 'AM' ? 'Morning Shift' : shift.shiftPeriod === 'PM' ? 'Afternoon Shift' : 'Full Day Shift'}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   // OFF / NOT SCHEDULED
