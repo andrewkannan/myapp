@@ -68,9 +68,9 @@ function LeavesContent() {
       <header className="animate-slide-up" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '1rem 1.5rem', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button onClick={() => window.location.href = '/schedule'} style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
+            <button onClick={() => router.push('/schedule')} style={{ display: 'flex', alignItems: 'center', color: '#6b7280', border: 'none', background: 'transparent' }}>
               <ChevronLeft size={24} />
-              <span className="hidden sm:inline">Back to Roster</span>
+              <span className="hidden sm:inline">Back to Schedule</span>
             </button>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>My Requests</h1>
           </div>

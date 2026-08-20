@@ -60,23 +60,23 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
       {error && <div style={{ color: '#b91c1c', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>{error}</div>}
       {success && <div style={{ color: '#15803d', backgroundColor: '#f0fdf4', padding: '0.75rem', borderRadius: '4px', fontSize: '0.875rem' }}>Leave request submitted successfully! (Pending Approval)</div>}
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Date</label>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Date</label>
           <input 
             type="date" 
             value={dateStr}
             onChange={(e) => setDateStr(e.target.value)}
-            className="input-field"
+            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
             required
           />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Leave Type</label>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Leave Type</label>
           <select 
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="input-field"
+            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
           >
             <option value="AL">Annual Leave (AL)</option>
             <option value="MC">Medical Certificate (MC)</option>
@@ -90,11 +90,11 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Period</label>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Period</label>
           <select 
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="input-field"
+            style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
           >
             <option value="FULL">Full Day</option>
             <option value="AM">Morning (AM)</option>
@@ -104,13 +104,13 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Remarks (Optional)</label>
+        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1d1d1f' }}>Remarks (Optional)</label>
         <input 
           type="text" 
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
           placeholder="Reason or notes for your manager"
-          className="input-field"
+          style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '1rem' }}
         />
       </div>
 
@@ -118,7 +118,7 @@ export default function LeaveRequestForm({ onSuccess }: { onSuccess?: () => void
         <button 
           type="submit" 
           disabled={loading}
-          className="btn btn-primary"
+          style={{ width: '100%', padding: '0.875rem', backgroundColor: '#007aff', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
         >
           {loading ? 'Submitting...' : 'Submit Request'}
         </button>

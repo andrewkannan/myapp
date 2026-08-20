@@ -127,7 +127,7 @@ export default function MobileSchedulePage() {
           
           {menuOpen && (
             <div className="animate-menu" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', width: '220px', backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: '16px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <button onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
+              <button onClick={() => router.push('/?view=grid')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>
                 <CalendarDays size={18} color="#007aff" /> Roster
               </button>
               <button onClick={() => router.push('/leaves')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', backgroundColor: 'transparent', border: 'none', color: '#1d1d1f', fontSize: '1rem', fontWeight: 500, width: '100%', textAlign: 'left' }}>

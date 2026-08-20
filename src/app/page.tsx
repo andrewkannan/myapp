@@ -102,7 +102,10 @@ export default function Home() {
           const { user } = await res.json();
           const roles = (user.role || '').toLowerCase();
           const isTargetRole = roles.includes('radiographer') || roles.includes('sonographer');
-          if (isTargetRole && window.innerWidth <= 768) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const forceGrid = urlParams.get('view') === 'grid';
+          
+          if (isTargetRole && window.innerWidth <= 768 && !forceGrid) {
             router.push('/schedule');
             return;
           }
