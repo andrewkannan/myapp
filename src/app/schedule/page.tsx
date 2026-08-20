@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Calendar, CheckCircle2, Navigation, MoreVertical, CalendarDays, Activity, Clock, Settings, Moon } from 'lucide-react';
+import { MapPin, Calendar, CheckCircle2, Navigation, MoreVertical, CalendarDays, Activity, Clock, Settings, Moon, Coffee, Sun } from 'lucide-react';
 
 export default function MobileSchedulePage() {
   const [session, setSession] = useState<any>(null);
@@ -183,6 +183,8 @@ export default function MobileSchedulePage() {
             return { base: name, time: null };
           };
 
+          const isSunday = day.date.getDay() === 0;
+
           return (
             <div key={day.label} className={`animate-slide-up delay-${Math.min(index + 1, 5)}`}>
               <div style={{ marginBottom: '1rem', paddingLeft: '0.5rem' }}>
@@ -204,15 +206,27 @@ export default function MobileSchedulePage() {
               
               <div style={cardStyle}>
                 {leaves.length === 0 && shifts.length === 0 ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#86868b' }}>
-                      <Moon size={28} />
+                  isSunday ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#d97706', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)' }}>
+                        <Coffee size={32} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 800, color: '#b45309' }}>Rest Well!</h3>
+                        <p style={{ margin: 0, color: '#92400e', fontSize: '1rem', fontWeight: 500 }}>It's Sunday. Take a break and recharge.</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#86868b' }}>Off Day</h3>
-                      <p style={{ margin: 0, color: '#86868b', fontSize: '1rem' }}>No schedule for today</p>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: '#f5f5f7', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#86868b' }}>
+                        <Moon size={28} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: '#86868b' }}>Off Day</h3>
+                        <p style={{ margin: 0, color: '#86868b', fontSize: '1rem' }}>No schedule for today</p>
+                      </div>
                     </div>
-                  </div>
+                  )
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {/* Render Leaves */}
