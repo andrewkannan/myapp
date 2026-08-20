@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const session = await getSession();
     // Only allow admins to view the master leave table
-    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p))) {
+    if (!session || !session.permissions?.some((p: string) => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW', 'LEAVE_VIEW_ALL', 'LEAVE_APPROVE'].includes(p))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

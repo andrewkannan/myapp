@@ -10,10 +10,17 @@ type SystemModality = { id: string; name: string };
 const APP_MODULES = [
   { key: 'ROSTER_VIEW', label: 'View Roster' },
   { key: 'ROSTER_EDIT', label: 'Edit Roster' },
+  { key: 'SCHEDULE_VIEW', label: 'View My Schedule' },
+  { key: 'LEAVE_SUBMIT', label: 'Submit Leave' },
+  { key: 'LEAVE_APPROVE', label: 'Approve/Reject Leave' },
+  { key: 'LEAVE_VIEW_ALL', label: 'View All Leaves' },
+  { key: 'TIMEOFF_SUBMIT', label: 'Submit Time-Off' },
+  { key: 'TIMEOFF_APPROVE', label: 'Approve/Reject Time-Off' },
+  { key: 'BULK_UPLOAD', label: 'Bulk Data Upload' },
   { key: 'STAFF_MANAGE', label: 'Manage Staff' },
   { key: 'FACILITY_MANAGE', label: 'Manage Facilities' },
   { key: 'ROLE_MANAGE', label: 'Access Control' },
-  { key: 'AUDIT_VIEW', label: 'Audit Logs' }
+  { key: 'AUDIT_VIEW', label: 'Audit Logs' },
 ];
 
 export function SystemListManager() {

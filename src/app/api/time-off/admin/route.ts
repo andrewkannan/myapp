@@ -6,7 +6,7 @@ import { getSession } from '@/lib/auth';
 export async function GET(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.permissions?.includes('ROSTER_EDIT')) {
+    if (!session || !session.permissions?.some((p: string) => ['ROSTER_EDIT', 'TIMEOFF_APPROVE', 'STAFF_MANAGE'].includes(p))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.permissions?.includes('ROSTER_EDIT')) {
+    if (!session || !session.permissions?.some((p: string) => ['ROSTER_EDIT', 'TIMEOFF_APPROVE', 'STAFF_MANAGE'].includes(p))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

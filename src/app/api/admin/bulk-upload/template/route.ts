@@ -3,7 +3,7 @@ import { getSession } from '@/lib/auth';
 
 export async function GET(request: Request) {
   const session = await getSession();
-  if (!session || !session.permissions?.includes('ROSTER_EDIT')) {
+  if (!session || !session.permissions?.some((p: string) => ['ROSTER_EDIT', 'BULK_UPLOAD'].includes(p))) {
     return new NextResponse('Unauthorized', { status: 403 });
   }
 

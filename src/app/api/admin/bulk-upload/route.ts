@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth';
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.permissions?.includes('ROSTER_EDIT')) {
+    if (!session || !session.permissions?.some((p: string) => ['ROSTER_EDIT', 'BULK_UPLOAD'].includes(p))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

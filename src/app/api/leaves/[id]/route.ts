@@ -6,7 +6,7 @@ export async function PUT(request: Request, context: any) {
   try {
     const params = await context.params;
     const session = await getSession();
-    const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
+    const isScheduler = session?.permissions?.some((p: string) => ['ROSTER_EDIT', 'LEAVE_APPROVE'].includes(p)) || session?.role === 'ADMIN';
     if (!session || !isScheduler) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -34,7 +34,7 @@ export async function DELETE(request: Request, context: any) {
   try {
     const params = await context.params;
     const session = await getSession();
-    const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
+    const isScheduler = session?.permissions?.some((p: string) => ['ROSTER_EDIT', 'LEAVE_APPROVE'].includes(p)) || session?.role === 'ADMIN';
     if (!session || !isScheduler) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

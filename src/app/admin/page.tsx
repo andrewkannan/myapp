@@ -31,7 +31,7 @@ export default function AdminDashboard() {
       .then(data => {
         const user = data.user;
         const hasAdminAccess = user?.permissions?.some((p: string) => 
-          ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW', 'ROSTER_EDIT'].includes(p)
+          ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW', 'ROSTER_EDIT', 'LEAVE_VIEW_ALL', 'LEAVE_APPROVE', 'TIMEOFF_APPROVE', 'BULK_UPLOAD'].includes(p)
         );
         if (!user || !hasAdminAccess) {
           router.push('/');
@@ -111,7 +111,7 @@ export default function AdminDashboard() {
                 isMobile={isMobile}
               />
             )}
-            {currentUser.permissions?.includes('STAFF_MANAGE') && (
+            {(currentUser.permissions?.includes('LEAVE_VIEW_ALL') || currentUser.permissions?.includes('STAFF_MANAGE')) && (
               <TabButton 
                 active={activeTab === 'leaves'} 
                 onClick={() => setActiveTab('leaves')}
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
                 isMobile={isMobile}
               />
             )}
-            {currentUser.permissions?.includes('STAFF_MANAGE') && (
+            {(currentUser.permissions?.includes('TIMEOFF_APPROVE') || currentUser.permissions?.includes('STAFF_MANAGE')) && (
               <TabButton 
                 active={activeTab === 'timeoff'} 
                 onClick={() => setActiveTab('timeoff')}
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                 isMobile={isMobile}
               />
             )}
-            {currentUser.permissions?.includes('ROSTER_EDIT') && (
+            {(currentUser.permissions?.includes('BULK_UPLOAD') || currentUser.permissions?.includes('ROSTER_EDIT')) && (
               <TabButton 
                 active={activeTab === 'upload'} 
                 onClick={() => setActiveTab('upload')}
