@@ -226,8 +226,9 @@ export default function AssignmentModal({
     setError('');
     setLoading(true);
     try {
-      const promises = selectedUserIds.map(userId =>
-        fetch('/api/roster', {
+      let allOk = true;
+      for (const userId of selectedUserIds) {
+        const res = await fetch('/api/roster', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -243,10 +244,11 @@ export default function AssignmentModal({
             skipWeekends,
             skipPublicHolidays: skipPH,
           })
-        })
-      );
-      const results = await Promise.all(promises);
-      if (results.every(r => r.ok)) {
+        });
+        if (!res.ok) allOk = false;
+      }
+      
+      if (allOk) {
         onRefresh();
         onClose();
       } else {
