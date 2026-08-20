@@ -120,9 +120,9 @@ export function SystemListManager() {
       }));
       
       const res = await fetch('/api/system-lists/permissions', {
-        method: 'POST',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ updates })
+        body: JSON.stringify({ roles: updates })
       });
       
       if (res.ok) {
