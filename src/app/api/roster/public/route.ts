@@ -17,17 +17,14 @@ export async function GET(request: Request) {
     const stations = await prisma.station.findMany();
     const users = await prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } });
     const shifts = await prisma.shift.findMany({
-      where: { date: { gte: startDate, lte: endDate } },
-      include: { user: true, station: true }
+      where: { date: { gte: startDate, lte: endDate } }
     });
     const leaves = await prisma.leave.findMany({
-      where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' },
-      include: { user: true }
+      where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' }
     });
     const systemModalities = await prisma.systemModality.findMany({ orderBy: { name: 'asc' } });
     const timeOffRecords = await prisma.timeOffRecord.findMany({
-      where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' },
-      include: { user: true }
+      where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' }
     });
 
     const timeOffAsLeaves = timeOffRecords

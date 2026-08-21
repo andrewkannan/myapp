@@ -353,10 +353,11 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
                           const isOther = filterUserIds.length > 0 && !isFiltered;
                           const period = shift.shiftPeriod;
+                          const shiftUser = data.users.find(u => u.id === shift.userId) || shift.user;
                           return (
                             <span
                               key={shift.id}
-                              title={shift.user.fullName || shift.user.abbreviation}
+                              title={shiftUser?.fullName || shiftUser?.abbreviation || 'Unknown'}
                               style={{
                                 display: isOther ? 'none' : 'block', // "only show the selected data" -> hide the others completely, or wait "grey other others", let's use opacity
                                 opacity: isOther ? 0.15 : 1,
@@ -370,7 +371,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                             >
                               {period === 'AM' && <sup style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
                               {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
-                              {shift.user.abbreviation}
+                              {shiftUser?.abbreviation || 'Unk'}
                               {shift.remarks && <div style={{ color: 'var(--text-muted)', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
                             </span>
                           );
