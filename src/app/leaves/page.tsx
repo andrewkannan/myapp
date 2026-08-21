@@ -61,6 +61,46 @@ function LeavesContent() {
     }
   }, [session, activeTab]);
 
+  const isScheduler = session?.permissions?.some((p: string) => ['ROSTER_EDIT', 'LEAVE_APPROVE'].includes(p)) || session?.role === 'ADMIN';
+  const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
+
+  const [editingLeaveId, setEditingLeaveId] = useState<string | null>(null);
+  const [editLeaveForm, setEditLeaveForm] = useState<any>({});
+
+  const startEditLeave = (leave: any) => {
+    setEditingLeaveId(leave.id);
+    setEditLeaveForm({
+      type: leave.type,
+      period: leave.period,
+      remarks: leave.remarks || '',
+      status: leave.status,
+    });
+  };
+
+  const saveEditLeave = async () => {
+    if (!editingLeaveId) return;
+    const res = await fetch(`/api/leaves/${editingLeaveId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editLeaveForm),
+    });
+    if (res.ok) {
+      setEditingLeaveId(null);
+      fetchLeaves();
+    } else {
+      alert('Failed to update leave');
+    }
+  };
+
+  const deleteLeave = async (id: string) => {
+    if (!confirm('Delete this leave record?')) return;
+    const res = await fetch(`/api/leaves/${id}`, { method: 'DELETE' });
+    if (res.ok) fetchLeaves();
+    else alert('Failed to delete');
+  };
+
+  const editInputStyle: React.CSSProperties = { padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.85rem', width: '100%' };
+
   if (!session) return null;
 
   return (
@@ -114,48 +154,7 @@ function LeavesContent() {
 
         {/* Content Area */}
         <section style={{ flex: 1, minWidth: 0, width: '100%' }}>
-          {activeTab === 'leaves' && (() => {
-              const isScheduler = session?.permissions?.some((p: string) => ['ROSTER_EDIT', 'LEAVE_APPROVE'].includes(p)) || session?.role === 'ADMIN';
-              const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
-
-              const [editingLeaveId, setEditingLeaveId] = useState<string | null>(null);
-              const [editLeaveForm, setEditLeaveForm] = useState<any>({});
-
-              const startEditLeave = (leave: any) => {
-                setEditingLeaveId(leave.id);
-                setEditLeaveForm({
-                  type: leave.type,
-                  period: leave.period,
-                  remarks: leave.remarks || '',
-                  status: leave.status,
-                });
-              };
-
-              const saveEditLeave = async () => {
-                if (!editingLeaveId) return;
-                const res = await fetch(`/api/leaves/${editingLeaveId}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(editLeaveForm),
-                });
-                if (res.ok) {
-                  setEditingLeaveId(null);
-                  fetchLeaves();
-                } else {
-                  alert('Failed to update leave');
-                }
-              };
-
-              const deleteLeave = async (id: string) => {
-                if (!confirm('Delete this leave record?')) return;
-                const res = await fetch(`/api/leaves/${id}`, { method: 'DELETE' });
-                if (res.ok) fetchLeaves();
-                else alert('Failed to delete');
-              };
-
-              const editInputStyle: React.CSSProperties = { padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.85rem', width: '100%' };
-
-              return (
+          {activeTab === 'leaves' && (
                 <div>
                   {!isRestrictedRole && (
                     <div style={{ flex: 1, backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
@@ -261,8 +260,7 @@ function LeavesContent() {
                     </div>
                   )}
                 </div>
-              );
-            })()}
+              )}
 
           {activeTab === 'timeoff' && (
             <TimeOffSubmitter session={session} />
