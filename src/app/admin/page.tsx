@@ -11,7 +11,7 @@ import { SystemListManager } from '@/components/admin/SystemListManager';
 import { MasterLeaveViewer } from '@/components/admin/MasterLeaveViewer';
 import { TimeOffManager } from '@/components/admin/TimeOffManager';
 import { BulkUploader } from '@/components/admin/BulkUploader';
-import { AnalyticsViewer } from '@/components/admin/AnalyticsViewer';
+import AnalyticsViewer from '@/components/admin/AnalyticsViewer';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'analytics' | 'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff' | 'upload'>('analytics');
