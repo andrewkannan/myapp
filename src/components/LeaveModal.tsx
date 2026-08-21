@@ -26,6 +26,13 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
         setMode('timeoff');
         setReason(leave.remarks || '');
         setTargetUserId(leave.userId);
+        if (leave.startTime) setStartTime(leave.startTime);
+        if (leave.endTime) setEndTime(leave.endTime);
+        if (leave.hours !== undefined) {
+          setHours(Math.abs(leave.hours).toString());
+          setIsClaim(leave.hours < 0);
+        }
+        if (leave.studyAccNo) setStudyAccNo(leave.studyAccNo);
       } else {
         setMode('leave');
         setType(leave.type);
@@ -104,18 +111,26 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
       if (isClaim) submittedHours = -Math.abs(submittedHours);
       else submittedHours = Math.abs(submittedHours);
 
+      const payload: any = {
+        date: dateStr,
+        reason,
+        studyAccNo,
+        startTime,
+        endTime,
+        hours: submittedHours,
+        ...(targetUserId ? { targetUserId } : {})
+      };
+      
+      let method = 'POST';
+      if (leave && leave.type === 'TO') {
+        method = 'PUT';
+        payload.id = leave.id;
+      }
+
       const res = await fetch('/api/time-off', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          date: dateStr,
-          reason,
-          studyAccNo,
-          startTime,
-          endTime,
-          hours: submittedHours,
-          ...(targetUserId ? { targetUserId } : {})
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {

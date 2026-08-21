@@ -44,6 +44,10 @@ export async function GET(request: Request) {
         period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
         status: 'APPROVED',
         remarks: to.reason,
+        startTime: to.startTime,
+        endTime: to.endTime,
+        hours: to.hours,
+        studyAccNo: to.studyAccNo,
         user: (to as any).user
       }));
 
