@@ -351,7 +351,9 @@ export default function AssignmentModal({
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {currentShifts.map(shift => {
-                  const hash = shift.user.abbreviation.split('').reduce((acc, c) => c.charCodeAt(0) + ((acc << 5) - acc), 0);
+                  const shiftUser = users.find(u => u.id === shift.userId) || shift.user;
+                  if (!shiftUser) return null;
+                  const hash = (shiftUser.abbreviation || '').split('').reduce((acc, c) => c.charCodeAt(0) + ((acc << 5) - acc), 0);
                   const hue = Math.abs(hash) % 360;
                   const isCancelled = shift.status === 'Cancelled';
                   const periodMeta = PERIOD_LABELS[shift.shiftPeriod as Period] || PERIOD_LABELS.Full;
@@ -372,7 +374,7 @@ export default function AssignmentModal({
                           fontSize: '0.75rem', fontWeight: 700,
                           textDecoration: isCancelled ? 'line-through' : 'none',
                         }}>
-                          {shift.user.abbreviation}
+                          {shiftUser.abbreviation}
                         </div>
                         <div>
                           <select
