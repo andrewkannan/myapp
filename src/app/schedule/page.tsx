@@ -360,7 +360,6 @@ export default function MobileSchedulePage() {
                           }}>
                             <Clock size={13} />
                             TO {l.period !== 'FULL' ? l.period : ''}
-                            {l.remarks && <span style={{ fontWeight: 500 }}>{l.remarks}</span>}
                           </span>
                         ))}
                       </div>
