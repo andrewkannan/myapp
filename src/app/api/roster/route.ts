@@ -46,17 +46,19 @@ export async function GET(request: Request) {
       })
     ]);
 
-    // Convert time-off records to leave-like objects with type "TO"
-    const timeOffAsLeaves = timeOffRecords.map(to => ({
-      id: to.id,
-      userId: to.userId,
-      date: to.date,
-      type: 'TO',
-      period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
-      status: 'APPROVED',
-      remarks: to.reason,
-      user: (to as any).user
-    }));
+    // Convert only claim time-off records (negative hours) to leave-like objects
+    const timeOffAsLeaves = timeOffRecords
+      .filter(to => to.hours < 0)
+      .map(to => ({
+        id: to.id,
+        userId: to.userId,
+        date: to.date,
+        type: 'TO',
+        period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
+        status: 'APPROVED',
+        remarks: to.reason,
+        user: (to as any).user
+      }));
 
     return NextResponse.json({ locations, stations, users, shifts, leaves: [...leaves, ...timeOffAsLeaves], modalities: systemModalities.map(m => m.name) });
   } catch (error) {

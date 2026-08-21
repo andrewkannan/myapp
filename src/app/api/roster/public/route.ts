@@ -39,16 +39,18 @@ export async function GET(request: Request) {
       })
     ]);
 
-    const timeOffAsLeaves = timeOffRecords.map(to => ({
-      id: to.id,
-      userId: to.userId,
-      date: to.date,
-      type: 'TO',
-      period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
-      status: 'APPROVED',
-      remarks: to.reason,
-      user: (to as any).user
-    }));
+    const timeOffAsLeaves = timeOffRecords
+      .filter(to => to.hours < 0)
+      .map(to => ({
+        id: to.id,
+        userId: to.userId,
+        date: to.date,
+        type: 'TO',
+        period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
+        status: 'APPROVED',
+        remarks: to.reason,
+        user: (to as any).user
+      }));
 
     return NextResponse.json({ locations, stations, users, shifts, leaves: [...leaves, ...timeOffAsLeaves], modalities: systemModalities.map(m => m.name) });
   } catch (error) {

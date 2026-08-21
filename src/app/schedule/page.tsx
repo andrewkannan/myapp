@@ -255,32 +255,33 @@ export default function MobileSchedulePage() {
                       </div>
                     </div>
                   )
-                ) : (
+                ) : (() => {
+                  // Separate real leaves (AL/MC etc) from time-off claims
+                  const realLeaves = leaves.filter(l => l.type !== 'TO');
+                  const timeOffClaims = leaves.filter(l => l.type === 'TO' && l.remarks && l.remarks.includes('-'));
+                  // Full-day leaves get their own panel, half-day leaves shown as tags
+                  const fullDayLeaves = realLeaves.filter(l => l.period === 'FULL');
+                  const halfDayLeaves = realLeaves.filter(l => l.period === 'AM' || l.period === 'PM');
+
+                  return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {/* Render Leaves */}
-                    {leaves.map((l, i) => (
-                      <div key={`leave-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderBottom: shifts.length > 0 || i < leaves.length - 1 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingBottom: shifts.length > 0 || i < leaves.length - 1 ? '1.5rem' : 0 }}>
-                        <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: l.type === 'TO' ? '#fef3c7' : (isToday ? '#dcfce7' : '#fef2f2'), display: 'flex', justifyContent: 'center', alignItems: 'center', color: l.type === 'TO' ? '#d97706' : (isToday ? '#16a34a' : '#ef4444') }}>
-                          {l.type === 'TO' ? <Clock size={28} /> : <Calendar size={28} />}
+                    {/* Full day leaves as panels */}
+                    {fullDayLeaves.map((l, i) => (
+                      <div key={`leave-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderBottom: (shifts.length > 0 || halfDayLeaves.length > 0 || timeOffClaims.length > 0 || i < fullDayLeaves.length - 1) ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingBottom: (shifts.length > 0 || halfDayLeaves.length > 0 || timeOffClaims.length > 0 || i < fullDayLeaves.length - 1) ? '1.5rem' : 0 }}>
+                        <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: isToday ? '#dcfce7' : '#fef2f2', display: 'flex', justifyContent: 'center', alignItems: 'center', color: isToday ? '#16a34a' : '#ef4444' }}>
+                          <Calendar size={28} />
                         </div>
                         <div style={{ flex: 1 }}>
-                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--foreground)' }}>
-                            {l.type === 'TO' ? 'Time Off' : 'On Leave'}
-                          </h3>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: l.type === 'TO' ? '#d97706' : (isToday ? '#15803d' : '#ef4444'), fontWeight: 600, fontSize: '1rem', flexWrap: 'wrap' }}>
+                          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--foreground)' }}>On Leave</h3>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: isToday ? '#15803d' : '#ef4444', fontWeight: 600, fontSize: '1rem', flexWrap: 'wrap' }}>
                             <span>{l.type}</span>
-                            {l.period && (
-                              <span style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
-                                {l.period}
-                              </span>
-                            )}
                             {l.status === 'PENDING' && (
                               <span style={{ backgroundColor: 'var(--warning-light)', color: 'var(--warning-text)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 700 }}>PENDING</span>
                             )}
                           </div>
                           {l.remarks && (
                             <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
-                              "{l.remarks}"
+                              &quot;{l.remarks}&quot;
                             </p>
                           )}
                         </div>
@@ -299,44 +300,74 @@ export default function MobileSchedulePage() {
                       }
 
                       return (
-                        <div key={`shift-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: i > 0 ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: i > 0 ? '1.5rem' : 0 }}>
-                          <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                            {(() => {
-                              const upperLoc = locName.toUpperCase();
-                              let logoSrc = null;
-                              if (upperLoc === 'OIC') logoSrc = '/asiamedic-logo.png?v=2';
-                              else if (upperLoc === 'ICON') logoSrc = '/icon-logo.jpg?v=2';
-                              else if (upperLoc === 'NOVENA') logoSrc = '/asiamedic-sunway-logo.png?v=2';
-                              else if (upperLoc === 'TUCKER') logoSrc = '/tucker-logo.png?v=1';
-                              else if (['ANSON', 'CAMDEN', 'JURONG'].includes(upperLoc)) logoSrc = '/ata-logo.png?v=1';
-                              
-                              return logoSrc ? (
-                                <img src={logoSrc} alt={locName} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
-                              ) : (
-                                <MapPin size={28} strokeWidth={2.5} />
-                              );
-                            })()}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                              {locName && <span style={{ color: isToday ? '#15803d' : '#86868b', fontSize: '1rem', fontWeight: 600 }}>{locName}</span>}
-                              {base}
-                              {time && (
-                                <span style={{ backgroundColor: time === '830' ? '#0d9488' : time === '930' ? '#d97706' : '#1d4ed8', color: 'white', fontSize: '0.85rem', padding: '2px 8px', borderRadius: '99px', fontWeight: 800 }}>
-                                  {time}
-                                </span>
-                              )}
-                            </h3>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: isToday ? '#16a34a' : '#86868b', fontSize: '1rem', fontWeight: 500 }}>
-                              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '4px', backgroundColor: shift.shiftPeriod === 'AM' ? '#ff9500' : shift.shiftPeriod === 'PM' ? '#5856d6' : '#34c759' }} />
-                              {shift.shiftPeriod === 'AM' ? 'Morning Shift' : shift.shiftPeriod === 'PM' ? 'Afternoon Shift' : 'Full Day Shift'}
+                        <div key={`shift-${i}`} style={{ display: 'flex', flexDirection: 'column', gap: '0', borderTop: (i > 0 || fullDayLeaves.length > 0) ? (isToday ? '1px solid #bbf7d0' : '1px solid #f5f5f7') : 'none', paddingTop: (i > 0 || fullDayLeaves.length > 0) ? '1.5rem' : 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                            <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                              {(() => {
+                                const upperLoc = locName.toUpperCase();
+                                let logoSrc = null;
+                                if (upperLoc === 'OIC') logoSrc = '/asiamedic-logo.png?v=2';
+                                else if (upperLoc === 'ICON') logoSrc = '/icon-logo.jpg?v=2';
+                                else if (upperLoc === 'NOVENA') logoSrc = '/asiamedic-sunway-logo.png?v=2';
+                                else if (upperLoc === 'TUCKER') logoSrc = '/tucker-logo.png?v=1';
+                                else if (['ANSON', 'CAMDEN', 'JURONG'].includes(upperLoc)) logoSrc = '/ata-logo.png?v=1';
+                                
+                                return logoSrc ? (
+                                  <img src={logoSrc} alt={locName} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
+                                ) : (
+                                  <MapPin size={28} strokeWidth={2.5} />
+                                );
+                              })()}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                {locName && <span style={{ color: isToday ? '#15803d' : '#86868b', fontSize: '1rem', fontWeight: 600 }}>{locName}</span>}
+                                {base}
+                                {time && (
+                                  <span style={{ backgroundColor: time === '830' ? '#0d9488' : time === '930' ? '#d97706' : '#1d4ed8', color: 'white', fontSize: '0.85rem', padding: '2px 8px', borderRadius: '99px', fontWeight: 800 }}>
+                                    {time}
+                                  </span>
+                                )}
+                              </h3>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: isToday ? '#16a34a' : '#86868b', fontSize: '1rem', fontWeight: 500 }}>
+                                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '4px', backgroundColor: shift.shiftPeriod === 'AM' ? '#ff9500' : shift.shiftPeriod === 'PM' ? '#5856d6' : '#34c759' }} />
+                                {shift.shiftPeriod === 'AM' ? 'Morning Shift' : shift.shiftPeriod === 'PM' ? 'Afternoon Shift' : 'Full Day Shift'}
+                              </div>
                             </div>
                           </div>
                         </div>
                       );
                     })}
+
+                    {/* Half-day leave + Time-off claims as compact inline tags */}
+                    {(halfDayLeaves.length > 0 || timeOffClaims.length > 0) && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', paddingTop: shifts.length > 0 ? '0' : '0', marginTop: shifts.length > 0 ? '-0.5rem' : '0' }}>
+                        {halfDayLeaves.map((l, i) => (
+                          <span key={`hl-${i}`} style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                            padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700,
+                            backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca'
+                          }}>
+                            <Calendar size={13} />
+                            {l.type} {l.period}
+                          </span>
+                        ))}
+                        {timeOffClaims.map((l, i) => (
+                          <span key={`to-${i}`} style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                            padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700,
+                            backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a'
+                          }}>
+                            <Clock size={13} />
+                            TO {l.period !== 'FULL' ? l.period : ''}
+                            {l.remarks && <span style={{ fontWeight: 500 }}>{l.remarks}</span>}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
           );
