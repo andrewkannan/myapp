@@ -216,12 +216,32 @@ export default function MobileSchedulePage() {
                 {leaves.length === 0 && shifts.length === 0 ? (
                   isSunday ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#d97706', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)' }}>
-                        <Coffee size={32} />
+                      <div style={{ width: '80px', height: '80px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)', overflow: 'visible' }}>
+                        {/* Steam wisps */}
+                        <div style={{ position: 'absolute', top: '-18px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px' }}>
+                          <div style={{ width: '3px', height: '14px', borderRadius: '2px', backgroundColor: '#d97706', opacity: 0.35, animation: 'steam1 1.8s ease-in-out infinite' }} />
+                          <div style={{ width: '3px', height: '18px', borderRadius: '2px', backgroundColor: '#d97706', opacity: 0.25, animation: 'steam2 2.2s ease-in-out infinite 0.3s' }} />
+                          <div style={{ width: '3px', height: '12px', borderRadius: '2px', backgroundColor: '#d97706', opacity: 0.3, animation: 'steam3 2s ease-in-out infinite 0.6s' }} />
+                        </div>
+                        <Coffee size={36} color="#d97706" />
+                        <style>{`
+                          @keyframes steam1 {
+                            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.35; }
+                            50% { transform: translateY(-10px) scaleY(1.4); opacity: 0; }
+                          }
+                          @keyframes steam2 {
+                            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.25; }
+                            50% { transform: translateY(-14px) scaleY(1.5); opacity: 0; }
+                          }
+                          @keyframes steam3 {
+                            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.3; }
+                            50% { transform: translateY(-8px) scaleY(1.3); opacity: 0; }
+                          }
+                        `}</style>
                       </div>
                       <div>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 800, color: '#b45309' }}>Rest Well!</h3>
-                        <p style={{ margin: 0, color: '#92400e', fontSize: '1rem', fontWeight: 500 }}>It's Sunday. Take a break and recharge.</p>
+                        <p style={{ margin: 0, color: '#92400e', fontSize: '1rem', fontWeight: 500 }}>It&apos;s Sunday. Take a break and recharge.</p>
                       </div>
                     </div>
                   ) : (
