@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
-import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter, Calendar, Clock } from 'lucide-react';
 
 export type User = {
   id: string;
@@ -305,45 +305,67 @@ export default function Home() {
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem',
-                backgroundColor: 'var(--surface)', color: 'var(--foreground)', border: '1px solid var(--border)',
-                borderRadius: '6px', cursor: 'pointer', transition: 'all 0.15s'
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '36px', height: '36px',
+                backgroundColor: '#f1f5f9', color: '#334155', border: 'none',
+                borderRadius: '50%', cursor: 'pointer', transition: 'all 0.15s'
               }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--surface)'; }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#e2e8f0'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#f1f5f9'; }}
             >
               <MoreVertical size={18} />
             </button>
             {settingsOpen && (
-              <div className="glass-popover" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', minWidth: '200px' }}>
-                <button 
-                  onClick={() => { setSettingsOpen(false); router.push('/leaves'); }} 
-                  className="dropdown-item"
-                >
-                  <Activity size={16} /> My Requests
-                </button>
-                <button 
-                  onClick={() => { setSettingsOpen(false); window.print(); }} 
-                  className="dropdown-item"
-                >
-                  <Printer size={16} /> Print A3
-                </button>
-                <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>
-                {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
+              <div className="glass-popover" style={{ position: 'absolute', right: 0, top: '100%', marginTop: '0.5rem', minWidth: '220px', padding: 0, overflow: 'hidden' }}>
+                
+                <div style={{ padding: '0.5rem 0' }}>
                   <button 
-                    onClick={() => { setSettingsOpen(false); window.location.href = '/admin'; }} 
+                    onClick={() => { setSettingsOpen(false); router.push('/'); }} 
                     className="dropdown-item"
                   >
-                    <Settings size={16} /> Admin Dashboard
+                    <Calendar size={18} color="#2563eb" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Roster</span>
                   </button>
+                  <button 
+                    onClick={() => { setSettingsOpen(false); router.push('/leaves'); }} 
+                    className="dropdown-item"
+                  >
+                    <Activity size={18} color="#16a34a" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Leaves</span>
+                  </button>
+                  <button 
+                    onClick={() => { setSettingsOpen(false); router.push('/leaves?tab=timeoff'); }} 
+                    className="dropdown-item"
+                  >
+                    <Clock size={18} color="#f59e0b" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Time Off</span>
+                  </button>
+                </div>
+
+                {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
+                  <div style={{
+                    backgroundColor: 'var(--brand-light)',
+                    borderTop: '1px solid var(--brand)',
+                    padding: '0.5rem 0'
+                  }}>
+                    <button 
+                      onClick={() => { setSettingsOpen(false); window.location.href = '/admin'; }} 
+                      className="dropdown-item"
+                      style={{ color: 'var(--foreground)', backgroundColor: 'transparent' }}
+                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(104, 176, 77, 0.1)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
+                      <Settings size={18} color="#6366f1" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Admin Dashboard</span>
+                    </button>
+                  </div>
                 )}
-                {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.25rem 0' }}></div>}
-                <button 
-                  onClick={handleLogout} 
-                  className="dropdown-item danger"
-                >
-                  <LogOut size={16} /> Logout
-                </button>
+
+                <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0' }}></div>
+                <div style={{ padding: '0.25rem 0' }}>
+                  <button 
+                    onClick={handleLogout} 
+                    className="dropdown-item danger"
+                  >
+                    <LogOut size={18} /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Logout</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
