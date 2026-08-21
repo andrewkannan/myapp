@@ -85,6 +85,13 @@ export async function DELETE(request: Request) {
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
+    // Delete related records first to avoid foreign key constraints
+    await prisma.shift.deleteMany({ where: { userId: id } });
+    await prisma.leave.deleteMany({ where: { userId: id } });
+    await prisma.timeOffRecord.deleteMany({ where: { userId: id } });
+    await prisma.userPermission.deleteMany({ where: { userId: id } });
+    await prisma.auditLog.deleteMany({ where: { userId: id } });
+
     const deleted = await prisma.user.delete({ where: { id } });
     
     await prisma.auditLog.create({

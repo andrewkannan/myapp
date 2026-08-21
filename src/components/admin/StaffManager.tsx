@@ -88,9 +88,14 @@ export function StaffManager() {
   const handleDelete = async (id: string) => {
     if (!await confirm('Are you sure you want to permanently delete this user? (Consider Deactivating instead to preserve history)')) return;
     try {
-      await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
-      fetchUsers();
-      toast('User deleted', 'success');
+      const res = await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchUsers();
+        toast('User deleted', 'success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast(data.error || 'Failed to delete user. User may have related records (shifts, leaves, etc). Try deactivating instead.', 'error');
+      }
     } catch (e) {
       console.error(e);
       toast('Failed to delete user', 'error');
