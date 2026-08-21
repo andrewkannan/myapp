@@ -23,6 +23,7 @@ const LOCATION_COLORS: Record<string, string> = {
   'ANSON':  '#E8F5E9', // same soft green as NOVENA
   'CAMDEN': '#EDE7F6', // same soft purple as ICON (matches Excel)
   'JURONG': '#E0F7FA', // soft cyan-teal
+  'TUCKER': '#EAF9F7', // same light teal/aqua as OIC
 };
 
 // Station-level color overrides (applied regardless of location)
@@ -46,7 +47,7 @@ function getStationColor(stationName: string, locationName: string): string {
   const locUpper = locationName.toUpperCase();
 
   // MAM=pink and CT=purple only apply within OIC — other locations use their own band color
-  const oicOnly = new Set(['BMD', 'MAM', 'CT', 'PET', 'LUMA MRI', 'MRI 3T 830', 'MRI 3T 930', 'MRI 2 830', 'MRI 2 930', 'MRI 3 830', 'MRI 3 930', 'TUCKER']);
+  const oicOnly = new Set(['BMD', 'MAM', 'CT', 'PET', 'LUMA MRI', 'MRI 3T 830', 'MRI 3T 930', 'MRI 2 830', 'MRI 2 930', 'MRI 3 830', 'MRI 3 930']);
   if (oicOnly.has(stUpper) && locUpper === 'OIC') return STATION_COLORS[stUpper] || LOCATION_COLORS['OIC'];
   return LOCATION_COLORS[locUpper] || '#F8F8F8';
 }
@@ -107,7 +108,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
       return { line1: 'LUMA', line2: 'MRI', time };
     }
     if (base.toUpperCase() === 'TUCKER MRI') {
-      return { line1: 'TUCKER', line2: 'MRI', time };
+      return { line1: 'MRI', time };
     }
 
     return { line1: base, time };
@@ -183,6 +184,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                   'ANSON':  '#C8E6C9',
                   'CAMDEN': '#D1C4E9',
                   'JURONG': '#B2EBF2',
+                  'TUCKER': '#B2EBE6',
                 };
                 const bg = bandColor[loc.name.toUpperCase()] || 'var(--header-bg)';
                 return (
