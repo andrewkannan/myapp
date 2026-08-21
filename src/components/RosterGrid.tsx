@@ -426,9 +426,12 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               }}
                             >
                               {leave.user.abbreviation}
-                              <span style={{ color: 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
-                              {period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
-                              {leave.remarks && <span style={{ color: 'var(--text-muted)', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
+                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
+                              {leave.type === 'TO' && period && period !== 'FULL' && (
+                                <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>{period.split('-')[0]}</span>
+                              )}
+                              {leave.type !== 'TO' && period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
+                              {leave.type !== 'TO' && leave.remarks && <span style={{ color: 'var(--text-muted)', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
                             </span>
                           );
                         })}
