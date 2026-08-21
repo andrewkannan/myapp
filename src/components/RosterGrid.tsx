@@ -404,6 +404,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                           const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
                           const isOther = filterUserIds.length > 0 && !isFiltered;
                           const period = leave.period;
+                          const leaveUser = data.users.find(u => u.id === leave.userId) || leave.user;
                           return (
                             <span
                               key={leave.id}
@@ -413,7 +414,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 setSelectedLeaveCell({ date, leave });
                                 setLeaveModalOpen(true);
                               }}
-                              title={leave.user.fullName || leave.user.abbreviation}
+                              title={leaveUser?.fullName || leaveUser?.abbreviation || 'Unknown'}
                               style={{
                                 display: isOther ? 'none' : 'inline-block',
                                 opacity: isOther ? 0.15 : 1,
@@ -428,7 +429,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 cursor: canEdit ? 'pointer' : 'default',
                               }}
                             >
-                              {leave.user.abbreviation}
+                              {leaveUser?.abbreviation || 'Unk'}
                               <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
                               {leave.type === 'TO' && period && period !== 'FULL' && (
                                 <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>{period.split('-')[0]}</span>
