@@ -216,21 +216,30 @@ export default function MobileSchedulePage() {
                 {leaves.length === 0 && shifts.length === 0 ? (
                   isSunday ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                      <div style={{ width: '80px', height: '80px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)' }}>
-                        {/* Steam SVG */}
-                        <svg width="30" height="20" viewBox="0 0 30 20" style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)' }}>
-                          <path d="M7 18 C7 14, 4 12, 4 8 C4 4, 7 2, 7 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.4" style={{ animation: 'steamWave 2s ease-in-out infinite' }} />
-                          <path d="M15 18 C15 14, 12 11, 12 7 C12 3, 15 1, 15 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.3" style={{ animation: 'steamWave 2.4s ease-in-out infinite 0.4s' }} />
-                          <path d="M23 18 C23 14, 20 12, 20 8 C20 4, 23 2, 23 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.35" style={{ animation: 'steamWave 1.8s ease-in-out infinite 0.8s' }} />
+                      <div style={{ width: '80px', height: '80px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)', overflow: 'hidden' }}>
+                        <svg width="50" height="60" viewBox="0 0 50 60">
+                          {/* Steam wisps */}
+                          <path d="M15 22 Q13 16 15 10 Q17 4 15 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.5">
+                            <animate attributeName="opacity" values="0;0.5;0" dur="2s" repeatCount="indefinite" />
+                            <animate attributeName="d" values="M15 22 Q13 16 15 10 Q17 4 15 0;M15 22 Q17 16 15 10 Q13 4 15 0;M15 22 Q13 16 15 10 Q17 4 15 0" dur="2s" repeatCount="indefinite" />
+                          </path>
+                          <path d="M25 22 Q23 15 25 9 Q27 3 25 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.4">
+                            <animate attributeName="opacity" values="0;0.4;0" dur="2.3s" begin="0.3s" repeatCount="indefinite" />
+                            <animate attributeName="d" values="M25 22 Q27 15 25 9 Q23 3 25 0;M25 22 Q23 15 25 9 Q27 3 25 0;M25 22 Q27 15 25 9 Q23 3 25 0" dur="2.3s" begin="0.3s" repeatCount="indefinite" />
+                          </path>
+                          <path d="M35 22 Q33 16 35 10 Q37 4 35 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.45">
+                            <animate attributeName="opacity" values="0;0.45;0" dur="1.8s" begin="0.7s" repeatCount="indefinite" />
+                            <animate attributeName="d" values="M35 22 Q37 16 35 10 Q33 4 35 0;M35 22 Q33 16 35 10 Q37 4 35 0;M35 22 Q37 16 35 10 Q33 4 35 0" dur="1.8s" begin="0.7s" repeatCount="indefinite" />
+                          </path>
+                          {/* Cup body */}
+                          <rect x="8" y="26" width="30" height="24" rx="4" fill="#d97706" />
+                          {/* Coffee liquid */}
+                          <rect x="11" y="29" width="24" height="8" rx="2" fill="#92400e" opacity="0.5" />
+                          {/* Cup handle */}
+                          <path d="M38 30 Q46 30 46 38 Q46 46 38 46" fill="none" stroke="#d97706" strokeWidth="3" strokeLinecap="round" />
+                          {/* Saucer */}
+                          <ellipse cx="25" cy="53" rx="22" ry="3" fill="#b45309" opacity="0.3" />
                         </svg>
-                        <Coffee size={36} color="#d97706" />
-                        <style>{`
-                          @keyframes steamWave {
-                            0% { transform: translateY(0); opacity: 0.4; }
-                            50% { transform: translateY(-6px); opacity: 0; }
-                            100% { transform: translateY(0); opacity: 0.4; }
-                          }
-                        `}</style>
                       </div>
                       <div>
                         <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.375rem', fontWeight: 800, color: '#b45309' }}>Rest Well!</h3>
@@ -306,7 +315,7 @@ export default function MobileSchedulePage() {
                                 else if (['ANSON', 'CAMDEN', 'JURONG'].includes(upperLoc)) logoSrc = '/ata-logo.png?v=1';
                                 
                                 return logoSrc ? (
-                                  <img src={logoSrc} alt={locName} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
+                                  <img src={logoSrc} alt={locName} style={{ width: '56px', height: '56px', objectFit: 'contain', objectPosition: 'center' }} />
                                 ) : (
                                   <MapPin size={28} strokeWidth={2.5} />
                                 );
