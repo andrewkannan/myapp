@@ -117,7 +117,7 @@ export default function MobileSchedulePage() {
             {greeting()},<br/>{session.fullName || session.abbreviation}
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem', fontWeight: 500, margin: 0 }}>
-            {new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(today)}
+            {new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(today)}
           </p>
         </div>
         
