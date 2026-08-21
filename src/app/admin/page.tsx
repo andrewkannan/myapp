@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, ArrowLeft, Users, MapPin, Activity, List, Upload } from 'lucide-react';
+import { LogOut, ArrowLeft, Users, MapPin, Activity, List, Upload, BarChart3 } from 'lucide-react';
 
 import { StaffManager } from '@/components/admin/StaffManager';
 import { FacilityManager } from '@/components/admin/FacilityManager';
@@ -11,9 +11,10 @@ import { SystemListManager } from '@/components/admin/SystemListManager';
 import { MasterLeaveViewer } from '@/components/admin/MasterLeaveViewer';
 import { TimeOffManager } from '@/components/admin/TimeOffManager';
 import { BulkUploader } from '@/components/admin/BulkUploader';
+import { AnalyticsViewer } from '@/components/admin/AnalyticsViewer';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff' | 'upload'>('staff');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff' | 'upload'>('analytics');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
@@ -52,8 +53,18 @@ export default function AdminDashboard() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--primary)' }}>
+        <style>{`
+          .admin-header-title { display: block; font-size: 1.25rem; font-weight: 600; color: var(--primary); }
+          .admin-header-left { display: flex; align-items: center; gap: 2rem; flex-direction: row; }
+          .admin-header-name { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+          @media (max-width: 768px) {
+            .admin-header-title { display: none; }
+            .admin-header-left { gap: 1rem; flex-direction: row-reverse; justify-content: flex-end; }
+            .admin-header-name { display: none; }
+          }
+        `}</style>
+        <div className="admin-header-left">
+          <h1 className="admin-header-title">
             Admin Dashboard
           </h1>
           <button 
@@ -61,14 +72,15 @@ export default function AdminDashboard() {
             style={{ 
               display: 'flex', alignItems: 'center', gap: '0.4rem', 
               color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 500,
-              background: 'transparent', border: 'none', cursor: 'pointer' 
+              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0
             }}>
             <ArrowLeft size={16} /> Back to Roster
           </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-            {currentUser.fullName || currentUser.abbreviation} ({currentUser.accessLevel})
+          <div className="admin-header-name">
+            {currentUser.fullName || currentUser.abbreviation}
+            {currentUser.role ? ` (${currentUser.role})` : ''}
           </div>
           <button 
             onClick={() => {
@@ -102,6 +114,13 @@ export default function AdminDashboard() {
             gap: '0.5rem',
             width: isMobile ? 'max-content' : 'auto'
           }}>
+            <TabButton 
+              active={activeTab === 'analytics'} 
+              onClick={() => setActiveTab('analytics')}
+              icon={<BarChart3 size={18} />}
+              label="Analytics & Reports"
+              isMobile={isMobile}
+            />
             {currentUser.permissions?.includes('STAFF_MANAGE') && (
               <TabButton 
                 active={activeTab === 'staff'} 
@@ -170,6 +189,9 @@ export default function AdminDashboard() {
 
         {/* Content Area */}
         <section style={{ flex: 1, padding: isMobile ? '1rem' : '2rem', overflowY: 'auto', backgroundColor: 'var(--background)' }}>
+          <div style={{ display: activeTab === 'analytics' ? 'block' : 'none', height: '100%' }}>
+            <AnalyticsViewer />
+          </div>
           <div style={{ display: activeTab === 'staff' ? 'block' : 'none', height: '100%' }}>
             <StaffManager />
           </div>
