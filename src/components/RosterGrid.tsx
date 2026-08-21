@@ -58,6 +58,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [selectedLeaveCell, setSelectedLeaveCell] = useState<{ date: Date; leave?: any } | null>(null);
 
+  const usersMap = useMemo(() => new Map(data.users.map(u => [u.id, u])), [data.users]);
   const publicHolidaysMap = useMemo(() => {
     const map = new Map<string, string>();
     if (data.publicHolidays) {
@@ -146,8 +147,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     return new Date(date.getTime() - tzOffset).toISOString().split('T')[0];
   };
 
-  const getCellShifts = (date: Date, stationId: string | null, status: string) => {
-    const dStr = getLocalDateString(date);
+  const getCellShifts = (dateStr: string, stationId: string | null, status: string) => {
+    const dStr = dateStr;
     const dayShifts = shiftsByDate.get(dStr) || [];
     
     return dayShifts.filter(s => {
@@ -166,10 +167,218 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
     PM:   shifts.filter(s => s.shiftPeriod === 'PM'),
   });
 
+  const renderedTbody = useMemo(() => (
+          <tbody>
+            {days.map(date => {
+              const dayOfWeek = date.getDay();
+              const isSunday = dayOfWeek === 0;
+              const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+              
+              const y = date.getFullYear();
+              const m = String(date.getMonth() + 1).padStart(2, '0');
+              const d = String(date.getDate()).padStart(2, '0');
+              const dateKey = `${y}-${m}-${d}`;
+              const phName = publicHolidaysMap.get(dateKey);
+              const isPH = !!phName;
+              const rowBg = isPH ? '#FEF2F2' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
+              
+              // Total columns for PH colspan
+              const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences(3) + total
+
+              // Count staff for the day
+              const dayShifts = shiftsByDate.get(dateKey) || [];
+              const workingStaff = dayShifts.filter(s => s.status === 'Scheduled').length;
+
+              const dateCell = (
+                <td style={{ 
+                  border: '1px solid var(--border)', padding: '3px 4px', textAlign: 'left', verticalAlign: 'top',
+                  fontWeight: 700,
+                  color: isPH ? '#DC2626' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
+                  position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
+                  width: '60px', whiteSpace: 'nowrap',
+                  boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)'
+                }}>
+                  <span style={{ fontSize: '0.6rem', textTransform: 'capitalize', display: 'inline-block', width: '22px' }}>{date.toLocaleDateString('default', { weekday: 'short' })}</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800 }}>{date.getDate()}</span>
+                </td>
+              );
+
+              // Public Holiday row — full-width red banner
+              if (isPH) {
+                return (
+                  <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
+                    {dateCell}
+                    <td colSpan={totalCols} style={{
+                      border: '1px solid #FEE2E2',
+                      backgroundColor: '#FEF2F2',
+                      color: 'var(--danger-text)',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      padding: '2px',
+                      fontSize: '0.62rem',
+                      letterSpacing: '0.04em'
+                    }}>
+                      PUBLIC HOLIDAY — {phName}
+                    </td>
+                  </tr>
+                );
+              }
+
+              // Sunday row — grey "Centre Closed" banner
+              if (isSunday && !isPH) {
+                return (
+                  <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
+                    {dateCell}
+                    <td colSpan={totalCols} style={{
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--surface-hover)',
+                      color: 'var(--text-muted)',
+                      fontWeight: 600,
+                      textAlign: 'center',
+                      padding: '2px',
+                      fontSize: '0.6rem',
+                      fontStyle: 'italic'
+                    }}>
+                      Centre Closed
+                    </td>
+                  </tr>
+                );
+              }
+
+              return (
+                <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
+                  {dateCell}
+                  
+                  {stationsByLocation.flatMap(loc => loc.stations).map(station => {
+                    const shifts = getCellShifts(dateKey, station.id, 'Scheduled');
+                    const locName = stationsByLocation.find(l => l.id === station.locationId)?.name || '';
+                    const baseColor = getStationColor(station.name, locName);
+                    
+                    return (
+                      <td 
+                        key={station.id} 
+                        onClick={() => handleCellClick(date, station, 'Scheduled')}
+                        style={{ 
+                          border: '1px solid var(--border)', padding: '2px 2px', verticalAlign: 'top',
+                          textAlign: 'center', lineHeight: 1.1,
+                          cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
+                          transition: 'background-color 0.2s',
+                          backgroundColor: baseColor
+                        }}
+                        onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = baseColor }}
+                      >
+                        {/* Plain text cell — Excel style */}
+                        {shifts.map(shift => {
+                          const isCancelled = shift.status === 'Cancelled';
+                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
+                          const isOther = filterUserIds.length > 0 && !isFiltered;
+                          const period = shift.shiftPeriod;
+                          const shiftUser = usersMap.get(shift.userId) || shift.user;
+                          return (
+                            <span
+                              key={shift.id}
+                              title={shiftUser?.fullName || shiftUser?.abbreviation || 'Unknown'}
+                              style={{
+                                display: isOther ? 'none' : 'block', // "only show the selected data" -> hide the others completely, or wait "grey other others", let's use opacity
+                                opacity: isOther ? 0.15 : 1,
+                                fontSize: '0.6rem',
+                                fontWeight: 700,
+                                color: isCancelled ? '#9CA3AF' : '#111',
+                                textDecoration: isCancelled ? 'line-through' : 'none',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {period === 'AM' && <sup style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
+                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
+                              {shiftUser?.abbreviation || 'Unk'}
+                              {shift.remarks && <div style={{ color: 'var(--text-muted)', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
+                            </span>
+                          );
+                        })}
+                      </td>
+                    );
+                  })}
+                  {(() => {
+                    const dayLeaves = leavesByDate.get(dateKey) || [];
+                    const canEdit = currentUser.permissions?.includes('ROSTER_EDIT') || currentUser.role === 'ADMIN';
+
+                    return (
+                      <td 
+                        onClick={(e) => {
+                          if (!canEdit) return;
+                          if (e.target === e.currentTarget) {
+                            setSelectedLeaveCell({ date });
+                            setLeaveModalOpen(true);
+                          }
+                        }}
+                        style={{ 
+                          border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'top',
+                          textAlign: 'left', lineHeight: 1.1,
+                          cursor: canEdit ? 'pointer' : 'default',
+                          transition: 'background-color 0.2s',
+                          backgroundColor: (isWeekend ? 'var(--weekend-bg)' : 'transparent')
+                        }}
+                      >
+                        {dayLeaves.map(leave => {
+                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
+                          const isOther = filterUserIds.length > 0 && !isFiltered;
+                          const period = leave.period;
+                          const leaveUser = usersMap.get(leave.userId) || leave.user;
+                          return (
+                            <span
+                              key={leave.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!canEdit) return;
+                                setSelectedLeaveCell({ date, leave });
+                                setLeaveModalOpen(true);
+                              }}
+                              title={leaveUser?.fullName || leaveUser?.abbreviation || 'Unknown'}
+                              style={{
+                                display: isOther ? 'none' : 'inline-block',
+                                opacity: isOther ? 0.15 : 1,
+                                fontSize: '0.6rem',
+                                fontWeight: 700,
+                                color: leave.type === 'TO' ? '#92400e' : '#1e40af',
+                                backgroundColor: leave.type === 'TO' ? '#fef3c7' : '#dbeafe',
+                                padding: '1px 3px',
+                                borderRadius: '3px',
+                                margin: '1px',
+                                cursor: canEdit ? 'pointer' : 'default',
+                              }}
+                            >
+                              {leaveUser?.abbreviation || 'Unk'}
+                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
+                              {leave.type === 'TO' && period && period !== 'FULL' && (
+                                <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>{period.split('-')[0]}</span>
+                              )}
+                              {leave.type !== 'TO' && period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
+                              {leave.type !== 'TO' && leave.remarks && <span style={{ color: 'var(--text-muted)', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
+                            </span>
+                          );
+                        })}
+                      </td>
+                    );
+                  })()}
+                  
+                  {/* Daily Staff Count */}
+                  <td style={{ 
+                    border: '1px solid var(--border)', padding: '3px 1px', textAlign: 'center', verticalAlign: 'top',
+                    fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.6rem'
+                  }}>
+                    {workingStaff}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+  ), [days, stationsByLocation, shiftsByDate, leavesByDate, filterUserIds, data.users, currentUser.permissions, currentUser.role, year, month, activeModalities, publicHolidaysMap]);
+
   return (
     <div className="roster-scroll-parent" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="roster-scroll" style={{ flex: 1, overflow: 'auto' }}>
-        <table id="roster-table" style={{ borderCollapse: 'collapse', width: 'max-content', minWidth: '100%', fontSize: '0.65rem' }}>
+        <table id="roster-table" style={{ tableLayout: 'fixed', borderCollapse: 'collapse', width: 'max-content', minWidth: '100%', fontSize: '0.65rem' }}>
           <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--header-bg)', zIndex: 10, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             <tr>
               <th rowSpan={2} style={{ border: '1px solid var(--border)', padding: '2px 3px', width: '60px', textAlign: 'center', backgroundColor: 'var(--header-bg)', position: 'sticky', left: 0, zIndex: 20, fontSize: '0.65rem', fontWeight: 700, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)' }}>
@@ -247,211 +456,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
               </th>
             </tr>
           </thead>
-          <tbody>
-            {days.map(date => {
-              const dayOfWeek = date.getDay();
-              const isSunday = dayOfWeek === 0;
-              const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-              
-              const y = date.getFullYear();
-              const m = String(date.getMonth() + 1).padStart(2, '0');
-              const d = String(date.getDate()).padStart(2, '0');
-              const dateKey = `${y}-${m}-${d}`;
-              const phName = publicHolidaysMap.get(dateKey);
-              const isPH = !!phName;
-              const rowBg = isPH ? '#FEF2F2' : isSunday ? '#EFEFEF' : isWeekend ? 'var(--weekend-bg)' : 'var(--surface)';
-              
-              // Total columns for PH colspan
-              const totalCols = stationsByLocation.flatMap(loc => loc.stations).length + 3 + 1; // stations + absences(3) + total
-
-              // Count staff for the day
-              const dayShifts = shiftsByDate.get(getLocalDateString(date)) || [];
-              const workingStaff = dayShifts.filter(s => s.status === 'Scheduled').length;
-
-              const dateCell = (
-                <td style={{ 
-                  border: '1px solid var(--border)', padding: '3px 4px', textAlign: 'left', verticalAlign: 'top',
-                  fontWeight: 700,
-                  color: isPH ? '#DC2626' : isSunday ? '#888' : isWeekend ? 'var(--primary)' : 'inherit',
-                  position: 'sticky', left: 0, backgroundColor: rowBg, zIndex: 5,
-                  width: '60px', whiteSpace: 'nowrap',
-                  boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)'
-                }}>
-                  <span style={{ fontSize: '0.6rem', textTransform: 'capitalize', display: 'inline-block', width: '22px' }}>{date.toLocaleDateString('default', { weekday: 'short' })}</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 800 }}>{date.getDate()}</span>
-                </td>
-              );
-
-              // Public Holiday row — full-width red banner
-              if (isPH) {
-                return (
-                  <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
-                    {dateCell}
-                    <td colSpan={totalCols} style={{
-                      border: '1px solid #FEE2E2',
-                      backgroundColor: '#FEF2F2',
-                      color: 'var(--danger-text)',
-                      fontWeight: 700,
-                      textAlign: 'center',
-                      padding: '2px',
-                      fontSize: '0.62rem',
-                      letterSpacing: '0.04em'
-                    }}>
-                      PUBLIC HOLIDAY — {phName}
-                    </td>
-                  </tr>
-                );
-              }
-
-              // Sunday row — grey "Centre Closed" banner
-              if (isSunday && !isPH) {
-                return (
-                  <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
-                    {dateCell}
-                    <td colSpan={totalCols} style={{
-                      border: '1px solid var(--border)',
-                      backgroundColor: 'var(--surface-hover)',
-                      color: 'var(--text-muted)',
-                      fontWeight: 600,
-                      textAlign: 'center',
-                      padding: '2px',
-                      fontSize: '0.6rem',
-                      fontStyle: 'italic'
-                    }}>
-                      Centre Closed
-                    </td>
-                  </tr>
-                );
-              }
-
-              return (
-                <tr key={date.toISOString()} style={{ backgroundColor: rowBg }}>
-                  {dateCell}
-                  
-                  {stationsByLocation.flatMap(loc => loc.stations).map(station => {
-                    const shifts = getCellShifts(date, station.id, 'Scheduled');
-                    const locName = stationsByLocation.find(l => l.id === station.locationId)?.name || '';
-                    const baseColor = getStationColor(station.name, locName);
-                    
-                    return (
-                      <td 
-                        key={station.id} 
-                        onClick={() => handleCellClick(date, station, 'Scheduled')}
-                        style={{ 
-                          border: '1px solid var(--border)', padding: '2px 2px', verticalAlign: 'top',
-                          textAlign: 'center', lineHeight: 1.1,
-                          cursor: (currentUser.permissions?.includes('ROSTER_EDIT')) ? 'pointer' : 'default',
-                          transition: 'background-color 0.2s',
-                          backgroundColor: baseColor
-                        }}
-                        onMouseOver={(e) => { if(currentUser.permissions?.includes('ROSTER_EDIT')) e.currentTarget.style.backgroundColor = 'var(--cell-hover)' }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = baseColor }}
-                      >
-                        {/* Plain text cell — Excel style */}
-                        {shifts.map(shift => {
-                          const isCancelled = shift.status === 'Cancelled';
-                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(shift.userId);
-                          const isOther = filterUserIds.length > 0 && !isFiltered;
-                          const period = shift.shiftPeriod;
-                          const shiftUser = data.users.find(u => u.id === shift.userId) || shift.user;
-                          return (
-                            <span
-                              key={shift.id}
-                              title={shiftUser?.fullName || shiftUser?.abbreviation || 'Unknown'}
-                              style={{
-                                display: isOther ? 'none' : 'block', // "only show the selected data" -> hide the others completely, or wait "grey other others", let's use opacity
-                                opacity: isOther ? 0.15 : 1,
-                                fontSize: '0.6rem',
-                                fontWeight: 700,
-                                color: isCancelled ? '#9CA3AF' : '#111',
-                                textDecoration: isCancelled ? 'line-through' : 'none',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {period === 'AM' && <sup style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
-                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
-                              {shiftUser?.abbreviation || 'Unk'}
-                              {shift.remarks && <div style={{ color: 'var(--text-muted)', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
-                            </span>
-                          );
-                        })}
-                      </td>
-                    );
-                  })}
-                  {(() => {
-                    const dayLeaves = leavesByDate.get(getLocalDateString(date)) || [];
-                    const canEdit = currentUser.permissions?.includes('ROSTER_EDIT') || currentUser.role === 'ADMIN';
-
-                    return (
-                      <td 
-                        onClick={(e) => {
-                          if (!canEdit) return;
-                          if (e.target === e.currentTarget) {
-                            setSelectedLeaveCell({ date });
-                            setLeaveModalOpen(true);
-                          }
-                        }}
-                        style={{ 
-                          border: '1px solid var(--border)', padding: '2px 3px', verticalAlign: 'top',
-                          textAlign: 'left', lineHeight: 1.1,
-                          cursor: canEdit ? 'pointer' : 'default',
-                          transition: 'background-color 0.2s',
-                          backgroundColor: (isWeekend ? 'var(--weekend-bg)' : 'transparent')
-                        }}
-                      >
-                        {dayLeaves.map(leave => {
-                          const isFiltered = filterUserIds.length > 0 && filterUserIds.includes(leave.userId);
-                          const isOther = filterUserIds.length > 0 && !isFiltered;
-                          const period = leave.period;
-                          const leaveUser = data.users.find(u => u.id === leave.userId) || leave.user;
-                          return (
-                            <span
-                              key={leave.id}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (!canEdit) return;
-                                setSelectedLeaveCell({ date, leave });
-                                setLeaveModalOpen(true);
-                              }}
-                              title={leaveUser?.fullName || leaveUser?.abbreviation || 'Unknown'}
-                              style={{
-                                display: isOther ? 'none' : 'inline-block',
-                                opacity: isOther ? 0.15 : 1,
-                                fontSize: '0.6rem',
-                                fontWeight: 700,
-                                color: leave.type === 'TO' ? '#92400e' : '#1e40af',
-                                backgroundColor: leave.type === 'TO' ? '#fef3c7' : '#dbeafe',
-                                padding: '1px 3px',
-                                borderRadius: '3px',
-                                margin: '1px',
-                                cursor: canEdit ? 'pointer' : 'default',
-                              }}
-                            >
-                              {leaveUser?.abbreviation || 'Unk'}
-                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
-                              {leave.type === 'TO' && period && period !== 'FULL' && (
-                                <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>{period.split('-')[0]}</span>
-                              )}
-                              {leave.type !== 'TO' && period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
-                              {leave.type !== 'TO' && leave.remarks && <span style={{ color: 'var(--text-muted)', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
-                            </span>
-                          );
-                        })}
-                      </td>
-                    );
-                  })()}
-                  
-                  {/* Daily Staff Count */}
-                  <td style={{ 
-                    border: '1px solid var(--border)', padding: '3px 1px', textAlign: 'center', verticalAlign: 'top',
-                    fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.6rem'
-                  }}>
-                    {workingStaff}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
+          {renderedTbody}
         </table>
       </div>
 
@@ -460,7 +465,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
           date={selectedCell.date}
           station={selectedCell.station}
           statusType={selectedCell.status}
-          currentShifts={getCellShifts(selectedCell.date, selectedCell.station?.id || null, selectedCell.status)}
+          currentShifts={getCellShifts(getLocalDateString(selectedCell.date), selectedCell.station?.id || null, selectedCell.status)}
           allShifts={data.shifts}
           allLeaves={data.leaves}
           users={data.users}
