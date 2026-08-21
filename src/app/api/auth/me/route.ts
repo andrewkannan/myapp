@@ -7,5 +7,26 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ user: null }, { status: 401 });
   }
-  return NextResponse.json({ user: session });
+
+  // Fetch fresh user data from DB to reflect any admin updates
+  const user = await prisma.user.findUnique({
+    where: { id: session.id },
+    include: { permissions: true }
+  });
+
+  if (!user) {
+    return NextResponse.json({ user: null }, { status: 401 });
+  }
+
+  return NextResponse.json({
+    user: {
+      ...session,
+      fullName: user.fullName,
+      abbreviation: user.abbreviation,
+      role: user.role,
+      email: user.email,
+      isActive: user.isActive,
+      permissions: user.permissions.map(p => p.permission)
+    }
+  });
 }
