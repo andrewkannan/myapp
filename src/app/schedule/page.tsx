@@ -216,26 +216,19 @@ export default function MobileSchedulePage() {
                 {leaves.length === 0 && shifts.length === 0 ? (
                   isSunday ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                      <div style={{ width: '80px', height: '80px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)', overflow: 'visible' }}>
-                        {/* Steam wisps */}
-                        <div style={{ position: 'absolute', top: '-18px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px' }}>
-                          <div style={{ width: '3px', height: '14px', borderRadius: '2px', backgroundColor: '#d97706', opacity: 0.35, animation: 'steam1 1.8s ease-in-out infinite' }} />
-                          <div style={{ width: '3px', height: '18px', borderRadius: '2px', backgroundColor: '#d97706', opacity: 0.25, animation: 'steam2 2.2s ease-in-out infinite 0.3s' }} />
-                          <div style={{ width: '3px', height: '12px', borderRadius: '2px', backgroundColor: '#d97706', opacity: 0.3, animation: 'steam3 2s ease-in-out infinite 0.6s' }} />
-                        </div>
+                      <div style={{ width: '80px', height: '80px', borderRadius: '20px', backgroundImage: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', boxShadow: '0 4px 14px rgba(253, 230, 138, 0.5)' }}>
+                        {/* Steam SVG */}
+                        <svg width="30" height="20" viewBox="0 0 30 20" style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)' }}>
+                          <path d="M7 18 C7 14, 4 12, 4 8 C4 4, 7 2, 7 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.4" style={{ animation: 'steamWave 2s ease-in-out infinite' }} />
+                          <path d="M15 18 C15 14, 12 11, 12 7 C12 3, 15 1, 15 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.3" style={{ animation: 'steamWave 2.4s ease-in-out infinite 0.4s' }} />
+                          <path d="M23 18 C23 14, 20 12, 20 8 C20 4, 23 2, 23 0" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" opacity="0.35" style={{ animation: 'steamWave 1.8s ease-in-out infinite 0.8s' }} />
+                        </svg>
                         <Coffee size={36} color="#d97706" />
                         <style>{`
-                          @keyframes steam1 {
-                            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.35; }
-                            50% { transform: translateY(-10px) scaleY(1.4); opacity: 0; }
-                          }
-                          @keyframes steam2 {
-                            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.25; }
-                            50% { transform: translateY(-14px) scaleY(1.5); opacity: 0; }
-                          }
-                          @keyframes steam3 {
-                            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.3; }
-                            50% { transform: translateY(-8px) scaleY(1.3); opacity: 0; }
+                          @keyframes steamWave {
+                            0% { transform: translateY(0); opacity: 0.4; }
+                            50% { transform: translateY(-6px); opacity: 0; }
+                            100% { transform: translateY(0); opacity: 0.4; }
                           }
                         `}</style>
                       </div>
@@ -341,7 +334,7 @@ export default function MobileSchedulePage() {
 
                     {/* Half-day leave + Time-off claims as compact inline tags */}
                     {(halfDayLeaves.length > 0 || timeOffClaims.length > 0) && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', paddingTop: shifts.length > 0 ? '0' : '0', marginTop: shifts.length > 0 ? '-0.5rem' : '0' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginLeft: 'calc(64px + 1.25rem)', marginTop: shifts.length > 0 ? '-0.5rem' : '0' }}>
                         {halfDayLeaves.map((l, i) => (
                           <span key={`hl-${i}`} style={{
                             display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
