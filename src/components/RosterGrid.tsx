@@ -361,7 +361,6 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               style={{
                                 display: isOther ? 'none' : 'block', // "only show the selected data" -> hide the others completely, or wait "grey other others", let's use opacity
                                 opacity: isOther ? 0.15 : 1,
-                                filter: isOther ? 'grayscale(100%)' : 'none',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
                                 color: isCancelled ? '#9CA3AF' : '#111',
@@ -418,7 +417,6 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               style={{
                                 display: isOther ? 'none' : 'inline-block',
                                 opacity: isOther ? 0.15 : 1,
-                                filter: isOther ? 'grayscale(100%)' : 'none',
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
                                 color: leave.type === 'TO' ? '#92400e' : '#1e40af',
