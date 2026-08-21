@@ -59,6 +59,7 @@ export type RosterData = {
   users: User[];
   shifts: Shift[];
   leaves: Leave[];
+  modalities?: string[];
   publicHolidays?: { id: string; date: string; name: string }[];
 };
 

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronLeft, Calendar, Activity } from 'lucide-react';
+import { ChevronLeft, Calendar, Activity, Pencil, Trash2, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -114,50 +114,155 @@ function LeavesContent() {
 
         {/* Content Area */}
         <section style={{ flex: 1, minWidth: 0, width: '100%' }}>
-          {activeTab === 'leaves' && (
-            <div>
-              {(() => {
-                const isScheduler = session?.permissions?.includes('ROSTER_EDIT') || session?.role === 'ADMIN';
-                const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
-                if (!isRestrictedRole) {
-                  return (
+          {activeTab === 'leaves' && (() => {
+              const isScheduler = session?.permissions?.some((p: string) => ['ROSTER_EDIT', 'LEAVE_APPROVE'].includes(p)) || session?.role === 'ADMIN';
+              const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
+
+              const [editingLeaveId, setEditingLeaveId] = useState<string | null>(null);
+              const [editLeaveForm, setEditLeaveForm] = useState<any>({});
+
+              const startEditLeave = (leave: any) => {
+                setEditingLeaveId(leave.id);
+                setEditLeaveForm({
+                  type: leave.type,
+                  period: leave.period,
+                  remarks: leave.remarks || '',
+                  status: leave.status,
+                });
+              };
+
+              const saveEditLeave = async () => {
+                if (!editingLeaveId) return;
+                const res = await fetch(`/api/leaves/${editingLeaveId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(editLeaveForm),
+                });
+                if (res.ok) {
+                  setEditingLeaveId(null);
+                  fetchLeaves();
+                } else {
+                  alert('Failed to update leave');
+                }
+              };
+
+              const deleteLeave = async (id: string) => {
+                if (!confirm('Delete this leave record?')) return;
+                const res = await fetch(`/api/leaves/${id}`, { method: 'DELETE' });
+                if (res.ok) fetchLeaves();
+                else alert('Failed to delete');
+              };
+
+              const editInputStyle: React.CSSProperties = { padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.85rem', width: '100%' };
+
+              return (
+                <div>
+                  {!isRestrictedRole && (
                     <div style={{ flex: 1, backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '2.5rem' }}>
                       <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Calendar size={20} color="#007aff" /> Apply for Leave
                       </h2>
                       <LeaveRequestForm onSuccess={fetchLeaves} session={session} />
                     </div>
-                  );
-                }
-                return null;
-              })()}
+                  )}
 
-              <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--foreground)' }}>Leave History</h2>
-              {userLeaves.length === 0 ? (
-                <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '24px', color: 'var(--text-muted)' }}>
-                  No leave records found.
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {userLeaves.map((leave: any) => (
-                    <div key={leave.id} style={{ backgroundColor: 'var(--surface)', padding: '1.25rem 1.5rem', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.25rem' }}>{new Date(leave.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>{leave.type} • {leave.period}</div>
-                      </div>
-                      <span style={{
-                        padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '999px', fontWeight: 600,
-                        backgroundColor: leave.status === 'APPROVED' ? '#dcfce7' : leave.status === 'REJECTED' ? '#fee2e2' : '#fef9c3',
-                        color: leave.status === 'APPROVED' ? '#166534' : leave.status === 'REJECTED' ? '#991b1b' : '#854d0e'
-                      }}>
-                        {leave.status}
-                      </span>
+                  <h2 style={{ fontSize: '1.375rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--foreground)' }}>Leave History</h2>
+                  {userLeaves.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'var(--background)', borderRadius: '24px', color: 'var(--text-muted)' }}>
+                      No leave records found.
                     </div>
-                  ))}
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {userLeaves.map((leave: any) => (
+                        <div key={leave.id} style={{ backgroundColor: 'var(--surface)', padding: '1.25rem 1.5rem', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                          {editingLeaveId === leave.id ? (
+                            /* --- EDIT MODE --- */
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>
+                                  Edit — {new Date(leave.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </h4>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                  <button onClick={saveEditLeave} style={{ padding: '0.3rem 0.75rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                    <Check size={14} /> Save
+                                  </button>
+                                  <button onClick={() => setEditingLeaveId(null)} style={{ padding: '0.3rem 0.75rem', backgroundColor: 'var(--surface-hover)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                    <X size={14} /> Cancel
+                                  </button>
+                                </div>
+                              </div>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>
+                                <div>
+                                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>Type</label>
+                                  <select style={editInputStyle} value={editLeaveForm.type} onChange={e => setEditLeaveForm({...editLeaveForm, type: e.target.value})}>
+                                    <option value="AL">AL</option>
+                                    <option value="MC">MC</option>
+                                    <option value="ML">ML</option>
+                                    <option value="CCL">CCL</option>
+                                    <option value="UL">UL</option>
+                                    <option value="NS">NS</option>
+                                    <option value="HL">HL</option>
+                                    <option value="TO">TO</option>
+                                    <option value="UPL">UPL</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>Period</label>
+                                  <select style={editInputStyle} value={editLeaveForm.period} onChange={e => setEditLeaveForm({...editLeaveForm, period: e.target.value})}>
+                                    <option value="FULL">FULL</option>
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>Status</label>
+                                  <select style={editInputStyle} value={editLeaveForm.status} onChange={e => setEditLeaveForm({...editLeaveForm, status: e.target.value})}>
+                                    <option value="APPROVED">APPROVED</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>Remarks</label>
+                                  <input type="text" style={editInputStyle} value={editLeaveForm.remarks} onChange={e => setEditLeaveForm({...editLeaveForm, remarks: e.target.value})} placeholder="Optional" />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* --- VIEW MODE --- */
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.25rem' }}>{new Date(leave.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>{leave.type} • {leave.period}{leave.remarks ? ` • ${leave.remarks}` : ''}</div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{
+                                  padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '999px', fontWeight: 600,
+                                  backgroundColor: leave.status === 'APPROVED' ? '#dcfce7' : leave.status === 'REJECTED' ? '#fee2e2' : '#fef9c3',
+                                  color: leave.status === 'APPROVED' ? '#166534' : leave.status === 'REJECTED' ? '#991b1b' : '#854d0e'
+                                }}>
+                                  {leave.status}
+                                </span>
+                                {isScheduler && (
+                                  <>
+                                    <button onClick={() => startEditLeave(leave)} title="Edit" style={{ padding: '0.3rem', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--primary)' }}>
+                                      <Pencil size={16} />
+                                    </button>
+                                    <button onClick={() => deleteLeave(leave.id)} title="Delete" style={{ padding: '0.3rem', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--danger, #ef4444)' }}>
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
+              );
+            })()}
 
           {activeTab === 'timeoff' && (
             <TimeOffSubmitter session={session} />
