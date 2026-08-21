@@ -89,7 +89,7 @@ export async function DELETE(request: Request) {
     await prisma.shift.deleteMany({ where: { userId: id } });
     await prisma.leave.deleteMany({ where: { userId: id } });
     await prisma.timeOffRecord.deleteMany({ where: { userId: id } });
-    await prisma.userPermission.deleteMany({ where: { userId: id } });
+    await prisma.leaveBalance.deleteMany({ where: { userId: id } });
     await prisma.auditLog.deleteMany({ where: { userId: id } });
 
     const deleted = await prisma.user.delete({ where: { id } });
