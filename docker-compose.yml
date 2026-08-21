@@ -5,11 +5,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "80:3000"
     environment:
       - DATABASE_URL=file:/app/data/dev.db
       - JWT_SECRET=super-secret-production-key-change-me
     restart: always
     volumes:
       - ./data:/app/data
+
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+    restart: always

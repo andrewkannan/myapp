@@ -107,7 +107,11 @@ export default function PublicRoster() {
       const res = await fetch(`/api/roster/public?year=${y}&month=${m}`);
       if (!res.ok) throw new Error('Failed to load roster');
       const json = await res.json();
-      setData(json);
+      setData(prev => {
+        if (!prev) return json;
+        if (JSON.stringify(prev) === JSON.stringify(json)) return prev;
+        return json;
+      });
     } catch (err) {
       console.error(err);
     } finally {
