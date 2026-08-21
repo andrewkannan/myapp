@@ -44,6 +44,7 @@ model TimeOffRecord {
 
   @@index([userId])
   @@index([status])
+  @@index([date])
 }
 
 model Location {

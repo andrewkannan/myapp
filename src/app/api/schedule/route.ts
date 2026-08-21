@@ -14,31 +14,30 @@ export async function GET(request: Request) {
     endOfRange.setDate(today.getDate() + 2); // Today + Tomorrow + Day After
     endOfRange.setHours(23, 59, 59, 999);
 
-    const [shifts, leaves, stations, timeOffRecords] = await Promise.all([
-      prisma.shift.findMany({
-        where: {
-          userId: session.id,
-          date: { gte: today, lte: endOfRange },
-          status: 'Scheduled'
-        },
-        include: { station: { include: { location: true } } }
-      }),
-      prisma.leave.findMany({
-        where: {
-          userId: session.id,
-          date: { gte: today, lte: endOfRange },
-          status: 'APPROVED'
-        }
-      }),
-      prisma.station.findMany({ include: { location: true } }),
-      prisma.timeOffRecord.findMany({
-        where: {
-          userId: session.id,
-          date: { gte: today, lte: endOfRange },
-          status: 'APPROVED'
-        }
-      })
-    ]);
+    // Fetch sequentially for better SQLite performance
+    const shifts = await prisma.shift.findMany({
+      where: {
+        userId: session.id,
+        date: { gte: today, lte: endOfRange },
+        status: 'Scheduled'
+      },
+      include: { station: { include: { location: true } } }
+    });
+    const leaves = await prisma.leave.findMany({
+      where: {
+        userId: session.id,
+        date: { gte: today, lte: endOfRange },
+        status: 'APPROVED'
+      }
+    });
+    const stations = await prisma.station.findMany({ include: { location: true } });
+    const timeOffRecords = await prisma.timeOffRecord.findMany({
+      where: {
+        userId: session.id,
+        date: { gte: today, lte: endOfRange },
+        status: 'APPROVED'
+      }
+    });
 
     // Convert only claim time-off records (negative hours) to leave-like objects
     const timeOffAsLeaves = timeOffRecords

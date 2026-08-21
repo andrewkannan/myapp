@@ -12,32 +12,23 @@ export async function GET(request: Request) {
     const endDate = new Date(year, month, 0);
 
     // Fetch all locations, stations, and users
-    const [locations, stations, users, shifts, leaves, systemModalities, timeOffRecords] = await Promise.all([
-      prisma.location.findMany(),
-      prisma.station.findMany(),
-      prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } }),
-      prisma.shift.findMany({
-        where: {
-          date: { gte: startDate, lte: endDate }
-        },
-        include: { user: true, station: true }
-      }),
-      prisma.leave.findMany({
-        where: {
-          date: { gte: startDate, lte: endDate },
-          status: 'APPROVED'
-        },
-        include: { user: true }
-      }),
-      prisma.systemModality.findMany({ orderBy: { name: 'asc' } }),
-      prisma.timeOffRecord.findMany({
-        where: {
-          date: { gte: startDate, lte: endDate },
-          status: 'APPROVED'
-        },
-        include: { user: true }
-      })
-    ]);
+    // Fetch sequentially for better SQLite performance
+    const locations = await prisma.location.findMany();
+    const stations = await prisma.station.findMany();
+    const users = await prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } });
+    const shifts = await prisma.shift.findMany({
+      where: { date: { gte: startDate, lte: endDate } },
+      include: { user: true, station: true }
+    });
+    const leaves = await prisma.leave.findMany({
+      where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' },
+      include: { user: true }
+    });
+    const systemModalities = await prisma.systemModality.findMany({ orderBy: { name: 'asc' } });
+    const timeOffRecords = await prisma.timeOffRecord.findMany({
+      where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' },
+      include: { user: true }
+    });
 
     const timeOffAsLeaves = timeOffRecords
       .filter(to => to.hours < 0)
