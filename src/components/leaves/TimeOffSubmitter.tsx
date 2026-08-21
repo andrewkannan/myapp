@@ -22,6 +22,10 @@ export function TimeOffSubmitter({ session }: { session: any }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
 
+  // Cancel state
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelRemark, setCancelRemark] = useState('');
+
   useEffect(() => {
     const today = new Date();
     const tzOffset = today.getTimezoneOffset() * 60000;
@@ -141,6 +145,22 @@ export function TimeOffSubmitter({ session }: { session: any }) {
     const res = await fetch(`/api/time-off?id=${id}`, { method: 'DELETE' });
     if (res.ok) fetchRecords();
     else alert('Failed to delete');
+  };
+
+  const handleCancel = async (id: string) => {
+    if (!cancelRemark.trim()) return alert('Please provide a cancellation reason.');
+    const res = await fetch('/api/time-off', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: 'CANCELLED', reason: cancelRemark.trim() })
+    });
+    if (res.ok) {
+      setCancellingId(null);
+      setCancelRemark('');
+      fetchRecords();
+    } else {
+      alert('Failed to cancel record');
+    }
   };
 
   const isRestrictedRole = !isScheduler && ['radiographer', 'sonographer', 'nurse'].some(role => (session?.role || '').toLowerCase().includes(role));
@@ -308,19 +328,24 @@ export function TimeOffSubmitter({ session }: { session: any }) {
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' }}>{r.startTime} - {r.endTime}</div>
                     )}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                     <span style={{ 
                       padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '999px', fontWeight: 600,
-                      backgroundColor: r.status === 'APPROVED' ? '#dcfce7' : r.status === 'REJECTED' ? '#fee2e2' : '#fef9c3',
-                      color: r.status === 'APPROVED' ? '#166534' : r.status === 'REJECTED' ? '#991b1b' : '#854d0e'
+                      backgroundColor: r.status === 'APPROVED' ? '#dcfce7' : r.status === 'REJECTED' ? '#fee2e2' : r.status === 'CANCELLED' ? '#f3f4f6' : '#fef9c3',
+                      color: r.status === 'APPROVED' ? '#166534' : r.status === 'REJECTED' ? '#991b1b' : r.status === 'CANCELLED' ? '#6b7280' : '#854d0e'
                     }}>
                       {r.status}
                     </span>
-                    {isScheduler && (
+                    {isScheduler && r.status !== 'CANCELLED' && (
                       <>
                         <button onClick={() => startEdit(r)} title="Edit" style={{ padding: '0.3rem', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--primary)' }}>
                           <Pencil size={16} />
                         </button>
+                        {r.status === 'APPROVED' && (
+                          <button onClick={() => { setCancellingId(r.id); setCancelRemark(''); }} title="Cancel" style={{ padding: '0.3rem 0.5rem', border: '1px solid #fca5a5', background: '#fef2f2', borderRadius: '6px', cursor: 'pointer', color: '#dc2626', fontSize: '0.7rem', fontWeight: 600 }}>
+                            Cancel
+                          </button>
+                        )}
                         <button onClick={() => handleDelete(r.id)} title="Delete" style={{ padding: '0.3rem', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--danger, #ef4444)' }}>
                           <Trash2 size={16} />
                         </button>
@@ -328,17 +353,29 @@ export function TimeOffSubmitter({ session }: { session: any }) {
                     )}
                   </div>
                 </div>
+
+                {/* Cancel confirmation with remark */}
+                {cancellingId === r.id && (
+                  <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#991b1b' }}>Cancellation Reason *</label>
+                    <input type="text" placeholder="e.g. Staff no longer needs time off" value={cancelRemark} onChange={e => setCancelRemark(e.target.value)} style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #fecaca', fontSize: '0.85rem', width: '100%' }} />
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                      <button onClick={() => setCancellingId(null)} style={{ padding: '0.3rem 0.75rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'white', fontSize: '0.8rem', cursor: 'pointer' }}>Back</button>
+                      <button onClick={() => handleCancel(r.id)} style={{ padding: '0.3rem 0.75rem', border: 'none', borderRadius: '6px', background: '#dc2626', color: 'white', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}>Confirm Cancel</button>
+                    </div>
+                  </div>
+                )}
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--background)', padding: '0.875rem 1rem', borderRadius: '12px' }}>
                   <div>
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px', fontWeight: 700, letterSpacing: '0.05em' }}>HOURS</span>
-                    <span style={{ fontSize: '1rem', fontWeight: 700, color: r.hours < 0 ? '#b91c1c' : '#15803d' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 700, color: r.status === 'CANCELLED' ? '#9ca3af' : (r.hours < 0 ? '#b91c1c' : '#15803d'), textDecoration: r.status === 'CANCELLED' ? 'line-through' : 'none' }}>
                       {r.hours > 0 ? '+' : ''}{r.hours} HRS
                     </span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px', fontWeight: 700, letterSpacing: '0.05em' }}>BALANCE</span>
-                    <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--primary)' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 700, color: r.status === 'CANCELLED' ? '#9ca3af' : 'var(--primary)' }}>
                       {r.status === 'APPROVED' ? `${r.runningBalance.toFixed(2)} HRS` : '-'}
                     </span>
                   </div>

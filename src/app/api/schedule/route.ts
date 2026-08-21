@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     endOfRange.setDate(today.getDate() + 2); // Today + Tomorrow + Day After
     endOfRange.setHours(23, 59, 59, 999);
 
-    const [shifts, leaves, stations] = await Promise.all([
+    const [shifts, leaves, stations, timeOffRecords] = await Promise.all([
       prisma.shift.findMany({
         where: {
           userId: session.id,
@@ -30,10 +30,28 @@ export async function GET(request: Request) {
           status: 'APPROVED'
         }
       }),
-      prisma.station.findMany({ include: { location: true } })
+      prisma.station.findMany({ include: { location: true } }),
+      prisma.timeOffRecord.findMany({
+        where: {
+          userId: session.id,
+          date: { gte: today, lte: endOfRange },
+          status: 'APPROVED'
+        }
+      })
     ]);
 
-    return NextResponse.json({ shifts, leaves, stations });
+    // Convert time-off records to leave-like objects with type "TO"
+    const timeOffAsLeaves = timeOffRecords.map(to => ({
+      id: to.id,
+      userId: to.userId,
+      date: to.date,
+      type: 'TO',
+      period: to.startTime && to.endTime ? `${to.startTime} - ${to.endTime}` : 'FULL',
+      status: 'APPROVED',
+      remarks: `${to.reason}${to.hours ? ` (${to.hours > 0 ? '+' : ''}${to.hours} hrs)` : ''}`
+    }));
+
+    return NextResponse.json({ shifts, leaves: [...leaves, ...timeOffAsLeaves], stations });
   } catch (error) {
     console.error('Error fetching schedule:', error);
     return NextResponse.json({ error: 'Failed to fetch schedule' }, { status: 500 });

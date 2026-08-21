@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const endDate = new Date(year, month, 0);
 
     // Fetch all locations, stations, and users
-    const [locations, stations, users, shifts, leaves, systemModalities] = await Promise.all([
+    const [locations, stations, users, shifts, leaves, systemModalities, timeOffRecords] = await Promise.all([
       prisma.location.findMany(),
       prisma.station.findMany(),
       prisma.user.findMany({ where: { isActive: true }, orderBy: { abbreviation: 'asc' } }),
@@ -36,10 +36,29 @@ export async function GET(request: Request) {
         },
         include: { user: true }
       }),
-      prisma.systemModality.findMany({ orderBy: { name: 'asc' } })
+      prisma.systemModality.findMany({ orderBy: { name: 'asc' } }),
+      prisma.timeOffRecord.findMany({
+        where: {
+          date: { gte: startDate, lte: endDate },
+          status: 'APPROVED'
+        },
+        include: { user: true }
+      })
     ]);
 
-    return NextResponse.json({ locations, stations, users, shifts, leaves, modalities: systemModalities.map(m => m.name) });
+    // Convert time-off records to leave-like objects with type "TO"
+    const timeOffAsLeaves = timeOffRecords.map(to => ({
+      id: to.id,
+      userId: to.userId,
+      date: to.date,
+      type: 'TO',
+      period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
+      status: 'APPROVED',
+      remarks: to.reason,
+      user: (to as any).user
+    }));
+
+    return NextResponse.json({ locations, stations, users, shifts, leaves: [...leaves, ...timeOffAsLeaves], modalities: systemModalities.map(m => m.name) });
   } catch (error) {
     console.error('Error fetching roster:', error);
     return NextResponse.json({ error: 'Failed to fetch roster data' }, { status: 500 });
