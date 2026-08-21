@@ -332,8 +332,16 @@ export default function MobileSchedulePage() {
                                 )}
                               </h3>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: isToday ? '#16a34a' : '#86868b', fontSize: '1rem', fontWeight: 500 }}>
-                                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '4px', backgroundColor: shift.shiftPeriod === 'AM' ? '#ff9500' : shift.shiftPeriod === 'PM' ? '#5856d6' : '#34c759' }} />
-                                {shift.shiftPeriod === 'AM' ? 'Morning Shift' : shift.shiftPeriod === 'PM' ? 'Afternoon Shift' : 'Full Day Shift'}
+                                {(() => {
+                                  const isSat = day.date.getDay() === 6;
+                                  const effectivePeriod = isSat && (!shift.shiftPeriod || shift.shiftPeriod === 'Full') ? 'AM' : shift.shiftPeriod;
+                                  return (
+                                    <>
+                                      <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '4px', backgroundColor: effectivePeriod === 'AM' ? '#ff9500' : effectivePeriod === 'PM' ? '#5856d6' : '#34c759' }} />
+                                      {effectivePeriod === 'AM' ? 'Morning Shift' : effectivePeriod === 'PM' ? 'Afternoon Shift' : 'Full Day Shift'}
+                                    </>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </div>
