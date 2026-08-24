@@ -19,11 +19,26 @@ export async function POST(request: Request) {
       try {
         const baseUrl = 'https://doctor.asiamedic.com.sg';
         
+        const parseCookies = (cookieArray: string[]) => {
+          const map = new Map<string, string>();
+          cookieArray.forEach(c => {
+            const parts = c.split(';')[0].split('=');
+            const key = parts[0];
+            const val = parts.slice(1).join('=');
+            if (val) {
+              map.set(key, val);
+            }
+          });
+          return map;
+        };
+
         // 1. Load login page to get RequestVerificationToken
         const loginPageRes = await fetch(`${baseUrl}/sign-in`);
         if (!loginPageRes.ok) throw new Error('Failed to load Zed login page');
         const loginHtml = await loginPageRes.text();
-        const cookies = loginPageRes.headers.get('set-cookie');
+        
+        const initialCookies = loginPageRes.headers.getSetCookie ? loginPageRes.headers.getSetCookie() : [];
+        const cookieMap = parseCookies(initialCookies);
         
         const tokenMatch = loginHtml.match(/name="__RequestVerificationToken" type="hidden" value="([^"]+)"/);
         if (!tokenMatch) throw new Error('Could not find login verification token');
@@ -34,24 +49,32 @@ export async function POST(request: Request) {
         loginData.append('Username', 'testdelete');
         loginData.append('Password', 'AML!Task12');
         loginData.append('__RequestVerificationToken', reqToken);
-        loginData.append('ReturnUrl', '/');
+        loginData.append('ReturnUrl', '/sign-in?ReturnUrl=/');
         loginData.append('RememberMe', 'false');
+
+        let cookieHeader = Array.from(cookieMap.entries()).map(([k,v]) => `${k}=${v}`).join('; ');
 
         const loginRes = await fetch(`${baseUrl}/sign-in`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': cookies || ''
+            'Cookie': cookieHeader
           },
           body: loginData.toString(),
           redirect: 'manual'
         });
 
-        const authCookies = loginRes.headers.get('set-cookie') || cookies || '';
+        const newCookies = loginRes.headers.getSetCookie ? loginRes.headers.getSetCookie() : [];
+        const newCookieMap = parseCookies(newCookies);
+        for (const [k, v] of newCookieMap.entries()) {
+          cookieMap.set(k, v);
+        }
+        cookieHeader = Array.from(cookieMap.entries()).map(([k,v]) => `${k}=${v}`).join('; ');
 
         // 3. Search for the study by accession
-        const searchRes = await fetch(`${baseUrl}/?accession=${accession}`, {
-          headers: { 'Cookie': authCookies }
+        const searchUrl = `${baseUrl}/?name=&patientid=&patientdob=&accession=${accession}&description=&refphys=&studydatefrom=&studydateto=&offset=50`;
+        const searchRes = await fetch(searchUrl, {
+          headers: { 'Cookie': cookieHeader }
         });
         const searchHtml = await searchRes.text();
         
@@ -76,7 +99,7 @@ export async function POST(request: Request) {
 
         // 4. Load the delete page to get the new token
         const deletePageRes = await fetch(`${baseUrl}/study-delete/${targetStudyId}`, {
-          headers: { 'Cookie': authCookies }
+          headers: { 'Cookie': cookieHeader }
         });
         const deleteHtml = await deletePageRes.text();
         
@@ -100,7 +123,7 @@ export async function POST(request: Request) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': authCookies,
+            'Cookie': cookieHeader,
             'X-Requested-With': 'XMLHttpRequest'
           },
           body: delData.toString()
