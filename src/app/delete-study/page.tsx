@@ -35,24 +35,36 @@ export default function DeleteStudyPage() {
     setStatus('processing');
     setResults({ advapacs: 'loading', zed: 'loading', ampacs: 'loading' });
 
-    // TODO: Connect to backend API once implemented
-    // For now, this just simulates the loading states
-    
-    // Simulate Zed (Since we'll start with this first)
-    setTimeout(() => {
-      setResults(prev => ({ ...prev, zed: 'success' }));
-    }, 2000);
+    // Function to process a single system
+    const processSystem = async (system: 'advapacs' | 'zed' | 'ampacs') => {
+      try {
+        const res = await fetch('/api/delete-study', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accession, authCode, system })
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+          setResults(prev => ({ ...prev, [system]: 'success' }));
+        } else {
+          setResults(prev => ({ ...prev, [system]: 'error' }));
+          console.error(`${system} deletion failed:`, data.message);
+        }
+      } catch (err) {
+        setResults(prev => ({ ...prev, [system]: 'error' }));
+      }
+    };
 
-    // Simulate AdvaPACS
-    setTimeout(() => {
-      setResults(prev => ({ ...prev, advapacs: 'success' }));
-    }, 3500);
+    // Run them in parallel
+    await Promise.all([
+      processSystem('zed'),
+      processSystem('advapacs'),
+      processSystem('ampacs')
+    ]);
 
-    // Simulate AMPACS
-    setTimeout(() => {
-      setResults(prev => ({ ...prev, ampacs: 'success' }));
-      setStatus('done');
-    }, 5000);
+    setStatus('done');
   };
 
   const renderStatusIcon = (state: string) => {
