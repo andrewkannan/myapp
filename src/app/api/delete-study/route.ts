@@ -32,8 +32,19 @@ export async function POST(request: Request) {
           return map;
         };
 
+        const randomDelay = (min: number, max: number) => {
+          const ms = Math.floor(Math.random() * (max - min + 1)) + min;
+          return new Promise(resolve => setTimeout(resolve, ms));
+        };
+
+        const browserHeaders = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+          'Accept-Language': 'en-US,en;q=0.9',
+        };
+
         // 1. Load login page to get RequestVerificationToken
-        const loginPageRes = await fetch(`${baseUrl}/sign-in`);
+        const loginPageRes = await fetch(`${baseUrl}/sign-in`, { headers: browserHeaders });
         if (!loginPageRes.ok) throw new Error('Failed to load Zed login page');
         const loginHtml = await loginPageRes.text();
         
@@ -44,6 +55,9 @@ export async function POST(request: Request) {
         if (!tokenMatch) throw new Error('Could not find login verification token');
         const reqToken = tokenMatch[1];
         
+        // Simulate human reading login page
+        await randomDelay(800, 1500);
+
         // 2. Perform Login
         const loginData = new URLSearchParams();
         loginData.append('Username', 'testdelete');
@@ -57,6 +71,7 @@ export async function POST(request: Request) {
         const loginRes = await fetch(`${baseUrl}/sign-in`, {
           method: 'POST',
           headers: {
+            ...browserHeaders,
             'Content-Type': 'application/x-www-form-urlencoded',
             'Cookie': cookieHeader
           },
@@ -71,15 +86,16 @@ export async function POST(request: Request) {
         }
         cookieHeader = Array.from(cookieMap.entries()).map(([k,v]) => `${k}=${v}`).join('; ');
 
+        // Simulate human waiting for dashboard to load after redirect
+        await randomDelay(1200, 2000);
+
         // 3. Search for the study by accession
         const searchUrl = `${baseUrl}/?name=&patientid=&patientdob=&accession=${accession}&description=&refphys=&studydatefrom=&studydateto=&offset=50`;
         const searchRes = await fetch(searchUrl, {
-          headers: { 'Cookie': cookieHeader }
+          headers: { ...browserHeaders, 'Cookie': cookieHeader }
         });
         const searchHtml = await searchRes.text();
         
-        // Extract study ID by looking for the row with the accession number
-        // In the HTML, row has <tr data-study-id="..."> and a <td data-title="Accession No.">...</td>
         const studyRows = searchHtml.split('<tr class="double-click single-click " data-study-id="');
         let targetStudyId = null;
         
@@ -97,9 +113,12 @@ export async function POST(request: Request) {
           return NextResponse.json({ status: 'error', message: `No study found for accession ${accession} in Zed` });
         }
 
+        // Simulate human reviewing search results and clicking on study
+        await randomDelay(1000, 1800);
+
         // 4. Load the delete page to get the new token
         const deletePageRes = await fetch(`${baseUrl}/study-delete/${targetStudyId}`, {
-          headers: { 'Cookie': cookieHeader }
+          headers: { ...browserHeaders, 'Cookie': cookieHeader }
         });
         const deleteHtml = await deletePageRes.text();
         
@@ -113,6 +132,9 @@ export async function POST(request: Request) {
         const actionUrl = deleteFormMatch[1]; // /study-delete/.../real-time
         const delToken = delTokenMatch[1];
         
+        // Simulate human typing in the reason for deletion
+        await randomDelay(2000, 3500);
+
         // 5. Execute deletion
         const delData = new URLSearchParams();
         delData.append('__RequestVerificationToken', delToken);
@@ -122,9 +144,12 @@ export async function POST(request: Request) {
         const finalDelRes = await fetch(`${baseUrl}${actionUrl}`, {
           method: 'POST',
           headers: {
+            ...browserHeaders,
             'Content-Type': 'application/x-www-form-urlencoded',
             'Cookie': cookieHeader,
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': baseUrl,
+            'Referer': `${baseUrl}/study-delete/${targetStudyId}`
           },
           body: delData.toString()
         });
