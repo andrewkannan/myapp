@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import Select from 'react-select';
 import { useRouter } from 'next/navigation';
 import RosterGrid from '@/components/RosterGrid';
-import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter, Calendar, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Printer, Settings, Activity, MoreVertical, Filter, Calendar, Clock, Trash2 } from 'lucide-react';
 
 export type User = {
   id: string;
@@ -336,6 +336,12 @@ export default function Home() {
                     className="dropdown-item"
                   >
                     <Clock size={18} color="#f59e0b" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Time Off</span>
+                  </button>
+                  <button 
+                    onClick={() => { setSettingsOpen(false); router.push('/delete-study'); }} 
+                    className="dropdown-item"
+                  >
+                    <Trash2 size={18} color="#ef4444" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Delete Study</span>
                   </button>
                 </div>
 
