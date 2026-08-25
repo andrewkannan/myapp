@@ -337,12 +337,6 @@ export default function Home() {
                   >
                     <Clock size={18} color="#f59e0b" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Time Off</span>
                   </button>
-                  <button 
-                    onClick={() => { setSettingsOpen(false); router.push('/delete-study'); }} 
-                    className="dropdown-item"
-                  >
-                    <Trash2 size={18} color="#ef4444" /> <span style={{ fontWeight: 500, marginLeft: '4px' }}>Delete Study</span>
-                  </button>
                 </div>
 
                 {currentUser.permissions?.some(p => ['STAFF_MANAGE', 'FACILITY_MANAGE', 'ROLE_MANAGE', 'AUDIT_VIEW'].includes(p)) && (
