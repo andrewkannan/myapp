@@ -183,8 +183,12 @@ export default function Home() {
         flexShrink: 0,
         gap: '0.25rem'
       }}>
-        {/* Logo */}
-        <img src="/asiamedic-logo.png" alt="AsiaMedic" style={{ height: '32px', width: 'auto', flexShrink: 0 }} />
+        <div 
+          onClick={() => router.push('/schedule')}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+        >
+          <img src="/asiamedic-logo.png" alt="AsiaMedic" style={{ height: '32px', width: 'auto', flexShrink: 0 }} />
+        </div>
 
         {/* Month nav - compact */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
