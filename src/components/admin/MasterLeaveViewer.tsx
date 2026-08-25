@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { Calendar, Plus, X } from 'lucide-react';
+import LeaveModal from '@/components/LeaveModal';
 
 export function MasterLeaveViewer() {
   const { toast } = useToast();
@@ -14,6 +15,9 @@ export function MasterLeaveViewer() {
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({ userId: '', date: '', type: 'AL', period: 'FULL', remarks: '' });
   const [submitting, setSubmitting] = useState(false);
+  
+  const [selectedLeave, setSelectedLeave] = useState<any>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
     fetchLeaves();
@@ -223,21 +227,28 @@ export function MasterLeaveViewer() {
                             {cellLeaves.map(leave => {
                               const isPending = leave.status === 'PENDING';
                               const isApproved = leave.status === 'APPROVED';
+                              const isBallot = leave.status === 'BALLOT';
                               
                               return (
-                                <div key={leave.id} style={{
-                                  backgroundColor: isPending ? '#FFFFFF' : (isApproved ? '#DCFCE7' : '#FEF3C7'),
-                                  color: isPending ? '#4B5563' : (isApproved ? '#166534' : '#92400E'),
-                                  border: isPending ? '1px solid #D1D5DB' : '1px solid transparent',
-                                  padding: '1px 3px',
-                                  borderRadius: '4px',
-                                  fontSize: '0.6rem',
-                                  fontWeight: 700,
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  textAlign: 'center'
-                                }} title={leave.user?.fullName || leave.user?.abbreviation}>
+                                <div 
+                                  key={leave.id} 
+                                  onClick={() => { setSelectedDate(dateObj); setSelectedLeave(leave); }}
+                                  style={{
+                                    backgroundColor: isPending ? '#FFFFFF' : (isApproved ? '#DCFCE7' : '#FEF3C7'),
+                                    color: isPending ? '#4B5563' : (isApproved ? '#166534' : '#92400E'),
+                                    border: isPending ? '1px solid #D1D5DB' : '1px solid transparent',
+                                    padding: '1px 3px',
+                                    borderRadius: '4px',
+                                    fontSize: '0.6rem',
+                                    fontWeight: 700,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    textAlign: 'center',
+                                    cursor: 'pointer'
+                                  }} 
+                                  title={leave.user?.fullName || leave.user?.abbreviation}
+                                >
                                   {leave.period === 'AM' && <span style={{ color: 'var(--primary)', marginRight: '2px' }}>am</span>}
                                   {leave.period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
                                   {leave.user?.abbreviation || 'Unk'}
@@ -255,6 +266,16 @@ export function MasterLeaveViewer() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {selectedLeave && selectedDate && (
+        <LeaveModal 
+          date={selectedDate} 
+          leave={selectedLeave} 
+          users={users} 
+          onClose={() => { setSelectedLeave(null); setSelectedDate(null); }} 
+          onRefresh={fetchLeaves} 
+        />
       )}
     </div>
   );

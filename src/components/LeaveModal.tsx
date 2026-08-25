@@ -9,6 +9,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
   const [period, setPeriod] = useState('FULL');
   const [remarks, setRemarks] = useState('');
   const [targetUserId, setTargetUserId] = useState('');
+  const [status, setStatus] = useState('APPROVED');
 
   // Time-off fields
   const [reason, setReason] = useState('');
@@ -26,6 +27,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
         setMode('timeoff');
         setReason(leave.remarks || '');
         setTargetUserId(leave.userId);
+        setStatus(leave.status || 'PENDING');
         if (leave.startTime) setStartTime(leave.startTime);
         if (leave.endTime) setEndTime(leave.endTime);
         if (leave.hours !== undefined) {
@@ -39,6 +41,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
         setPeriod(leave.period);
         setRemarks(leave.remarks || '');
         setTargetUserId(leave.userId);
+        setStatus(leave.status || 'APPROVED');
       }
     }
   }, [leave]);
@@ -69,13 +72,13 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
         res = await fetch(`/api/leaves/${leave.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, period, remarks, status: leave.status })
+          body: JSON.stringify({ type, period, remarks, status })
         });
       } else {
         res = await fetch('/api/leaves', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dates: [dateStr], type, period, remarks, targetUserId })
+          body: JSON.stringify({ dates: [dateStr], type, period, remarks, targetUserId, status })
         });
       }
 
@@ -229,6 +232,15 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
             <div>
               <label style={labelStyle}>Remarks (Optional)</label>
               <input type="text" value={remarks} onChange={e => setRemarks(e.target.value)} style={inputStyle} />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Status</label>
+              <select value={status} onChange={e => setStatus(e.target.value)} style={inputStyle}>
+                <option value="APPROVED">Confirmed (Approved)</option>
+                <option value="BALLOT">Ballot</option>
+                <option value="PENDING">Pending in queue</option>
+              </select>
             </div>
 
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>

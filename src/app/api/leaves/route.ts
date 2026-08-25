@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { dates, type, period, remarks, targetUserId } = body;
+    const { dates, type, period, remarks, targetUserId, status } = body;
 
     if (!dates || !Array.isArray(dates) || dates.length === 0) {
       return NextResponse.json({ error: 'Dates are required' }, { status: 400 });
@@ -37,7 +37,8 @@ export async function POST(request: Request) {
 
     const isScheduler = session.permissions?.includes('ROSTER_EDIT') || session.role === 'ADMIN';
     const finalUserId = isScheduler && targetUserId ? targetUserId : session.id;
-    const finalStatus = isScheduler ? 'APPROVED' : 'PENDING';
+    // Admins can specify status, otherwise it's PENDING (or APPROVED if admin creates and doesn't specify)
+    const finalStatus = isScheduler ? (status || 'APPROVED') : 'PENDING';
 
     const leaveDataBatch = dates.map((d: any) => ({
       userId: finalUserId,
