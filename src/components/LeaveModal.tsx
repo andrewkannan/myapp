@@ -237,9 +237,9 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
             <div>
               <label style={labelStyle}>Status</label>
               <select value={status} onChange={e => setStatus(e.target.value)} style={inputStyle}>
-                <option value="APPROVED">Confirmed (Approved)</option>
-                <option value="BALLOT">Ballot</option>
-                <option value="PENDING">Pending in queue</option>
+                <option value="APPROVED">{type === 'AL' ? 'Confirmed (Approved)' : 'Approved'}</option>
+                {type === 'AL' && <option value="BALLOT">Ballot</option>}
+                <option value="PENDING">{type === 'AL' ? 'Pending in queue' : 'Pending'}</option>
               </select>
             </div>
 

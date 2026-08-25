@@ -227,16 +227,27 @@ export function MasterLeaveViewer() {
                             {cellLeaves.map(leave => {
                               const isPending = leave.status === 'PENDING';
                               const isApproved = leave.status === 'APPROVED';
-                              const isBallot = leave.status === 'BALLOT';
+                              const isAL = leave.type === 'AL';
+                              
+                              let bgColor, textColor, border;
+                              if (isAL) {
+                                bgColor = isPending ? '#FFFFFF' : (isApproved ? '#DCFCE7' : '#FEF3C7');
+                                textColor = isPending ? '#4B5563' : (isApproved ? '#166534' : '#92400E');
+                                border = isPending ? '1px solid #D1D5DB' : '1px solid transparent';
+                              } else {
+                                bgColor = isApproved ? '#DBEAFE' : '#FEF3C7';
+                                textColor = isApproved ? '#1E40AF' : '#92400E';
+                                border = '1px solid transparent';
+                              }
                               
                               return (
                                 <div 
                                   key={leave.id} 
                                   onClick={() => { setSelectedDate(dateObj); setSelectedLeave(leave); }}
                                   style={{
-                                    backgroundColor: isPending ? '#FFFFFF' : (isApproved ? '#DCFCE7' : '#FEF3C7'),
-                                    color: isPending ? '#4B5563' : (isApproved ? '#166534' : '#92400E'),
-                                    border: isPending ? '1px solid #D1D5DB' : '1px solid transparent',
+                                    backgroundColor: bgColor,
+                                    color: textColor,
+                                    border: border,
                                     padding: '1px 3px',
                                     borderRadius: '4px',
                                     fontSize: '0.6rem',
