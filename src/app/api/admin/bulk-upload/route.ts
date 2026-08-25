@@ -51,19 +51,53 @@ export async function POST(request: Request) {
 
           if (!matchedStation) { errors.push(`Row ${rowNum}: Station '${station}'${location ? ` at '${location}'` : ''} not found.`); continue; }
 
-          await tx.shift.create({
-            data: {
-              date: parsedDate,
+          const targetShiftPeriod = shiftPeriod || 'Full';
+          const targetStatus = status || 'Scheduled';
+          
+          const existingShift = await tx.shift.findFirst({
+            where: {
               userId: user.id,
-              stationId: matchedStation.id,
-              shiftPeriod: shiftPeriod || 'Full',
-              startTime: startTime || null,
-              endTime: endTime || null,
-              status: status || 'Scheduled',
-              remarks: remarks || null,
+              date: parsedDate,
+              shiftPeriod: targetShiftPeriod
             }
           });
-          created.push(rowNum);
+
+          if (existingShift) {
+            const isDifferent = 
+              existingShift.stationId !== matchedStation.id ||
+              (existingShift.startTime || '') !== (startTime || '') ||
+              (existingShift.endTime || '') !== (endTime || '') ||
+              existingShift.status !== targetStatus ||
+              (existingShift.remarks || '') !== (remarks || '');
+
+            if (isDifferent) {
+              await tx.shift.update({
+                where: { id: existingShift.id },
+                data: {
+                  stationId: matchedStation.id,
+                  startTime: startTime || null,
+                  endTime: endTime || null,
+                  status: targetStatus,
+                  remarks: remarks || null,
+                }
+              });
+              created.push(rowNum);
+            }
+          } else {
+            await tx.shift.create({
+              data: {
+                date: parsedDate,
+                userId: user.id,
+                stationId: matchedStation.id,
+                shiftPeriod: targetShiftPeriod,
+                startTime: startTime || null,
+                endTime: endTime || null,
+                status: targetStatus,
+                remarks: remarks || null,
+              }
+            });
+            created.push(rowNum);
+          }
 
         // ── LEAVE ──
         } else if (type === 'leave') {
@@ -85,17 +119,47 @@ export async function POST(request: Request) {
           const lt = leaveType.toUpperCase();
           if (!validTypes.includes(lt)) { errors.push(`Row ${rowNum}: Invalid Leave_Type '${leaveType}'. Use: ${validTypes.join(', ')}`); continue; }
 
-          await tx.leave.create({
-            data: {
+          const targetPeriod = (period || 'FULL').toUpperCase();
+          const targetStatus = (status || 'APPROVED').toUpperCase();
+
+          const existingLeave = await tx.leave.findFirst({
+            where: {
               userId: user.id,
               date: parsedDate,
-              period: (period || 'FULL').toUpperCase(),
-              type: lt,
-              status: (status || 'APPROVED').toUpperCase(),
-              remarks: remarks || null,
+              period: targetPeriod
             }
           });
-          created.push(rowNum);
+
+          if (existingLeave) {
+            const isDifferent = 
+              existingLeave.type !== lt ||
+              existingLeave.status !== targetStatus ||
+              (existingLeave.remarks || '') !== (remarks || '');
+
+            if (isDifferent) {
+              await tx.leave.update({
+                where: { id: existingLeave.id },
+                data: {
+                  type: lt,
+                  status: targetStatus,
+                  remarks: remarks || null,
+                }
+              });
+              created.push(rowNum);
+            }
+          } else {
+            await tx.leave.create({
+              data: {
+                userId: user.id,
+                date: parsedDate,
+                period: targetPeriod,
+                type: lt,
+                status: targetStatus,
+                remarks: remarks || null,
+              }
+            });
+            created.push(rowNum);
+          }
 
         // ── TIME-OFF ──
         } else if (type === 'timeoff') {
@@ -114,21 +178,54 @@ export async function POST(request: Request) {
           parsedDate.setHours(12, 0, 0, 0);
 
           const parsedHours = parseFloat(hours) || 0;
+          const targetStatus = (status || 'APPROVED').toUpperCase();
 
-          await tx.timeOffRecord.create({
-            data: {
+          const existingTimeOff = await tx.timeOffRecord.findFirst({
+            where: {
               userId: user.id,
               date: parsedDate,
-              reason: reason,
-              studyAccNo: studyAccNo || null,
-              startTime: startTime || null,
-              endTime: endTime || null,
-              hours: parsedHours,
-              status: (status || 'APPROVED').toUpperCase(),
-              approvedById: (status || 'APPROVED').toUpperCase() === 'APPROVED' ? session.id : null,
+              reason: reason
             }
           });
-          created.push(rowNum);
+
+          if (existingTimeOff) {
+            const isDifferent = 
+              (existingTimeOff.studyAccNo || '') !== (studyAccNo || '') ||
+              (existingTimeOff.startTime || '') !== (startTime || '') ||
+              (existingTimeOff.endTime || '') !== (endTime || '') ||
+              existingTimeOff.hours !== parsedHours ||
+              existingTimeOff.status !== targetStatus;
+
+            if (isDifferent) {
+              await tx.timeOffRecord.update({
+                where: { id: existingTimeOff.id },
+                data: {
+                  studyAccNo: studyAccNo || null,
+                  startTime: startTime || null,
+                  endTime: endTime || null,
+                  hours: parsedHours,
+                  status: targetStatus,
+                  approvedById: targetStatus === 'APPROVED' ? session.id : null,
+                }
+              });
+              created.push(rowNum);
+            }
+          } else {
+            await tx.timeOffRecord.create({
+              data: {
+                userId: user.id,
+                date: parsedDate,
+                reason: reason,
+                studyAccNo: studyAccNo || null,
+                startTime: startTime || null,
+                endTime: endTime || null,
+                hours: parsedHours,
+                status: targetStatus,
+                approvedById: targetStatus === 'APPROVED' ? session.id : null,
+              }
+            });
+            created.push(rowNum);
+          }
 
         } else {
           errors.push(`Row ${rowNum}: Unknown upload type '${type}'.`);
