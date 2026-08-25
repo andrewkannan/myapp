@@ -32,7 +32,17 @@ export async function GET(request: Request) {
       }
     });
 
-    return NextResponse.json({ leaves });
+    const publicHolidays = await prisma.publicHoliday.findMany({
+      where: {
+        date: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    return NextResponse.json({ leaves, publicHolidays });
   } catch (error) {
     console.error('Error fetching master leaves:', error);
     return NextResponse.json({ error: 'Failed to fetch leaves' }, { status: 500 });

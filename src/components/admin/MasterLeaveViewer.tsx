@@ -7,6 +7,7 @@ import { Calendar, Plus, X } from 'lucide-react';
 export function MasterLeaveViewer() {
   const { toast } = useToast();
   const [leaves, setLeaves] = useState<any[]>([]);
+  const [publicHolidays, setPublicHolidays] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
@@ -29,6 +30,7 @@ export function MasterLeaveViewer() {
       if (res.ok) {
         const data = await res.json();
         setLeaves(data.leaves || []);
+        setPublicHolidays(data.publicHolidays || []);
       } else {
         toast('Failed to load master leave data', 'error');
       }
@@ -84,11 +86,20 @@ export function MasterLeaveViewer() {
     return map;
   }, [leaves]);
 
+  const phMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const ph of publicHolidays) {
+      const d = new Date(ph.date);
+      map.set(`${d.getMonth()}-${d.getDate()}`, ph.name);
+    }
+    return map;
+  }, [publicHolidays]);
+
   const inputStyle: React.CSSProperties = { padding: '0.4rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.8rem', width: '100%' };
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem', padding: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Master Leave Overview</h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Yearly view of all staff leave.</p>
@@ -135,6 +146,7 @@ export function MasterLeaveViewer() {
                 <option value="MC">MC (Medical)</option>
                 <option value="UPL">UPL (Unpaid Leave)</option>
                 <option value="OFF">OFF (Day Off)</option>
+                <option value="ML">ML (Maternity Leave)</option>
               </select>
             </div>
             <div>
@@ -189,36 +201,50 @@ export function MasterLeaveViewer() {
                       }
 
                       const cellLeaves = leavesByKey.get(`${mIndex}-${d}`) || [];
-                      const isWeekend = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6;
+                      const dateObj = new Date(year, mIndex, d);
+                      const isSunday = dateObj.getDay() === 0;
+                      const phName = phMap.get(`${mIndex}-${d}`);
+                      const isPH = !!phName;
 
                       return (
                         <td key={d} style={{ 
                           border: '1px solid var(--border)', 
                           padding: '2px', 
                           verticalAlign: 'top',
-                          backgroundColor: isWeekend ? 'var(--weekend-bg)' : 'transparent',
+                          backgroundColor: (isSunday || isPH) ? 'var(--weekend-bg)' : 'transparent',
                           minHeight: '40px'
                         }}>
+                          {isPH && (
+                            <div style={{ fontSize: '0.55rem', color: '#dc2626', fontWeight: 600, textAlign: 'center', marginBottom: '2px', lineHeight: 1.1 }}>
+                              {phName}
+                            </div>
+                          )}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            {cellLeaves.map(leave => (
-                              <div key={leave.id} style={{
-                                backgroundColor: leave.status === 'APPROVED' ? '#DBEAFE' : '#FEF3C7',
-                                color: leave.status === 'APPROVED' ? '#1E40AF' : '#92400E',
-                                padding: '2px 4px',
-                                borderRadius: '4px',
-                                fontSize: '0.6rem',
-                                fontWeight: 700,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                textAlign: 'center'
-                              }} title={leave.user?.fullName || leave.user?.abbreviation}>
-                                {leave.period === 'AM' && <span style={{ color: 'var(--primary)', marginRight: '2px' }}>am</span>}
-                                {leave.period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
-                                {leave.user?.abbreviation || 'Unk'}
-                                {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: 'var(--text-muted)', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
-                              </div>
-                            ))}
+                            {cellLeaves.map(leave => {
+                              const isPending = leave.status === 'PENDING';
+                              const isApproved = leave.status === 'APPROVED';
+                              
+                              return (
+                                <div key={leave.id} style={{
+                                  backgroundColor: isPending ? '#FFFFFF' : (isApproved ? '#DCFCE7' : '#FEF3C7'),
+                                  color: isPending ? '#4B5563' : (isApproved ? '#166534' : '#92400E'),
+                                  border: isPending ? '1px solid #D1D5DB' : '1px solid transparent',
+                                  padding: '1px 3px',
+                                  borderRadius: '4px',
+                                  fontSize: '0.6rem',
+                                  fontWeight: 700,
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  textAlign: 'center'
+                                }} title={leave.user?.fullName || leave.user?.abbreviation}>
+                                  {leave.period === 'AM' && <span style={{ color: 'var(--primary)', marginRight: '2px' }}>am</span>}
+                                  {leave.period === 'PM' && <span style={{ color: '#c2410c', marginRight: '2px' }}>pm</span>}
+                                  {leave.user?.abbreviation || 'Unk'}
+                                  {!['AL', 'OFF', 'MC'].includes(leave.type) && <span style={{ color: 'var(--text-muted)', marginLeft: '2px', fontSize: '0.5rem' }}>{leave.type}</span>}
+                                </div>
+                              );
+                            })}
                           </div>
                         </td>
                       );
