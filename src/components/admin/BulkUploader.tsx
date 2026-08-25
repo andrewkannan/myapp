@@ -35,7 +35,7 @@ const UPLOAD_CONFIGS: UploadConfig[] = [
   {
     type: 'leave',
     title: 'Leave Upload',
-    description: 'Upload leave records — AL, MC, UPL, OFF with period and status.',
+    description: 'Upload leave records - AL, MC, UPL, OFF, ML with period and status.',
     icon: <ClipboardList size={20} />,
     color: '#be185d',
     borderColor: '#fbcfe8',
@@ -238,22 +238,63 @@ function SingleUploader({ config }: { config: UploadConfig }) {
             backgroundColor: result.errorCount > 0 ? '#fef2f2' : '#f0fdf4',
             border: `1px solid ${result.errorCount > 0 ? '#fecaca' : '#bbf7d0'}`,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {result.errorCount > 0 ? <AlertTriangle size={18} style={{ color: '#dc2626' }} /> : <CheckCircle size={18} style={{ color: '#16a34a' }} />}
-                <span style={{ fontWeight: 700, color: result.errorCount > 0 ? '#991b1b' : '#166534' }}>
-                  {result.created} records created{result.errorCount > 0 ? `, ${result.errorCount} errors` : ''}
-                </span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#991b1b' }}>
+                <AlertTriangle size={18} />
+                <span>{result.created} records created/updated, {result.errorCount} errors</span>
               </div>
-              <button onClick={reset} style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', border: '1px solid var(--border)', borderRadius: '6px', backgroundColor: 'white', cursor: 'pointer' }}>
-                Upload More
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {result.errors && result.errors.length > 0 && (
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(result.errors!.join('\n'));
+                      toast('Errors copied to clipboard', 'success');
+                    }}
+                    style={{
+                      padding: '0.35rem 0.75rem',
+                      backgroundColor: '#fee2e2',
+                      color: '#991b1b',
+                      border: '1px solid #fecaca',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Copy Errors
+                  </button>
+                )}
+                <button 
+                  onClick={reset}
+                  style={{
+                    padding: '0.35rem 0.75rem',
+                    backgroundColor: '#fff',
+                    color: '#374151',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Upload More
+                </button>
+              </div>
             </div>
             {result.errors && result.errors.length > 0 && (
-              <ul style={{ margin: '0.75rem 0 0 0', paddingLeft: '1.25rem', fontSize: '0.8rem', color: '#991b1b' }}>
-                {result.errors.slice(0, 10).map((e: string, i: number) => <li key={i} style={{ marginBottom: '0.2rem' }}>{e}</li>)}
-                {result.errors.length > 10 && <li>... and {result.errors.length - 10} more errors</li>}
-              </ul>
+              <div style={{ 
+                marginTop: '0.75rem', 
+                maxHeight: '300px', 
+                overflowY: 'auto',
+                border: '1px solid #fecaca',
+                borderRadius: '0.375rem',
+                padding: '0.5rem',
+                backgroundColor: '#fffcfc'
+              }}>
+                <ul style={{ margin: '0', paddingLeft: '1.25rem', fontSize: '0.8rem', color: '#991b1b' }}>
+                  {result.errors.map((e: string, i: number) => <li key={i} style={{ marginBottom: '0.2rem' }}>{e}</li>)}
+                </ul>
+              </div>
             )}
           </div>
         )}

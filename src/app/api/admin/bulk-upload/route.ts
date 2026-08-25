@@ -115,7 +115,7 @@ export async function POST(request: Request) {
           if (isNaN(parsedDate.getTime())) { errors.push(`Row ${rowNum}: Invalid date '${date}'.`); continue; }
           parsedDate.setHours(12, 0, 0, 0);
 
-          const validTypes = ['AL', 'MC', 'UPL', 'OFF'];
+          const validTypes = ['AL', 'MC', 'UPL', 'OFF', 'ML'];
           const lt = leaveType.toUpperCase();
           if (!validTypes.includes(lt)) { errors.push(`Row ${rowNum}: Invalid Leave_Type '${leaveType}'. Use: ${validTypes.join(', ')}`); continue; }
 
