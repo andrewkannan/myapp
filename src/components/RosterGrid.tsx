@@ -356,7 +356,9 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               }}
                             >
                               {leaveUser?.abbreviation || 'Unk'}
-                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
+                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>
+                                {leave.type === 'TO' && ['Sat Off', 'PM Off', 'PH Off in Lieu'].includes(leave.remarks) ? leave.remarks : leave.type}
+                              </span>
                               {leave.type === 'TO' && (
                                 <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>
                                   {leave.hours ? `${leave.hours}h` : (period && period !== 'FULL' ? period.split('-')[0] : '')}

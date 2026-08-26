@@ -271,10 +271,16 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
               </label>
             </div>
 
-            <div>
-              <label style={labelStyle}>Reason *</label>
-              <input type="text" required value={reason} onChange={e => setReason(e.target.value)} placeholder="e.g. Worked overtime on Saturday" style={inputStyle} />
-            </div>
+              <div>
+                <label style={labelStyle}>Reason *</label>
+                <input list="timeoff-reasons" type="text" required value={reason} onChange={e => setReason(e.target.value)} placeholder="e.g. Worked overtime on Saturday" style={inputStyle} />
+                <datalist id="timeoff-reasons">
+                  <option value="TO" />
+                  <option value="Sat Off" />
+                  <option value="PM Off" />
+                  <option value="PH Off in Lieu" />
+                </datalist>
+              </div>
 
             <div>
               <label style={labelStyle}>Study/Acc No (Optional)</label>
