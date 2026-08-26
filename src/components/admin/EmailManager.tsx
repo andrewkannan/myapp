@@ -12,9 +12,9 @@ export function EmailManager() {
   const [loading, setLoading] = useState(true);
 
   // Email form state
-  const [subject, setSubject] = useState('Welcome to the Roster & Leave Management System');
-  const [appUrl, setAppUrl] = useState('http://10.251.237.21');
-  const [customMessage, setCustomMessage] = useState('You have been invited to use the new Roster & Leave Management app. You can use it to view your shifts, apply for leave, and manage your schedule.');
+  const [subject, setSubject] = useState('Welcome to the Roster, Leave & Time Off Management System');
+  const [appUrl, setAppUrl] = useState('https://roster.asiamedic.com.sg/');
+  const [customMessage, setCustomMessage] = useState('You have been invited to use the new Roster, Leave & Time Off Management app. You can use it to view your shifts, apply for leave, claim time off, and manage your schedule.');
   const [testEmail, setTestEmail] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -22,18 +22,18 @@ export function EmailManager() {
     fetchUsers();
     
     // Load saved template from localStorage if exists
-    const savedSubject = localStorage.getItem('onboarding_subject');
-    const savedUrl = localStorage.getItem('onboarding_appUrl');
-    const savedMsg = localStorage.getItem('onboarding_msg');
+    const savedSubject = localStorage.getItem('onboarding_subject_v2');
+    const savedUrl = localStorage.getItem('onboarding_appUrl_v2');
+    const savedMsg = localStorage.getItem('onboarding_msg_v2');
     if (savedSubject) setSubject(savedSubject);
     if (savedUrl) setAppUrl(savedUrl);
     if (savedMsg) setCustomMessage(savedMsg);
   }, []);
 
   const saveTemplate = () => {
-    localStorage.setItem('onboarding_subject', subject);
-    localStorage.setItem('onboarding_appUrl', appUrl);
-    localStorage.setItem('onboarding_msg', customMessage);
+    localStorage.setItem('onboarding_subject_v2', subject);
+    localStorage.setItem('onboarding_appUrl_v2', appUrl);
+    localStorage.setItem('onboarding_msg_v2', customMessage);
     toast('Email template saved successfully!', 'success');
   };
 
@@ -187,9 +187,8 @@ export function EmailManager() {
                 <p>Hi [Staff Name],</p>
                 <p>{customMessage}</p>
                 <p><strong>URL:</strong> <a href={appUrl}>{appUrl}</a></p>
-                <p><strong>Your Abbreviation (Username):</strong> [Abbreviation]</p>
-                <p><strong>Your Temporary Password:</strong> [Randomly Generated or Configured]</p>
-                <p>Please log in and change your password immediately.</p>
+                <p>Please log in using the <strong>Sign in with Microsoft</strong> button with your standard company email and password.</p>
+                <p>Best regards,<br/>Administration Team</p>
               </div>
             </div>
           </div>

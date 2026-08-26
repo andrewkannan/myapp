@@ -29,17 +29,15 @@ export async function POST(request: Request) {
       }
     });
 
-    const getHtml = (name: string, abbr: string) => `
+    const getHtml = (name: string) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
         <h2 style="color: #0369a1;">Welcome to the Roster & Leave Management System</h2>
         <p>Hi ${name},</p>
         <p>${customMessage.replace(/\n/g, '<br/>')}</p>
         <div style="background-color: #f0f9ff; padding: 15px; border-left: 4px solid #0369a1; margin: 20px 0;">
           <p style="margin: 0 0 10px 0;"><strong>Access the portal here:</strong> <a href="${appUrl}" style="color: #0369a1;">${appUrl}</a></p>
-          <p style="margin: 0 0 10px 0;"><strong>Username:</strong> ${abbr}</p>
-          <p style="margin: 0;"><strong>Password:</strong> welcome123 (Temporary)</p>
+          <p style="margin: 0;">Please log in using the <strong>Sign in with Microsoft</strong> button with your standard company email and password.</p>
         </div>
-        <p style="color: #ea580c; font-weight: bold;">Important: Please change your password immediately after logging in for the first time.</p>
         <p>Best regards,<br/>Administration Team</p>
       </div>
     `;
@@ -49,7 +47,7 @@ export async function POST(request: Request) {
         from: `"AML Roster" <${process.env.SMTP_USER}>`,
         to: testEmail,
         subject: subject,
-        html: getHtml('Admin', 'ADMIN')
+        html: getHtml('Admin')
       });
       return NextResponse.json({ success: true, count: 1 });
     }
@@ -75,7 +73,7 @@ export async function POST(request: Request) {
           from: `"AML Roster" <${process.env.SMTP_USER}>`,
           to: u.email,
           subject: subject,
-          html: getHtml(u.fullName || u.abbreviation || 'Staff', u.abbreviation || 'User')
+          html: getHtml(u.fullName || u.abbreviation || 'Staff')
         });
         sentCount++;
       } catch (err: any) {
