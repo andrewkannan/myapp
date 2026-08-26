@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         remarks: to.reason,
         startTime: to.startTime,
         endTime: to.endTime,
-        hours: to.hours,
+        hours: Math.abs(to.hours),
         studyAccNo: to.studyAccNo,
         user: (to as any).user
       }));

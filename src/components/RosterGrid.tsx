@@ -46,9 +46,16 @@ function getStationColor(stationName: string, locationName: string): string {
   const stUpper = stationName.toUpperCase();
   const locUpper = locationName.toUpperCase();
 
-  // MAM=pink and CT=purple only apply within OIC — other locations use their own band color
-  const oicOnly = new Set(['BMD', 'MAM', 'CT', 'PET', 'LUMA MRI', 'MRI 3T 830', 'MRI 3T 930', 'MRI 2 830', 'MRI 2 930', 'MRI 3 830', 'MRI 3 930']);
+  // Any station containing MAM is pink across all locations
+  if (stUpper.includes('MAM')) return '#F8D7EA';
+  
+  // Any station containing CT is purple across all locations
+  if (stUpper.includes('CT')) return '#E8E4FF';
+
+  // Apply station specific colors for OIC
+  const oicOnly = new Set(['BMD', 'PET', 'LUMA MRI', 'MRI 3T 830', 'MRI 3T 930', 'MRI 2 830', 'MRI 2 930', 'MRI 3 830', 'MRI 3 930']);
   if (oicOnly.has(stUpper) && locUpper === 'OIC') return STATION_COLORS[stUpper] || LOCATION_COLORS['OIC'];
+  
   return LOCATION_COLORS[locUpper] || '#F8F8F8';
 }
 
@@ -350,8 +357,10 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                             >
                               {leaveUser?.abbreviation || 'Unk'}
                               <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>{leave.type}</span>
-                              {leave.type === 'TO' && period && period !== 'FULL' && (
-                                <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>{period.split('-')[0]}</span>
+                              {leave.type === 'TO' && (
+                                <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>
+                                  {leave.hours ? `${leave.hours}h` : (period && period !== 'FULL' ? period.split('-')[0] : '')}
+                                </span>
                               )}
                               {leave.type !== 'TO' && period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
                               {leave.type !== 'TO' && leave.remarks && <span style={{ color: 'var(--text-muted)', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
