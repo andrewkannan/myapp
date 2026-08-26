@@ -20,7 +20,22 @@ export function EmailManager() {
 
   useEffect(() => {
     fetchUsers();
+    
+    // Load saved template from localStorage if exists
+    const savedSubject = localStorage.getItem('onboarding_subject');
+    const savedUrl = localStorage.getItem('onboarding_appUrl');
+    const savedMsg = localStorage.getItem('onboarding_msg');
+    if (savedSubject) setSubject(savedSubject);
+    if (savedUrl) setAppUrl(savedUrl);
+    if (savedMsg) setCustomMessage(savedMsg);
   }, []);
+
+  const saveTemplate = () => {
+    localStorage.setItem('onboarding_subject', subject);
+    localStorage.setItem('onboarding_appUrl', appUrl);
+    localStorage.setItem('onboarding_msg', customMessage);
+    toast('Email template saved successfully!', 'success');
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -159,6 +174,11 @@ export function EmailManager() {
                 rows={4}
                 style={{ width: '100%', padding: '0.5rem', resize: 'vertical' }}
               />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <button onClick={saveTemplate} className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}>
+                  Save Changes
+                </button>
+              </div>
             </div>
             
             <div style={{ padding: '1rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.875rem' }}>
