@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
     if (testEmail) {
       await transporter.sendMail({
-        from: `"Roster System" <${process.env.SMTP_USER}>`,
+        from: `"AML Roster" <${process.env.SMTP_USER}>`,
         to: testEmail,
         subject: subject,
         html: getHtml('Admin', 'ADMIN')
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       }
       try {
         await transporter.sendMail({
-          from: `"Roster System" <${process.env.SMTP_USER}>`,
+          from: `"AML Roster" <${process.env.SMTP_USER}>`,
           to: u.email,
           subject: subject,
           html: getHtml(u.fullName || u.abbreviation || 'Staff', u.abbreviation || 'User')
