@@ -14,7 +14,7 @@ export function EmailManager() {
   // Email form state
   const [subject, setSubject] = useState('Welcome to the AsiaMedic Roster & Leave Management System');
   const [appUrl, setAppUrl] = useState('https://roster.asiamedic.com.sg/');
-  const [customMessage, setCustomMessage] = useState('You are invited to access the new AsiaMedic Roster, Leave, and Time Off Management portal.\n\nEffective September 1st, this system will be the official platform for all staff to check and update their rosters, apply for leave, and manage time off.');
+  const [customMessage, setCustomMessage] = useState('You are invited to access the new AsiaMedic Roster, Leave, and Time Off Management portal.\n\nEffective September 1st, this system will be the official platform for all staff to check and update their rosters, and manage time off.\n\n*Please note: The official leave applying system will still be the TimesPro HR system.*');
   const [testEmail, setTestEmail] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -22,18 +22,18 @@ export function EmailManager() {
     fetchUsers();
     
     // Load saved template from localStorage if exists
-    const savedSubject = localStorage.getItem('onboarding_subject_v3');
-    const savedUrl = localStorage.getItem('onboarding_appUrl_v3');
-    const savedMsg = localStorage.getItem('onboarding_msg_v3');
+    const savedSubject = localStorage.getItem('onboarding_subject_v4');
+    const savedUrl = localStorage.getItem('onboarding_appUrl_v4');
+    const savedMsg = localStorage.getItem('onboarding_msg_v4');
     if (savedSubject) setSubject(savedSubject);
     if (savedUrl) setAppUrl(savedUrl);
     if (savedMsg) setCustomMessage(savedMsg);
   }, []);
 
   const saveTemplate = () => {
-    localStorage.setItem('onboarding_subject_v3', subject);
-    localStorage.setItem('onboarding_appUrl_v3', appUrl);
-    localStorage.setItem('onboarding_msg_v3', customMessage);
+    localStorage.setItem('onboarding_subject_v4', subject);
+    localStorage.setItem('onboarding_appUrl_v4', appUrl);
+    localStorage.setItem('onboarding_msg_v4', customMessage);
     toast('Email template saved successfully!', 'success');
   };
 
@@ -193,8 +193,9 @@ export function EmailManager() {
                   <p style={{ fontSize: '13px', color: '#4b5563', whiteSpace: 'pre-line' }}>{customMessage}</p>
 
                   <div style={{ textAlign: 'center', margin: '25px 0' }}>
+                    <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#374151', fontWeight: 600 }}>Click the button below to log in:</p>
                     <a href={appUrl} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', color: '#5e5e5e', textDecoration: 'none', fontWeight: 600, fontSize: '14px', padding: '8px 16px', border: '1px solid #8c8c8c', borderRadius: '4px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Microsoft_logo_%282012%29.svg/100px-Microsoft_logo_%282012%29.svg.png" alt="Microsoft" style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                      <img src="https://img.icons8.com/color/48/microsoft.png" alt="Microsoft" style={{ width: '16px', height: '16px', marginRight: '8px', border: 'none', outline: 'none' }} />
                       <span>Sign in with Microsoft</span>
                     </a>
                   </div>

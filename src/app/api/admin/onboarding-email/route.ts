@@ -39,8 +39,9 @@ export async function POST(request: Request) {
           <p style="font-size: 15px; color: #4b5563;">${customMessage.replace(/\n/g, '<br/>')}</p>
 
           <div style="text-align: center; margin: 35px 0;">
+            <p style="margin: 0 0 12px 0; font-size: 15px; color: #374151; font-weight: 600;">Click the button below to log in:</p>
             <a href="${appUrl}" style="display: inline-block; background-color: #ffffff; color: #5e5e5e; text-decoration: none; font-weight: 600; font-size: 16px; padding: 12px 24px; border: 1px solid #8c8c8c; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Microsoft_logo_%282012%29.svg/100px-Microsoft_logo_%282012%29.svg.png" alt="Microsoft" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 10px;" />
+              <img src="https://img.icons8.com/color/48/microsoft.png" alt="Microsoft" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 10px; border: none; outline: none; text-decoration: none;" />
               <span style="vertical-align: middle;">Sign in with Microsoft</span>
             </a>
           </div>
