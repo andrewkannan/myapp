@@ -218,7 +218,7 @@ export function EmailManager() {
 
                   <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '20px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
                     Best regards,<br/>
-                    <strong>Administration Team</strong><br/>
+                    <strong>IT Team</strong><br/>
                     AsiaMedic Limited
                   </p>
                 </div>

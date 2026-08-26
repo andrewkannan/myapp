@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
           <p style="font-size: 14px; color: #6b7280; margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
             Best regards,<br/>
-            <strong>Administration Team</strong><br/>
+            <strong>IT Team</strong><br/>
             AsiaMedic Limited
           </p>
         </div>
