@@ -40,10 +40,11 @@ export function EmailManager() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/users');
+      const res = await fetch('/api/users');
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        // Filter out users without emails
+        setUsers(data.filter((u: any) => !!u.email));
       }
     } catch (err) {
       console.error(err);

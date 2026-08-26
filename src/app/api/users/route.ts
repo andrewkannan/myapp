@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-
+import { sendOnboardingEmail } from '@/lib/email';
 
 export async function GET() {
   try {
@@ -37,6 +37,12 @@ export async function POST(request: Request) {
     await prisma.auditLog.create({
       data: { userId: session.id, action: 'CREATE_USER', details: `Created user ${newUser.abbreviation}` }
     });
+
+    if (newUser.email) {
+      sendOnboardingEmail(newUser.email, newUser.fullName || newUser.abbreviation || 'Staff').catch(err => {
+        console.error('Failed to auto-send onboarding email to new user:', err);
+      });
+    }
 
     const { password: _, ...newUserWithoutPassword } = newUser as any;
     return NextResponse.json(newUserWithoutPassword);
