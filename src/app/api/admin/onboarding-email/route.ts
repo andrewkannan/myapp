@@ -30,15 +30,34 @@ export async function POST(request: Request) {
     });
 
     const getHtml = (name: string) => `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
-        <h2 style="color: #0369a1;">Welcome to the Roster & Leave Management System</h2>
-        <p>Hi ${name},</p>
-        <p>${customMessage.replace(/\n/g, '<br/>')}</p>
-        <div style="background-color: #f0f9ff; padding: 15px; border-left: 4px solid #0369a1; margin: 20px 0;">
-          <p style="margin: 0 0 10px 0;"><strong>Access the portal here:</strong> <a href="${appUrl}" style="color: #0369a1;">${appUrl}</a></p>
-          <p style="margin: 0;">Please log in using the <strong>Sign in with Microsoft</strong> button with your standard company email and password.</p>
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #0369a1; padding: 20px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0; font-size: 22px;">Welcome to AsiaMedic Roster System</h2>
         </div>
-        <p>Best regards,<br/>Administration Team</p>
+        <div style="padding: 30px;">
+          <p style="font-size: 16px;">Dear ${name},</p>
+          <p style="font-size: 15px; color: #4b5563;">${customMessage.replace(/\n/g, '<br/>')}</p>
+
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${appUrl}" style="display: inline-block; background-color: #ffffff; color: #5e5e5e; text-decoration: none; font-weight: 600; font-size: 16px; padding: 12px 24px; border: 1px solid #8c8c8c; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Microsoft_logo_%282012%29.svg/100px-Microsoft_logo_%282012%29.svg.png" alt="Microsoft" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 10px;" />
+              <span style="vertical-align: middle;">Sign in with Microsoft</span>
+            </a>
+          </div>
+
+          <div style="background-color: #f9fafb; padding: 15px; border-left: 4px solid #0369a1; margin: 20px 0; border-radius: 0 4px 4px 0;">
+            <p style="margin: 0; font-size: 14px; color: #374151;">
+              <strong>Login Instructions:</strong><br/>
+              Please click the button above and log in using your company email and password.
+            </p>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280; margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
+            Best regards,<br/>
+            <strong>Administration Team</strong><br/>
+            AsiaMedic Limited
+          </p>
+        </div>
       </div>
     `;
 

@@ -12,9 +12,9 @@ export function EmailManager() {
   const [loading, setLoading] = useState(true);
 
   // Email form state
-  const [subject, setSubject] = useState('Welcome to the Roster, Leave & Time Off Management System');
+  const [subject, setSubject] = useState('Welcome to the AsiaMedic Roster & Leave Management System');
   const [appUrl, setAppUrl] = useState('https://roster.asiamedic.com.sg/');
-  const [customMessage, setCustomMessage] = useState('You have been invited to use the new Roster, Leave & Time Off Management app. You can use it to view your shifts, apply for leave, claim time off, and manage your schedule.');
+  const [customMessage, setCustomMessage] = useState('You are invited to access the new AsiaMedic Roster, Leave, and Time Off Management portal.\n\nEffective September 1st, this system will be the official platform for all staff to check and update their rosters, apply for leave, and manage time off.');
   const [testEmail, setTestEmail] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -22,18 +22,18 @@ export function EmailManager() {
     fetchUsers();
     
     // Load saved template from localStorage if exists
-    const savedSubject = localStorage.getItem('onboarding_subject_v2');
-    const savedUrl = localStorage.getItem('onboarding_appUrl_v2');
-    const savedMsg = localStorage.getItem('onboarding_msg_v2');
+    const savedSubject = localStorage.getItem('onboarding_subject_v3');
+    const savedUrl = localStorage.getItem('onboarding_appUrl_v3');
+    const savedMsg = localStorage.getItem('onboarding_msg_v3');
     if (savedSubject) setSubject(savedSubject);
     if (savedUrl) setAppUrl(savedUrl);
     if (savedMsg) setCustomMessage(savedMsg);
   }, []);
 
   const saveTemplate = () => {
-    localStorage.setItem('onboarding_subject_v2', subject);
-    localStorage.setItem('onboarding_appUrl_v2', appUrl);
-    localStorage.setItem('onboarding_msg_v2', customMessage);
+    localStorage.setItem('onboarding_subject_v3', subject);
+    localStorage.setItem('onboarding_appUrl_v3', appUrl);
+    localStorage.setItem('onboarding_msg_v3', customMessage);
     toast('Email template saved successfully!', 'success');
   };
 
@@ -183,13 +183,37 @@ export function EmailManager() {
             
             <div style={{ padding: '1rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.875rem' }}>
               <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Preview of generated email:</p>
-              <div style={{ color: 'var(--text-muted)' }}>
-                <p>Hi [Staff Name],</p>
-                <p>{customMessage}</p>
-                <p><strong>URL:</strong> <a href={appUrl}>{appUrl}</a></p>
-                <p>Please log in using the <strong>Sign in with Microsoft</strong> button with your standard company email and password.</p>
-                <p>Best regards,<br/>Administration Team</p>
+              
+              <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'white' }}>
+                <div style={{ backgroundColor: '#0369a1', padding: '15px', textAlign: 'center' }}>
+                  <h2 style={{ color: '#ffffff', margin: 0, fontSize: '16px' }}>Welcome to AsiaMedic Roster System</h2>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  <p style={{ fontSize: '14px', color: '#333' }}>Dear [Staff Name],</p>
+                  <p style={{ fontSize: '13px', color: '#4b5563', whiteSpace: 'pre-line' }}>{customMessage}</p>
+
+                  <div style={{ textAlign: 'center', margin: '25px 0' }}>
+                    <a href={appUrl} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', color: '#5e5e5e', textDecoration: 'none', fontWeight: 600, fontSize: '14px', padding: '8px 16px', border: '1px solid #8c8c8c', borderRadius: '4px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Microsoft_logo_%282012%29.svg/100px-Microsoft_logo_%282012%29.svg.png" alt="Microsoft" style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                      <span>Sign in with Microsoft</span>
+                    </a>
+                  </div>
+
+                  <div style={{ backgroundColor: '#f9fafb', padding: '12px', borderLeft: '4px solid #0369a1', margin: '15px 0', borderRadius: '0 4px 4px 0' }}>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#374151' }}>
+                      <strong>Login Instructions:</strong><br/>
+                      Please click the button above and log in using your company email and password.
+                    </p>
+                  </div>
+
+                  <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '20px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
+                    Best regards,<br/>
+                    <strong>Administration Team</strong><br/>
+                    AsiaMedic Limited
+                  </p>
+                </div>
               </div>
+
             </div>
           </div>
 
