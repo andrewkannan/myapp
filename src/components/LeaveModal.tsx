@@ -13,6 +13,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
 
   // Time-off fields
   const [reason, setReason] = useState('');
+  const [isOtherReason, setIsOtherReason] = useState(false);
   const [studyAccNo, setStudyAccNo] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -25,7 +26,9 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
     if (leave) {
       if (leave.type === 'TO') {
         setMode('timeoff');
-        setReason(leave.remarks || '');
+        const r = leave.remarks || '';
+        setReason(r);
+        setIsOtherReason(!['TO', 'Sat Off', 'PM Off', 'PH Off in Lieu'].includes(r));
         setTargetUserId(leave.userId);
         setStatus(leave.status || 'PENDING');
         if (leave.startTime) setStartTime(leave.startTime);
@@ -271,15 +274,40 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
               </label>
             </div>
 
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={labelStyle}>Reason *</label>
-                <input list="timeoff-reasons" type="text" required value={reason} onChange={e => setReason(e.target.value)} placeholder="e.g. Worked overtime on Saturday" style={inputStyle} />
-                <datalist id="timeoff-reasons">
-                  <option value="TO" />
-                  <option value="Sat Off" />
-                  <option value="PM Off" />
-                  <option value="PH Off in Lieu" />
-                </datalist>
+                <select 
+                  value={isOtherReason ? 'Other' : reason} 
+                  onChange={e => {
+                    if (e.target.value === 'Other') {
+                      setIsOtherReason(true);
+                      setReason('');
+                    } else {
+                      setIsOtherReason(false);
+                      setReason(e.target.value);
+                    }
+                  }} 
+                  style={inputStyle}
+                  required
+                >
+                  <option value="" disabled>Select a reason...</option>
+                  <option value="TO">TO</option>
+                  <option value="Sat Off">Sat Off</option>
+                  <option value="PM Off">PM Off</option>
+                  <option value="PH Off in Lieu">PH Off in Lieu</option>
+                  <option value="Other">Other (Please specify)</option>
+                </select>
+
+                {isOtherReason && (
+                  <input 
+                    type="text" 
+                    required 
+                    value={reason} 
+                    onChange={e => setReason(e.target.value)} 
+                    placeholder="e.g. Worked overtime on Saturday" 
+                    style={inputStyle} 
+                  />
+                )}
               </div>
 
             <div>
