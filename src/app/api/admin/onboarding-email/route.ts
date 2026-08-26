@@ -52,6 +52,15 @@ export async function POST(request: Request) {
             </p>
           </div>
 
+          <div style="background-color: #f3f4f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0 0 8px 0; font-size: 14px; color: #111827;"><strong>📱 Quick Access on Mobile</strong></p>
+            <p style="margin: 0 0 8px 0; font-size: 13px; color: #4b5563;">You can save this portal as an app on your phone's home screen:</p>
+            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #4b5563; line-height: 1.5;">
+              <li style="margin-bottom: 4px;"><strong>iPhone (Safari):</strong> Open the link, tap the <strong>Share</strong> icon (square with an arrow), and select <em>Add to Home Screen</em>.</li>
+              <li><strong>Android (Chrome):</strong> Open the link, tap the <strong>Menu</strong> (three dots) at the top right, and select <em>Add to Home screen</em>.</li>
+            </ul>
+          </div>
+
           <p style="font-size: 14px; color: #6b7280; margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
             Best regards,<br/>
             <strong>Administration Team</strong><br/>

@@ -206,6 +206,15 @@ export function EmailManager() {
                     </p>
                   </div>
 
+                  <div style={{ backgroundColor: '#f3f4f6', padding: '12px', margin: '15px 0', borderRadius: '4px' }}>
+                    <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#111827' }}><strong>📱 Quick Access on Mobile</strong></p>
+                    <p style={{ margin: '0 0 6px 0', fontSize: '11px', color: '#4b5563' }}>You can save this portal as an app on your phone's home screen:</p>
+                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '11px', color: '#4b5563', lineHeight: 1.5 }}>
+                      <li style={{ marginBottom: '4px' }}><strong>iPhone (Safari):</strong> Open the link, tap the <strong>Share</strong> icon, and select <em>Add to Home Screen</em>.</li>
+                      <li><strong>Android (Chrome):</strong> Open the link, tap the <strong>Menu</strong> (three dots), and select <em>Add to Home screen</em>.</li>
+                    </ul>
+                  </div>
+
                   <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '20px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
                     Best regards,<br/>
                     <strong>Administration Team</strong><br/>
