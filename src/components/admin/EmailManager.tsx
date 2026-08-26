@@ -1,0 +1,275 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Mail, Send, CheckSquare, Square, Search } from 'lucide-react';
+import { useToast } from '@/components/ToastProvider';
+
+export function EmailManager() {
+  const { toast } = useToast();
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  // Email form state
+  const [subject, setSubject] = useState('Welcome to the Roster & Leave Management System');
+  const [appUrl, setAppUrl] = useState('http://10.251.237.21');
+  const [customMessage, setCustomMessage] = useState('You have been invited to use the new Roster & Leave Management app. You can use it to view your shifts, apply for leave, and manage your schedule.');
+  const [testEmail, setTestEmail] = useState('');
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/users');
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data);
+      }
+    } catch (err) {
+      console.error(err);
+      toast('Failed to load staff list', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredUsers = users.filter(u => 
+    (u.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (u.abbreviation || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(u => u.id));
+    }
+  };
+
+  const handleToggleUser = (id: string) => {
+    if (selectedUsers.includes(id)) {
+      setSelectedUsers(selectedUsers.filter(uid => uid !== id));
+    } else {
+      setSelectedUsers([...selectedUsers, id]);
+    }
+  };
+
+  const handleSendTest = async () => {
+    if (!testEmail) {
+      toast('Please enter a test email address', 'error');
+      return;
+    }
+    await sendEmails({ testEmail });
+  };
+
+  const handleSendToSelected = async () => {
+    if (selectedUsers.length === 0) {
+      toast('Please select at least one staff member', 'error');
+      return;
+    }
+    await sendEmails({ userIds: selectedUsers });
+  };
+
+  const sendEmails = async (payload: { testEmail?: string, userIds?: string[] }) => {
+    setSending(true);
+    try {
+      const res = await fetch('/api/admin/onboarding-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...payload,
+          subject,
+          appUrl,
+          customMessage
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send emails');
+      
+      toast(payload.testEmail ? 'Test email sent successfully!' : `Emails sent to ${payload.userIds?.length} staff successfully!`, 'success');
+      
+      if (!payload.testEmail) {
+        setSelectedUsers([]);
+      }
+    } catch (err: any) {
+      toast(err.message, 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Mail size={24} className="text-primary" />
+            Onboarding Emails
+          </h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+            Send welcome emails and login instructions to staff via Outlook 365.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '1.5rem', flex: 1, minHeight: 0 }}>
+        
+        {/* Left Column: Email Configuration */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto', paddingRight: '0.5rem' }}>
+          
+          <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>Email Template</h3>
+            
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Subject Line</label>
+              <input 
+                type="text" 
+                value={subject} 
+                onChange={e => setSubject(e.target.value)} 
+                className="input-field" 
+                style={{ width: '100%', padding: '0.5rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>App URL Link</label>
+              <input 
+                type="text" 
+                value={appUrl} 
+                onChange={e => setAppUrl(e.target.value)} 
+                className="input-field" 
+                style={{ width: '100%', padding: '0.5rem' }}
+              />
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>The link staff will click to access the portal.</p>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Custom Message</label>
+              <textarea 
+                value={customMessage} 
+                onChange={e => setCustomMessage(e.target.value)} 
+                className="input-field" 
+                rows={4}
+                style={{ width: '100%', padding: '0.5rem', resize: 'vertical' }}
+              />
+            </div>
+            
+            <div style={{ padding: '1rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.875rem' }}>
+              <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Preview of generated email:</p>
+              <div style={{ color: 'var(--text-muted)' }}>
+                <p>Hi [Staff Name],</p>
+                <p>{customMessage}</p>
+                <p><strong>URL:</strong> <a href={appUrl}>{appUrl}</a></p>
+                <p><strong>Your Abbreviation (Username):</strong> [Abbreviation]</p>
+                <p><strong>Your Temporary Password:</strong> [Randomly Generated or Configured]</p>
+                <p>Please log in and change your password immediately.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>1. Send Test Email</h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Send a sample email to yourself first to verify SMTP settings.</p>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input 
+                type="email" 
+                placeholder="e.g. admin@yourdomain.com" 
+                value={testEmail}
+                onChange={e => setTestEmail(e.target.value)}
+                className="input-field"
+                style={{ flex: 1, padding: '0.5rem' }}
+              />
+              <button 
+                onClick={handleSendTest} 
+                disabled={sending || !testEmail} 
+                className="btn btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <Send size={16} /> {sending ? 'Sending...' : 'Send Test'}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Column: Staff Selection */}
+        <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>2. Select Staff Recipients</h3>
+            <div style={{ position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search staff..." 
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="input-field"
+                style={{ width: '100%', padding: '0.5rem 0.5rem 0.5rem 2.25rem' }}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button onClick={handleSelectAll} className="btn-ghost" style={{ fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                {selectedUsers.length === filteredUsers.length && filteredUsers.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
+                Select All
+              </button>
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 600 }}>{selectedUsers.length} selected</span>
+            </div>
+          </div>
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0.5rem' }}>
+            {loading ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
+            ) : filteredUsers.length === 0 ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No staff found.</div>
+            ) : (
+              filteredUsers.map(u => (
+                <div 
+                  key={u.id} 
+                  onClick={() => handleToggleUser(u.id)}
+                  style={{ 
+                    display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', 
+                    borderRadius: '6px', cursor: 'pointer',
+                    backgroundColor: selectedUsers.includes(u.id) ? 'var(--primary-light)' : 'transparent',
+                  }}
+                >
+                  {selectedUsers.includes(u.id) ? (
+                    <CheckSquare size={18} className="text-primary" />
+                  ) : (
+                    <Square size={18} style={{ color: 'var(--text-muted)' }} />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {u.fullName} <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>({u.abbreviation})</span>
+                    </div>
+                    {u.email && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>}
+                    {!u.email && <div style={{ fontSize: '0.75rem', color: '#ea580c' }}>No email address</div>}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          
+          <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', backgroundColor: 'var(--background)' }}>
+            <button 
+              onClick={handleSendToSelected} 
+              disabled={sending || selectedUsers.length === 0} 
+              className="btn btn-primary"
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.75rem' }}
+            >
+              <Send size={18} /> {sending ? 'Sending Emails...' : `Send to ${selectedUsers.length} Staff`}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

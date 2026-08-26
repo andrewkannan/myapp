@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, ArrowLeft, Users, MapPin, Activity, List, Upload, BarChart3 } from 'lucide-react';
+import { LogOut, ArrowLeft, Users, MapPin, Activity, List, Upload, BarChart3, Mail } from 'lucide-react';
 
 import { StaffManager } from '@/components/admin/StaffManager';
 import { FacilityManager } from '@/components/admin/FacilityManager';
@@ -11,10 +11,11 @@ import { SystemListManager } from '@/components/admin/SystemListManager';
 import { MasterLeaveViewer } from '@/components/admin/MasterLeaveViewer';
 import { TimeOffManager } from '@/components/admin/TimeOffManager';
 import { BulkUploader } from '@/components/admin/BulkUploader';
+import { EmailManager } from '@/components/admin/EmailManager';
 import AnalyticsViewer from '@/components/admin/AnalyticsViewer';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff' | 'upload'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'staff' | 'facilities' | 'lists' | 'logs' | 'leaves' | 'timeoff' | 'upload' | 'emails'>('analytics');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
@@ -184,6 +185,15 @@ export default function AdminDashboard() {
                 isMobile={isMobile}
               />
             )}
+            {currentUser.permissions?.includes('STAFF_MANAGE') && (
+              <TabButton 
+                active={activeTab === 'emails'} 
+                onClick={() => setActiveTab('emails')}
+                icon={<Mail size={18} />}
+                label="Onboarding Emails"
+                isMobile={isMobile}
+              />
+            )}
           </nav>
         </aside>
 
@@ -206,6 +216,9 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: activeTab === 'upload' ? 'block' : 'none', height: '100%' }}>
             <BulkUploader />
+          </div>
+          <div style={{ display: activeTab === 'emails' ? 'block' : 'none', height: '100%' }}>
+            <EmailManager />
           </div>
           <div style={{ display: activeTab === 'lists' ? 'block' : 'none', height: '100%' }}>
             <SystemListManager />
