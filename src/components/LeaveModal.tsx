@@ -104,25 +104,28 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
       setError('Please select a staff member.');
       return;
     }
-    if (!reason || !hours) {
-      setError('Reason and Hours are required.');
+    
+    const needsHours = reason === 'TO' || isOtherReason;
+    if (!reason || (needsHours && !hours)) {
+      setError('Reason and Hours are required for this type of time off.');
       return;
     }
+    
     setLoading(true);
     setError('');
 
     try {
       const dateStr = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-      let submittedHours = parseFloat(hours);
+      let submittedHours = needsHours ? parseFloat(hours) : 0;
       if (isClaim) submittedHours = -Math.abs(submittedHours);
       else submittedHours = Math.abs(submittedHours);
 
       const payload: any = {
         date: dateStr,
         reason,
-        studyAccNo,
-        startTime,
-        endTime,
+        studyAccNo: needsHours ? studyAccNo : null,
+        startTime: needsHours ? startTime : null,
+        endTime: needsHours ? endTime : null,
         hours: submittedHours,
         ...(targetUserId ? { targetUserId } : {})
       };
@@ -266,7 +269,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '999px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, border: '1px solid', borderColor: !isClaim ? '#16a34a' : 'var(--border)', backgroundColor: !isClaim ? '#dcfce7' : 'transparent', color: !isClaim ? '#166534' : 'var(--text-muted)' }}>
                 <input type="radio" name="toType" checked={!isClaim} onChange={() => setIsClaim(false)} style={{ display: 'none' }} />
-                + Apply
+                + Add
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '999px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, border: '1px solid', borderColor: isClaim ? '#dc2626' : 'var(--border)', backgroundColor: isClaim ? '#fef2f2' : 'transparent', color: isClaim ? '#991b1b' : 'var(--text-muted)' }}>
                 <input type="radio" name="toType" checked={isClaim} onChange={() => setIsClaim(true)} style={{ display: 'none' }} />
@@ -274,62 +277,66 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
               </label>
             </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={labelStyle}>Reason *</label>
-                <select 
-                  value={isOtherReason ? 'Other' : reason} 
-                  onChange={e => {
-                    if (e.target.value === 'Other') {
-                      setIsOtherReason(true);
-                      setReason('');
-                    } else {
-                      setIsOtherReason(false);
-                      setReason(e.target.value);
-                    }
-                  }} 
-                  style={inputStyle}
-                  required
-                >
-                  <option value="" disabled>Select a reason...</option>
-                  <option value="TO">TO</option>
-                  <option value="Sat Off">Sat Off</option>
-                  <option value="PM Off">PM Off</option>
-                  <option value="PH Off in Lieu">PH Off in Lieu</option>
-                  <option value="Other">Other (Please specify)</option>
-                </select>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={labelStyle}>Reason *</label>
+              <select 
+                value={isOtherReason ? 'Other' : reason} 
+                onChange={e => {
+                  if (e.target.value === 'Other') {
+                    setIsOtherReason(true);
+                    setReason('');
+                  } else {
+                    setIsOtherReason(false);
+                    setReason(e.target.value);
+                  }
+                }} 
+                style={inputStyle}
+                required
+              >
+                <option value="" disabled>Select a reason...</option>
+                <option value="TO">TO</option>
+                <option value="Sat Off">Sat Off</option>
+                <option value="PM Off">PM Off</option>
+                <option value="PH Off in Lieu">PH Off in Lieu</option>
+                <option value="Other">Other (Please specify)</option>
+              </select>
 
-                {isOtherReason && (
-                  <input 
-                    type="text" 
-                    required 
-                    value={reason} 
-                    onChange={e => setReason(e.target.value)} 
-                    placeholder="e.g. Worked overtime on Saturday" 
-                    style={inputStyle} 
-                  />
-                )}
-              </div>
-
-            <div>
-              <label style={labelStyle}>Study/Acc No (Optional)</label>
-              <input type="text" value={studyAccNo} onChange={e => setStudyAccNo(e.target.value)} style={inputStyle} />
+              {isOtherReason && (
+                <input 
+                  type="text" 
+                  required 
+                  value={reason} 
+                  onChange={e => setReason(e.target.value)} 
+                  placeholder="e.g. Worked overtime on Saturday" 
+                  style={inputStyle} 
+                />
+              )}
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <div style={{ flex: 1 }}>
-                <label style={labelStyle}>Start Time</label>
-                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} style={inputStyle} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={labelStyle}>End Time</label>
-                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} style={inputStyle} />
-              </div>
-            </div>
+            {(reason === 'TO' || isOtherReason) && (
+              <>
+                <div>
+                  <label style={labelStyle}>Study/Acc No (Optional)</label>
+                  <input type="text" value={studyAccNo} onChange={e => setStudyAccNo(e.target.value)} style={inputStyle} />
+                </div>
 
-            <div>
-              <label style={labelStyle}>Hours *</label>
-              <input type="number" required step="0.25" min="0.25" value={hours} onChange={e => setHours(e.target.value)} style={inputStyle} />
-            </div>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>Start Time</label>
+                    <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>End Time</label>
+                    <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Hours *</label>
+                  <input type="number" required step="0.25" min="0.25" value={hours} onChange={e => setHours(e.target.value)} style={inputStyle} />
+                </div>
+              </>
+            )}
 
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button type="button" onClick={onClose} className="btn btn-ghost" style={{ flex: 1 }}>Cancel</button>
