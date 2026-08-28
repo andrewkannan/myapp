@@ -355,17 +355,21 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 cursor: canEdit ? 'pointer' : 'default',
                               }}
                             >
-                              {leaveUser?.abbreviation || 'Unk'}
-                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)', marginLeft: '3px' }}>
-                                {leave.type === 'TO' && ['Sat Off', 'PM Off', 'PH Off in Lieu'].includes(leave.remarks) ? leave.remarks : leave.type}
+                              {leaveUser?.abbreviation || 'Unk'}-
+                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)' }}>
+                                {leave.type === 'TO' ? (
+                                  leave.remarks === 'Sat Off' ? 'Sat off' :
+                                  leave.remarks === 'PM Off' ? 'pm OFF' :
+                                  leave.remarks === 'PH Off in Lieu' ? 'PH OIL' :
+                                  'TO'
+                                ) : leave.type}
                               </span>
-                              {leave.type === 'TO' && (
+                              {leave.type === 'TO' && (!leave.remarks || leave.remarks === 'TO' || !['Sat Off', 'PM Off', 'PH Off in Lieu'].includes(leave.remarks)) && (
                                 <span style={{ color: '#92400e', marginLeft: '2px', fontSize: '0.5rem' }}>
-                                  {leave.hours ? `${leave.hours}h` : (period && period !== 'FULL' ? period.split('-')[0] : '')}
+                                  {leave.hours ? `${leave.hours}hrs` : (period && period !== 'FULL' ? period.split('-')[0] : '')}
                                 </span>
                               )}
                               {leave.type !== 'TO' && period !== 'FULL' && <span style={{ color: period === 'AM' ? '#0369a1' : '#c2410c', marginLeft: '2px', fontSize: '0.5rem' }}>{period.toLowerCase()}</span>}
-                              {leave.type !== 'TO' && leave.remarks && <span style={{ color: 'var(--text-muted)', fontSize: '0.5rem', marginLeft: '3px' }}>{leave.remarks}</span>}
                             </span>
                           );
                         })}
