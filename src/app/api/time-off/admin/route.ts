@@ -59,7 +59,7 @@ export async function PATCH(request: Request) {
       });
 
       // If approved and it's a claim (negative hours), add to Leaves for the roster
-      if (status === 'APPROVED' && record.hours < 0) {
+      if (status === 'APPROVED' && record.hours <= 0) {
         // Check if a leave already exists for this exact date to prevent duplicates
         const existing = await tx.leave.findFirst({
           where: {

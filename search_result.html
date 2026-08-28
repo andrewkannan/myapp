@@ -1,0 +1,1329 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studies - Asiamedic</title>
+    <link href="/Content/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+    <link href="/Content/bootstrap.min.css?v=1" rel="stylesheet" type="text/css" />
+    <link href="/Content/bootstrap-theme.min.css?v=1" rel="stylesheet" type="text/css" />
+    <link href="/Content/bootstrap-tour.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/plugins/sweetalert/sweetalert.css" type="text/css" rel="stylesheet">
+    <link href="/Content/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/custom.css?v=3" rel="stylesheet" type="text/css" />
+    <link href="/Content/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/multiselect/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/select2/select2.css?v=4.0.13" rel="stylesheet" type="text/css" />
+    <link href="/Content/select2/select2-bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/css/customMobile.css?v=1" rel="stylesheet" type="text/css" />
+    
+    <script src="/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="/Scripts/IdleTimeout.js"></script>
+    <script src="/Scripts/bootstrap-tour.min.js"></script>
+    <script src="/Content/plugins/sweetalert/sweetalert.min.js" defer></script>
+    <base href="">
+    <script>
+		var baseUrl = '';
+    </script>
+</head>
+
+<body class="default-body">
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div>
+                <div class="navbar-header">
+                    <button id="toggle-sidebar" type="button" class="ui-menu">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <button id="toggle-drawer" type="button" class="ui-menu">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <a id="navbar-brand" class="navbar-brand" href="/">
+Asiamedic                    </a>
+                </div>
+                <div class="navbar-collapse collapse">
+                        <form role="button" class="navbar-form navbar-right hidden-sm" action="/sign-out" method="post">
+                            <input name="__RequestVerificationToken" type="hidden" value="atr6nzIn4rxPBbcr32-1BapZegHTb7CVp1w8h60Jzd6uoYOASqfh2x79BuWIte-5QYw-swRJPraMtdj0y59npobHVRS1zWNyWZu_q8OyA6w415Y9rDe_n4v-an66ZncdpvLTHVmODSAvzgZztv6GbjKLQX6flCPMQ6pFV4G8ms6JCdATb6CDMDTrzxA7WHIO62th2w8dkQdhSux4U7wdwLxuhPW4N7mOAjcDWFvDDas1" />
+                            <button id="navbar-sign-out" class="btn btn-link" type="submit" data-toggle="tooltip" data-placement="bottom" title="Sign Out"><i class="fa fa-sign-out"></i></button>
+                        </form>
+                    <ul class="nav navbar-nav navbar-right hidden-sm">
+                            <li class="zed-branding">
+                                <div class="nav-powered-by">
+                                    Powered by <a id="navbar-zed" href="http://www.zedtechnologies.com.au/" target="_blank"><img src="/Content/images/zed-logo-white.png" alt="Logo" style="max-width: 50px; margin-bottom: 5px;" /></a>
+                                </div>
+                            </li>
+                                                <li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="See all notifications">
+                            <a id="navbar-notifications" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bell"></i> <span id="notification-badge-count" class="badge hidden">0</span></a>
+                            <ul class="dropdown-menu notification-dropdown-menu">
+                                    <li>
+                                        <div>You have no unread notifications available.</div>
+                                    </li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/notifications">See all notifications <i class="fa fa-arrow-circle-o-right"></i></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="navbar-account" href="/account" data-toggle="tooltip" data-placement="bottom" title="Your Account"><i class="fa fa-user"></i></a>
+                        </li>
+                        <li>
+                            <a id="navbar-guides" href="/user-guides" data-toggle="tooltip" data-placement="bottom" title="User Guides"><i class="fa fa-info"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    <main>
+        <div class="wrapper">
+                <div class="custom-sidebar">
+                    <ul id="side-out-toggle" class="list-group first-menu">
+                        <li class="active" id="tour-studies">
+                            <a id="navbar-studies" href="/"><i class="fa fa-list" aria-hidden="true"></i><span class="align-middle">Studies</span></a>
+                        </li>
+                                                                                                                                                                                                <li class="divider-wrap hide-element"><div class="divider"></div></li>
+                        <li class="dropdown hide-element" data-placement="bottom" title="See all notifications">
+                            <a id="navbar-notifications" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bell"><span id="notification-badge-count" class="badge hidden">0</span><span class="align-middle hide-element">See all notifications</span></i></a>
+                            <ul class="dropdown-menu notification-dropdown-menu">
+                                    <li class="hide-element">
+                                        <div>You have no unread notifications available.</div>
+                                    </li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/notifications">See all notifications <i class="fa fa-arrow-circle-o-right"></i></a></li>
+                            </ul>
+                        </li>
+                        <li class="hide-element user-icon">
+                            <a id="navbar-account" href="/account" title="Your Account"><i class="fa fa-user"><span class="align-middle hide-element">Your Account</span></i></a>
+                        </li>
+                        <li class="hide-element">
+                            <a id="navbar-guides" href="/user-guides"><i class="fa fa-info"><span class="align-middle hide-element">User Guides</span></i></a>
+                        </li>
+                        <li class="sign-out-icon hide-element">
+                                <form role="button" action="/sign-out" method="post">
+                                    <input name="__RequestVerificationToken" type="hidden" value="sfaVXu2ctPJw4lTWZx013RDEFhQ_3BZEXe_AV__CXH8Rirxss-QuGLGKKeerzPi5tWEo27lJR7sXi7olocX_bEsjwN1X7P_I3kUn1wfinHXa-M5T11jN_HX8aV8yQZlV40blgzdmR5ffb-FSjOWJjsxFOGU200q57siTBZ6X2exEBRySViJK8gfRQm5rGhPtEpnJ3blubNNEjLyXL9itsaHMcZGT2TT4comUbTSDzrQ1" />
+                                    <button id="sidebar-sign-out" type="submit"><i class="fa fa-sign-out"><span class="align-middle hide-element">Sign Out</span></i></button>
+                                </form>
+                        </li>
+                    </ul>
+                </div>
+            <div class="container-fluid body-content">
+                
+
+
+
+<style>
+    .swal2-button {
+        background-color: #42a5f5;
+    }
+    .swal2-button--cancel {
+        color: white;
+        background-color: #b9b9b9;
+    }
+    .swal2-footer {
+        display: flex;
+        justify-content: center;
+    }
+    .swal2-modal {
+        width: 90vw;
+        max-width: 800px;
+        height: auto;
+        max-height: 90vh;
+        overflow-y: auto;
+        word-wrap: break-word;
+    }
+</style>
+
+<script src="/Content/plugins/sweetalert/sweetalert-2.1.2.min.js"></script>
+<script type="text/javascript">
+    $(async () => {
+        let alerts = [];
+
+        for (let alert of alerts) {
+            const swalPromise = swal2({
+                button: 'Close',
+                content: {
+                    element: 'div',
+                    attributes: {
+                        innerHTML: alert.Message,
+                        style: 'color: unset;'
+                    }
+                }
+            });
+            
+            $('.swal2-modal')[0].scrollTop = 0;
+            await swalPromise;
+        }
+    });
+</script>
+
+                <div id="timeoutText" class="alert alert-warning alert-warning-no-underline hidden" style="margin-top: 20px;">
+                    <i class="fa fa-exclamation-triangle fa-lg"></i>
+                    <span id="timeoutTextContent">
+
+                    </span>
+                    <br /><br />
+                    <a id="action-button-logoff" href="https://doctor.asiamedic.com.sg/sign-out" class="btn btn-danger btn-sm no-underline">Sign Out</a> <a href="#" class="btn btn-info btn-sm no-underline stay-logged-in">Stay Logged In</a>
+                </div>
+                
+                    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <div class="alert alert-danger">
+                Please note that the internet browser you are using may have compatibility issues. For additional information and a list of supported internet browsers, please click <a href="/help/supported-browsers" class="alert-link" target="_blank">here</a>.
+            </div>
+        </div>
+    </div>
+
+                <div class="row hidden-print">
+                    <div class="col-md-12">
+                        <h2 class="webpage-title">Studies</h2>
+                    </div>
+                </div>
+                <br />
+                
+
+<style>
+    .dropdown-menu > li > a.disabled {
+        color: lightgray;
+        cursor: not-allowed !important;
+    }
+
+    .add-email-prompt {
+        background-color: #215e9e1a;
+        width: 511px;
+        margin-bottom: 20px;
+        height: 82px;
+        border-radius: 6px;
+        padding: 16px 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: start;
+    }
+
+    .info-wrapper {
+        width: 6%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+    }
+
+    .info-circle {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #215E9E; 
+        color: white; 
+        font-size: 12px; 
+    }
+
+    .prompt-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
+    }
+
+        .prompt-content a {
+            margin-top: 9px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+        }
+
+            .prompt-content a:hover {
+                text-decoration: none;
+            }
+
+            .prompt-content a i {
+                margin-left: 5px;
+                margin-top: 2px;
+            }
+</style>
+<div class="add-email-prompt">
+    <div class="info-wrapper">
+        <i class="fa fa-info info-circle"></i>
+    </div>
+    <div class="prompt-content">
+        <span>Add your email to enable password reset and keep your account secure.</span>
+        <a href="/account/change-email">
+            Add Email <i class="fa fa-chevron-right"></i>
+        </a>
+    </div>
+</div>
+<div class="row" id="studies-search">
+    <div class="modal fade" id="saveFilterModal" tabindex="-1" role="dialog" aria-labelledby="saveFilterModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="saveFilterModalTitle">Save Filter</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="filter-name" class="col-form-label">Enter a filter name:</label>
+                            <input type="text" class="form-control" id="filter-name" onkeypress="return event.keyCode != 13;">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="btn-save-filter" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input id="exportIncludeOfflineStudy" name="exportIncludeOfflineStudy" type="hidden" value="False" />
+    <input id="moveIncludeOfflineStudy" name="moveIncludeOfflineStudy" type="hidden" value="False" />
+    <input id="selfServeIncludeOfflineStudy" name="selfServeIncludeOfflineStudy" type="hidden" value="False" />
+    <div class="col-md-12" id="tour-studies-search">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Quick Search
+                <div class="btn-group info-tips info-tips-search" id="tour-tips-search">
+                    <button class="btn btn-sm info-tips btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-info"></i></button>
+                    <ul class="dropdown-menu">
+                            <li>
+                                Wildcard searches <strong>are</strong> permitted.
+                            </li>
+                            <li>
+                                You can use the '<strong>*</strong>' character to denote wildcard.
+                            </li>
+                    </ul>
+                </div>
+            </div>
+            <form id="study-quick-search" class="form-inline" action="/" method="GET">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                                <div class="form-group form-group-sm">
+                                    <label class="block" for="name">Patient Name</label>
+                                    <input class="form-control" id="name" name="name" placeholder="Last, First" type="text" value="" />
+                                </div>
+                                                                                        <div class="form-group form-group-sm">
+                                    <label class="block" for="patientid">Patient ID</label>
+                                    <input class="form-control" id="patientid" name="patientid" placeholder="Patient ID" type="text" value="" />
+                                </div>
+
+
+                                <div class="form-group form-group-sm">
+                                    <label class="block" for="patientdob">Patient DOB</label>
+                                    <input autocomplete="off" class="form-control zl-date-picker" id="patientdob" name="patientdob" placeholder="Patient DOB" type="text" value="" />
+                                </div>
+
+                                <div class="form-group form-group-sm">
+                                    <label class="block" for="accession">Accession No.</label>
+                                    <input class="form-control" id="accession" name="accession" placeholder="Accession No." type="text" value="AM0042583" />
+                                </div>
+                                                            <div class="form-group form-group-sm">
+                                    <label class="block" for="description">Description</label>
+                                    <input class="form-control" id="description" name="description" placeholder="Description" type="text" value="" />
+                                </div>
+                                                            <div class="form-group form-group-sm">
+                                    <label class="block" for="refphys">Referring Physician</label>
+                                    <input class="form-control" id="refphys" name="refphys" placeholder="Referring Physician" type="text" value="" />
+                                </div>
+                                                            <div class="form-group form-group-sm">
+                                    <label class="block" for="studydatefrom">Study Date From</label>
+                                    <input autocomplete="off" class="form-control zl-date-picker" id="studydatefrom" name="studydatefrom" placeholder="Study Date From" type="text" value="" />
+                                </div>
+                                                            <div class="form-group form-group-sm">
+                                    <label class="block" for="studydateto">Study Date To</label>
+                                    <input class="form-control zl-date-picker" id="studydateto" name="studydateto" placeholder="Study Date To" type="text" value="" />
+                                </div>
+                                                            <div class="form-group form-group-sm">
+                                    <label class="block" for="modality">Modality</label>
+                                    <select autocomplete="off" class="form-control input-sm" id="study-search-modality-picker" multiple="multiple" name="modality" placeholder="Modality" style="width: 111px;height: 35px;"><option value="CR">CR - Computed Radiography</option>
+<option value="CT">CT - Computed Tomography</option>
+<option value="DX">DX - Digital Radiography</option>
+<option value="ES">ES - Endoscopy</option>
+<option value="KO">KO - Key Object Selection</option>
+<option value="MG">MG - Mammography</option>
+<option value="MR">MR - Magnetic Resonance</option>
+<option value="NM">NM - Nuclear Medicine</option>
+<option value="OT">OT - Other</option>
+<option value="PR">PR - Presentation State</option>
+<option value="PT">PT - Positron Emission Tomography (PET)</option>
+<option value="RF">RF - Radio Fluoroscopy</option>
+<option value="SC">SC - Secondary Capture</option>
+<option value="SR">SR - Structured Report</option>
+<option value="US">US - Ultrasound</option>
+<option value="XA">XA - X-Ray Angiography</option>
+</select>
+                                </div>
+                                                        <div class="form-group form-group-sm">
+                                <label class="block" for="offset">Page Size</label>
+                                <select class="form-control" id="offset" name="offset" placeholder="Items per page"><option value="10">10</option>
+<option value="25">25</option>
+<option selected="selected" value="50">50</option>
+<option value="100">100</option>
+</select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <a href="/" class="btn btn-outline btn-sm" title="Clear all search filters"><i class="fa fa-times"></i> Clear</a>
+                        <a href="#" class="btn btn-info btn-sm save-search-filter" data-toggle="modal" data-target="#saveFilterModal" title="Save the current search"><i class="fa fa-save"></i> Save</a>
+                    <button type="submit" class="btn btn-info btn-sm"><i class="fa fa-search"></i> Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="studies" class="panel panel-default">
+    <div class="panel-heading my-heading" id="tour-heading-studies">
+        <div id="action-buttons" class="row menu-buttons">
+            <div class="col-md-10">
+                                                                                                                                <div class="btn-group btn-group-sm">
+                    <button id="more-actions" type="button" class="btn btn-outline btn-sm dropdown-toggle disabled" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More Actions <span class="caret"></span></button>
+                    <ul class="dropdown-menu" id="more-actions-dropdown">
+                                                                                                                                                                                                                                                <li role="separator" class="divider"></li>
+                            <li>
+                                <a id="action-button-delete" title="Delete the selected study" target=&#39;_blank&#39;>Delete</a>
+                            </li>
+
+
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group btn-group-sm btn-reset-sorting">
+                <a href="#" class="btn btn-sm btn-default reset-study-sorting" data-table="studies"><i class="fa fa-refresh"></i> Reset Sorting</a>
+            </div>
+        </div>
+        <div class="btn-group info-tips info-tips-table">
+            <button class="btn btn-sm info-tips btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-info"></i></button>
+            <ul class="dropdown-menu">
+                <li>
+                    Double-click on a study to open the DICOM viewer.
+                </li>
+                <li>
+                    Selecting a study will enable additional actions.
+                </li>
+                                <li>
+                    <i class="fa fa-bookmark"></i> indicates that there are related studies for the patient.
+                </li>
+                <li>
+                    Clicking on a table column header will change the sorting direction.
+                    <ul>
+                        <li>
+                            First click to sort by ascending as indicated by '<i class="fa fa-chevron-up"></i>'.
+                        </li>
+                        <li>
+                            Second click to sort by descending as indicated by '<i class="fa fa-chevron-down"></i>'.
+                        </li>
+                        <li>
+                            Third click removes sorting on that column.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <a id="back-to-top"></a>
+    <div class="panel-body" id="no-more-tables">
+        <table class="table table-bordered table-striped table-hover table-condensed table-fixed">
+            <thead>
+                <tr class="study-header-sorter">
+                    <th class="width: 25px;">
+                        <input type="checkbox" class="toggle" />
+                    </th>
+                    <th class="width: 25px;"></th>
+                    <th data-table="studies" data-column-name="S.PatientsName" data-sort-direction="CREATE">Patient Name </th>
+                    <th data-table="studies" data-column-name="S.PatientId" data-sort-direction="CREATE">Patient ID </th>
+                    <th data-table="studies" data-column-name="S.PatientsBirthdate" data-sort-direction="CREATE">D.O.B. </th>
+                    <th data-table="studies" data-column-name="S.AccessionNumber" data-sort-direction="CREATE">Accession No. </th>
+                    <th data-table="studies" data-column-name="S.StudyDate" data-sort-direction="DESC">Study Date <i class="fa fa-chevron-down" title="Descending sort"></i></th>
+                    <th data-table="studies" data-column-name="S.StudyTime" data-sort-direction="DESC">Study Time <i class="fa fa-chevron-down" title="Descending sort"></i></th>
+                    <th data-table="studies" data-column-name="S.StudyDescription" data-sort-direction="CREATE">Description </th>
+                    <th data-table="studies" data-column-name="S.NumberOfStudyRelatedSeries" data-sort-direction="CREATE">Series </th>
+                    <th data-table="studies" data-column-name="S.NumberOfStudyRelatedInstances" data-sort-direction="CREATE">Images </th>
+                    <th data-table="studies" data-column-name="Modality" data-sort-direction="CREATE">Modality </th>
+                    <th data-table="studies" data-column-name="S.ReferringPhysiciansName" data-sort-direction="CREATE">Referring Physician </th>
+                    <th data-table="studies" data-column-name="S.StudyStatusEnum" data-sort-direction="CREATE"></th>
+
+                </tr>
+            </thead>
+            <tbody>
+                        <tr class="double-click single-click " data-study-id="ce2ff4d1-2d07-4a40-b5f8-216554ba3340" data-study-uid="1.3.6.1.4.1.54068.2.10.20260824082134870.30507137618804447126757" data-report-id="" data-study-short-id="0fQvzgctQEq1-CFlVLozQA" data-has-attachments="False" data-action="view" data-study="{&quot;PatientsName&quot;:&quot;TEST TEST TEST&quot;,&quot;PatientId&quot;:&quot;X1235467DAFDF&quot;,&quot;PatientDob&quot;:&quot;01/01/2000&quot;}" title="This study is available for viewing. Double-click to open the HTML5 DICOM viewer">
+                            <td>
+                                <input type="checkbox" data-study-id="ce2ff4d1-2d07-4a40-b5f8-216554ba3340" data-study-select />
+                            </td>
+                            <td>
+                                                                                                    <i class="fa fa-bookmark" data-placement="right" title="There are 3 related studies"></i>
+                                                                                            </td>
+                            <td data-title="Patient Name">
+                                TEST TEST TEST
+                            </td>
+
+                            <td data-title="Patient ID">X1235467DAFDF</td>
+                            <td data-title="D.O.B.">
+01/01/2000                            </td>
+
+
+                            <td data-title="Accession No.">AM0042583</td>
+                            <td data-title="Study Date">
+                                24/08/2026
+                            </td>
+                            <td data-title="Study Time">
+                                16:30
+                            </td>
+                            <td data-title="Description">US NECK</td>
+                            <td data-title="Series">1</td>
+                            <td data-title="Images">2</td>
+                            <td data-title="Modality">
+                                US
+                            </td>
+                            <td data-title="Referring Physician">
+
+                                DR TESTTESTTEST
+                            </td>
+                            <td class="text-center">
+                                        <i class="fa fa-circle online"></i>
+
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="pagination-container"><ul class="pagination"><li class="active"><a>1</a></li></ul></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="safari-ir-notice" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Safari Warning</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    If InteleViewer does not load then please <strong><a href="/inteleviewer/install-osx" target="_blank">click here</a></strong>.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-sm btn-primary close-no-show">Close and don&#39;t show me again</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <form method="post" action="/export/batch/list"
+          data-export-action="/export/batch/list"
+          data-move-action="/study-move/batch/list"
+          data-pull-action="/pull-offline/list"
+          data-self-serve-action="/self-serve/batch/list"
+          target="_blank" id="batchStudyExportForm">
+        <input name="__RequestVerificationToken" type="hidden" value="AWIHMRssZGg0ebgyPINfn1R1Y_TOxxOS5JXuHmIsub34bZx-dbdUfj5V4WEZll4lsbsi6EhjUYol48mBm5DtppmwAAVuvv_oHcqduiEe0lzTStUJjQ9WjtY15sCLmYwcQgv8tnjqTnjov_v4-TbVyU4NAqNs-AR9OR34rV6QR3gqVp1GdE9qNgvtTCEtEz32UEjMCLmXzawu11Hk9367S_yPP1Q6vn5O-MtkTTjloNk1" />
+        <input id="studyGuids" name="studyGuids" type="hidden" value="" />
+    </form>
+</div>
+
+
+                <hr class="hidden-print" />
+                <footer class="hidden-print">
+                    <p>
+                        &copy; 2015 - 2026 - Zed Technologies Pty. Ltd.
+                            <span class="pull-right">
+                                Powered by <a id="footer-zed" href="http://www.zedtechnologies.com.au/" target="_blank"><img src="/Content/images/zed-logo.png" alt="Logo" style="max-width: 50px; margin-bottom: 5px;" /></a>
+                            </span>
+                    </p>
+                </footer>
+            </div>
+        </div>
+    </main>
+    <script src="/Scripts/modernizr-2.6.2.js"></script>
+    <script src="/Scripts/js.cookie.min.js"></script>
+    <script src="/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/Scripts/notify.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script src="/script/config"></script>
+    <script src="/Scripts/globals.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <script src="/Scripts/all.js"></script>
+    <script src="/Scripts/moment.min.js"></script>
+    <script src="/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Scripts/bootstrap-multiselect.js"></script>
+    <script src="/Scripts/bootstrap-multiselect-collapsible-groups.js"></script>
+    <script src="/Scripts/list.original.js"></script>
+    <script src="/Scripts/list.pagination.js"></script>
+    <script type="text/javascript" src="/Scripts/jsoneditor.js"></script>
+    <script type="text/javascript" src="/Scripts/select2.min.js?v=4.0.13"></script>
+    <script type="text/javascript" src="/Scripts/protocolcheck.js"></script>
+    <script type="text/javascript">
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // set maxDate's hour and minutes to 23:59:59
+        // to make Today button work as expected.
+        var today = new Date();
+        var maxDateNextDay = new Date(today.getFullYear(), today.getMonth(),
+            today.getDate() + 1, 23, 59, 59);
+
+        var maxDateToday = new Date(today.getFullYear(), today.getMonth(),
+            today.getDate(), 23, 59, 59);
+
+        // Current date, and previous dates only.
+        $('input.zl-date-picker').datetimepicker({
+            maxDate: maxDateNextDay,
+            format: "DD/MM/YYYY",
+            showTodayButton: true,
+            showClear: true,
+            showClose: true,
+            widgetPositioning: {
+                horizontal: 'left',
+                vertical: 'bottom'
+            }
+        });
+
+        // Current date, and future only.
+        $('input.zl-date-picker-future').datetimepicker({
+            minDate: 'moment',
+            useCurrent: false,
+            format: "DD/MM/YYYY",
+            showTodayButton: true,
+            showClear: true,
+            showClose: true,
+            widgetPositioning: {
+                horizontal: 'left',
+                vertical: 'bottom'
+            }
+        });
+
+        // Any date
+        $('input.zl-date-picker-any').datetimepicker({
+            format: "DD/MM/YYYY",
+            showTodayButton: true,
+            showClear: true,
+            showClose: true,
+            widgetPositioning: {
+                horizontal: 'left',
+                vertical: 'bottom'
+            }
+        });
+
+
+        // Current date, and previous dates only.
+        $('input.zl-date-picker-dob').datetimepicker({
+            maxDate: maxDateToday,
+            format: "DD/MM/YYYY",
+            useCurrent: false,
+            showTodayButton: true,
+            showClear: true,
+            showClose: true,
+            widgetPositioning: {
+                horizontal: 'left',
+                vertical: 'bottom'
+            }
+        });
+    </script>
+    <script type="text/javascript">
+        JSONEditor.defaults.theme = 'bootstrap3';
+        JSONEditor.defaults.iconlib = 'fontawesome4';
+    </script>
+    <script type="text/javascript">
+            var idleCheckInterval = 10000;
+
+			function sessionCheck(){
+			$('#timeoutText').addClass('hidden');
+
+            // Idle session check.
+                var idleTimer = setInterval(function () {
+
+                        var absolutePath = '/';
+                        var url = 'https://doctor.asiamedic.com.sg';
+                        var returnPath = url + "/sign-in?ReturnUrl=" + absolutePath;
+
+                        returnPath = btoa(unescape(encodeURIComponent(returnPath)));
+
+                        $.ajax({
+                            type: 'GET',
+                            dataType: 'json',
+                            url: baseUrl + '/activity-check/session?returnPath=' + returnPath
+                        })
+                            .done(function (result) {
+
+                                var expiryString = result.Expiry;
+                                if (expiryString !== null) {
+                                    if (result.Status === 1) {
+
+                                        if (result.ExpiryInSeconds < 60) {
+                                            clearInterval(idleTimer);
+
+                                            window.expiryInSeconds = result.ExpiryInSeconds;
+
+                                            var exp = new Date(new Date().setSeconds(new Date().getSeconds() + result.ExpiryInSeconds));
+
+                                            window.expiryTime = exp;
+
+                                            var timeOutMessage = "Your session will timeout in {0} second(s). Please choose to stay signed in or to logoff. Otherwise, you will be logged off automatically.";
+                                            timer = setInterval(function () {
+                                                showRemaining(timeOutMessage, result.Url);
+                                            },
+                                                1000);
+                                        }
+                                    } else {
+                                        clearInterval(idleTimer);
+                                        clearInterval(timer);
+                                        window.location = result.Url;
+                                    }
+                                }
+                            })
+                            .fail(function (jqXhr, textStatus, errorThrown) {
+
+                            });
+                    },
+                    idleCheckInterval);
+			}
+
+            $(document)
+                .ready(function () {
+
+					$('.stay-logged-in')
+						.click(function(e){
+                            e.preventDefault();
+
+                            var absolutePath = '/';
+                            var url = 'https://doctor.asiamedic.com.sg';
+                            var returnPath = url + "/sign-in?ReturnUrl=" + absolutePath;
+
+                            returnPath = btoa(unescape(encodeURIComponent(returnPath)));
+
+							$.ajax({
+								type: 'GET',
+								dataType: 'json',
+								url: baseUrl + '/activity-check?returnPath=' + returnPath
+							}).done(function (result) {
+								if (result.Status !== 1) {
+									window.location = result.Url;
+								} else{
+									clearInterval(timer);
+									sessionCheck();
+								}
+							}).fail(function (jqXhr, textStatus, errorThrown) {
+
+							});
+						});
+
+                        sessionCheck();
+
+                    });
+                $(document).ready(function () {
+                    var $main = $(".body-content");
+                    $("#toggle-sidebar").click(function () {
+                        $(".custom-sidebar").toggleClass("custom-sidebar-wide");
+                        $main.toggleClass("body-pushed");
+                    });
+                    $("#toggle-drawer").click(function () {
+                        $("#side-out-toggle").toggle();
+                    });
+                });
+
+        $('.fa').tooltip({ boundary: 'body' })
+
+        $('#side-out-toggle li').on('mouseover', function () {
+            $('#side-out-toggle').addClass('menu-hovered');
+            $('.first-menu span').addClass('menu-hovered');
+            $('.custom-sidebar-wide span').addClass('menu-hovered');
+        }).on('mouseout', function () {
+            $('#side-out-toggle').removeClass('menu-hovered');
+            $('.first-menu span').removeClass('menu-hovered');
+            $('.custom-sidebar-wide span').removeClass('menu-hovered');
+        });
+
+        $('.queues-desktop').on('mouseover', function () {
+            $('.submenu').addClass('menu-hovered');
+            $('#side-out-toggle').addClass('menu-hovered');
+            $('.first-menu span').addClass('menu-hovered');
+            $('.custom-sidebar-wide span').addClass('menu-hovered');
+        }).on('mouseout', function () {
+            $('.submenu').removeClass('menu-hovered');
+            $('#side-out-toggle').removeClass('menu-hovered');
+            $('.first-menu span').removeClass('menu-hovered');
+            $('.custom-sidebar-wide span').removeClass('menu-hovered');
+        });
+
+    </script>
+    
+    <script src="/Scripts/views/studies/index.js"></script>
+        <script type="text/javascript">
+            function popupViewed(swal) {
+                swal.close()
+                localStorage.setItem('popup-doctor', 'viewed')
+            }
+
+    $(document).ready(function () {
+            // disable tour in 3.11 temporarily because Bootstrap tour is not working with
+            // Bootstrap 3.4.1. Will use a different library in 3.12
+            localStorage.setItem('popup-doctor', 'viewed')
+            if (!localStorage.getItem('popup-doctor')) {
+                swal({
+                    title: 'Take a Tour?'
+                    , text: "Let us show you around. </br></br> <a onclick='popupViewed(swal)' href='#'>No thanks</a>"
+                    , html: true
+                    , type: 'success'
+                    , showCancelButton: true
+                    , cancelButtonText: 'Next time'
+                    , confirmButtonText: 'Start Tour'
+                    , closeOnConfirm: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        var tour = StudyTour();
+                        tour.init();
+                        tour.start();
+                        localStorage.setItem('popup-doctor', 'viewed');
+                    }
+                });
+            }
+
+            function StudyTour() {
+                var tour = new Tour({
+                    onStart: function (tour) {
+                        $('#tour-study').show();
+                        $('#toast-container').hide();
+                    }
+                    , onEnd: function (tour) {
+                        $('#tour-study').hide();
+                        $('#backdrop').remove();
+                        $('#toast-container').show();
+                        $('#studies .panel-heading div div').css('z-index', '1000');
+                        $('#tour-heading-studies').css('z-index', '1000');
+                    }
+                    , backdrop: true
+                    , backdropContainer: 'body'
+                    , steps: [
+                        {
+                            element: '#tour-studies'
+                            , title: 'Studies'
+                            , content: "Search for your patient&#39;s imaging and reports"
+                            , onShow: function (tour) {
+                                $('#side-out-toggle').css('z-index', '1101');
+                            }
+                        }
+                        , {
+                            element: '#tour-upload-studies'
+                            , title: 'Upload Studies'
+                            , content: 'Upload DICOM studies from CDs or USBs'
+                        }
+                        , {
+                            element: '#tour-ereferrals'
+                            , title: 'E-Referrals'
+                            , content: 'Create and manage E-Referrals'
+                        }
+                        , {
+                            element: '#studies-search'
+                            , title: 'Study Quick Search'
+                            , content: 'Create and save your favourite searches for quick access.'
+                            , placement: 'top'
+                        }
+                        , {
+                            element: '#tour-tips-search'
+                            , title: 'Search Tips'
+                            , content: 'Click here for tips to guide you along the way.'
+                            , placement: 'left'
+                        }
+                        , {
+                            element: '#studies'
+                            , title: 'Studies table'
+                            , content: 'Your worklist - all studies referred by you will automatically appear here as they are completed.'
+                            , placement: 'top'
+                        }
+                        , {
+                            element: '#studies .panel-heading'
+                            , title: 'Studies actions'
+                            , content: 'Additional Actions. Select a study to enable additional actions.'
+                            , placement: 'top'
+                            , onShow: function (tour) {
+                                $('#studies .panel-heading div div').css('z-index', '9999');
+                                $(this.element).css('z-index', '9999');
+                            }
+                        }
+                    ]
+                });
+                return tour;
+            };
+        });
+        </script>
+
+<script type="text/javascript">
+        $(document)
+            .ready(function() {
+
+                $('#study-search-modality-picker')
+                    .multiselect({
+                        nonSelectedText: 'All Modalities',
+                        buttonClass: 'btn btn-info btn-sm',
+                        includeSelectAllOption: true,
+                        allSelectedText: 'All Modalities'
+                    });
+
+
+
+                // Handle double click actions.
+                $('tr.double-click')
+                    .dblclick(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        var studyId = $(this).attr('data-study-id');
+                        var studyInstanceUid = $(this).attr('data-study-uid');
+                        var isMobile = /Mobi/.test(navigator.userAgent);
+                        var allowViewer = 'False' === 'True'
+                                ? 'true'
+                                : 'false';
+
+                        if (allowViewer === 'true') {
+
+                            var viewerUrl = baseUrl + '/viewer?id=' + studyId;
+
+                            if (isMobile) {
+                                // Open viewer in the same tab.
+                                window.open(viewerUrl,
+                                 '_self',
+                                 '');
+
+                            } else {
+                                // Open viewer in a new tab.
+
+                                window.open(viewerUrl,
+                                 '_blank',
+                                 '');
+
+                            }
+                        }
+
+                    });
+
+                //
+                $('#studies table thead tr.study-header-sorter th[data-table]')
+                    .click(function() {
+                        var element = $(this);
+
+                        $.ajax({
+                            url: '/ajax/user-preferences/update-sorting' +
+                                '?table=' +
+                                element.attr('data-table') +
+                                '&column=' +
+                                element.attr('data-column-name') +
+                                '&direction=' +
+                                element.attr('data-sort-direction'),
+                            success: function(data) {
+
+                                location.reload();
+
+                            }
+                        });
+                    });
+
+                var studyId;
+                var studyInstanceUid;
+                var studyObj;
+                var $viewInteleViewerButton = $('#action-button-launch-inteleviewer');
+
+                // Handle single row clicks
+                $('tr.single-click')
+                    .click(function(event) {
+
+                        let numSelectedStudies = $('input[data-study-select]:checked').length;
+
+                        $('tr.single-click').not(this).removeClass('selected-row');
+
+                        // remove row selection when there is at least one selection
+                        if ($('input[data-study-select]:checked').length >= 1) {
+                            $(this).removeClass('selected-row');
+                        }
+
+                        // add row selection if the checkbox selection is on the same row
+                        if ($('input[data-study-select]:checked').length == 1 &&
+                            $('input[data-study-select]:checked').attr('data-study-id') ===
+                            $(this).attr('data-study-id')) {
+                            $(this).addClass('selected-row');
+                        }
+
+                        // toggle it if there is no selection
+                        if ($('input[data-study-select]:checked').length == 0) {
+                            $(this).toggleClass('selected-row');
+                        }
+
+                        var wasSelected = $(this).hasClass('selected-row');
+
+                        studyId = $(this).attr('data-study-id');
+                        studyInstanceUid = $(this).attr('data-study-uid');
+                        studyObj = JSON.parse($(this).attr('data-study'));
+                        var reportId = $(this).attr('data-report-id');
+                        var hasAttachments = $(this).attr('data-has-attachments');
+
+                        if (wasSelected) {
+                            $("#action-button-more").removeAttr('disabled');
+                        } else {
+                            $("#action-button-more").attr('disabled', 'disabled');
+                        }
+
+                        // View action button.
+                        var $viewButton = $('#action-button-view');
+
+                        if ($viewButton.length) {
+
+                            var allowViewer = 'False' === 'True'
+                                ? 'true'
+                                : 'false';
+
+                            if (allowViewer === 'true') {
+                                $viewButton.removeClass('disabled');
+
+                                $viewButton.attr('href', baseUrl + '/viewer?id=' + studyId);
+                            }
+
+                            if (!wasSelected) {
+                                $viewButton.addClass('disabled');
+                                $viewButton.removeAttr('href', baseUrl + '/viewer?id=' + studyId);
+
+                            }
+                        }
+
+                        var $expertViewerButton = $('#action-button-expert-viewer');
+
+                        if ($expertViewerButton.length)
+                        {
+                            var allowExpertViewer = 'False' === 'True'
+                                ? 'true'
+                                : 'false';
+
+                            if (allowExpertViewer === 'true') {
+                                $expertViewerButton.removeClass('disabled');
+
+                                $expertViewerButton.attr('href', baseUrl +  '/expertviewer/viewer/' + studyInstanceUid);
+                            }
+
+                            if (!wasSelected) {
+                                $expertViewerButton.addClass('disabled');
+                                $expertViewerButton.removeAttr('href', baseUrl +  '/expertviewer/viewer/' + studyInstanceUid);
+
+                            }
+                        }
+
+                        // View in InteleViewer action button.
+                        if ($viewInteleViewerButton.length) {
+                            $viewInteleViewerButton.removeClass('disabled');
+                            $viewInteleViewerButton.attr('href', baseUrl + '/inteleviewer/' + studyId);
+
+                            if (!wasSelected) {
+                                $viewInteleViewerButton.addClass('disabled');
+                                $viewInteleViewerButton.removeAttr('href');
+                            }
+                        }
+
+                        // Report action button.
+                        var $reportButton = $('#action-button-report');
+
+                        if ($reportButton.length && reportId) {
+                            $reportButton.removeClass('disabled');
+
+                            $reportButton.attr('href', baseUrl + '/reports/' + reportId);
+
+                            if (!wasSelected) {
+                                $reportButton.addClass('disabled');
+                                $reportButton.removeAttr('href');
+                            }
+                        } else {
+                            if (!$reportButton.hasClass('disabled')) {
+                                $reportButton.addClass('disabled');
+                                $reportButton.removeAttr('href');
+                            }
+                        }
+
+                        // Report upload action button.
+                        var $reportUploadButton = $('#action-button-report-upload');
+
+                        if ($reportUploadButton.length) {
+                            $reportUploadButton.removeClass('disabled');
+
+                            $reportUploadButton.attr('href', baseUrl + '/attachments/' + studyId + '/upload/report-attachments');
+
+                            if (!wasSelected) {
+                                $reportUploadButton.addClass('disabled');
+                                $reportUploadButton.removeAttr('href', '#');
+                            }
+                        } else {
+                            if (!$reportUploadButton.hasClass('disabled')) {
+                                $reportUploadButton.addClass('disabled');
+                                $reportUploadButton.attr('href', '#');
+                            }
+                        }
+
+                        // Attachments action button.
+                        var $attachmentsButton = $('#action-button-attachments');
+
+                        if ($attachmentsButton.length) {
+                            $attachmentsButton.attr('href', baseUrl + '/attachments/' + studyId);
+                        }
+
+                        // Share action button.
+                        var $shareButton = $('#action-share-button');
+
+                        if ($shareButton.length) {
+                            $shareButton.removeClass('disabled');
+                            $('#study-share-link').attr('href', baseUrl + 'share-study/' + studyId + '/link');
+                            $('#study-share-email').attr('href', baseUrl + 'share-study/' + studyId + '/external');
+                            $('#study-share-tempaccount').attr('href', baseUrl + 'share-study/' + studyId + '/temporary-account');
+                            $('#study-share-user').attr('href', baseUrl + 'share-study/' + studyId + '/internal');
+                            $('#study-share-patient').attr('href', baseUrl + 'share-study/' + studyId + '/patient');
+                            if (reportId) {
+                                $('#study-share-report').removeClass('hide');
+                                $('#study-share-report').attr('href', baseUrl + 'share-report/' + reportId);
+                            } else {
+                                if (!$('#study-share-report').hasClass('hide')) {
+                                    $('#study-share-report').addClass('hide');
+                                    $('#study-share-report').attr('href', '#');
+                                }
+                            }
+                            if (!wasSelected) {
+                                $shareButton.addClass('disabled');
+                                $shareButton.removeAttr('href', '#');
+                            }
+                        }
+
+                        // Study details button.
+                        var $detailsButton = $('#action-button-details');
+
+                        if ($detailsButton.length) {
+                            $detailsButton.attr('href', baseUrl + 'study-details/' + studyId);
+                        }
+
+                        // Study delete
+                        var $deleteButton = $('#action-button-delete');
+
+                        if ($deleteButton.length) {
+                            $deleteButton.attr('href', baseUrl + '/study-delete/' + studyId);
+                        }
+
+                        // Study move
+                        //var $moveButton = $('#action-button-move');
+
+                        //if ($moveButton.length) {
+                        //    $moveButton.attr('href', baseUrl + 'study-move/' + studyId);
+                        //}
+
+                        // Reprocess
+                        var $reprocessButton = $('#action-button-reprocess');
+
+                        if ($reprocessButton.length) {
+                            $reprocessButton.attr('href', baseUrl + '/reprocess-study/' + studyId);
+                        }
+
+                        // Add data access.
+                        var $addDataAccessButton = $('#action-button-adddataaccess');
+
+                        if ($addDataAccessButton.length) {
+                            $addDataAccessButton.attr('href', baseUrl + '/add-data-access/' + studyId);
+                        }
+
+                        // Dowlnoad dicom.
+                        var $downloadDicomButton = $('#action-button-downloaddicom');
+
+                        if ($downloadDicomButton.length) {
+                            $downloadDicomButton.attr('href', baseUrl + '/download/dicom?id=' + studyId);
+                        }
+
+                        // Create E-Order .
+                        var createEorderButton = $('#action-button-eorder');
+
+                        if (createEorderButton.length) {
+                            createEorderButton.attr('href', baseUrl +  'eorders/create/' + studyId);
+                        }
+
+                        var $risButton = $('#action-ris-button');
+
+                        if ($risButton.length) {
+
+                            var risMatchButton = $('#action-button-rismatch');
+
+                            if (risMatchButton) {
+                                risMatchButton.attr('href',
+                                    baseUrl + 'orders-dashboard/orders?studyGuid=' +
+                                    studyId +
+                                    "&patientId=" +
+                                    studyObj.PatientId);
+                            }
+
+                            var risOrderButton = $('#action-button-risorder');
+
+                            if (risOrderButton.length) {
+                                risOrderButton.attr('href', baseUrl + 'orders-dashboard/orders/create?studyGuid=' + studyId);
+                            }
+                        }
+
+                        //Create patient account
+                        var $addPatientAccount = $('#add-patient-account');
+
+                        if ($addPatientAccount.length) {
+
+                            $addPatientAccount.attr('href', baseUrl + 'apps/ppdb#/users/create?patientId=' + studyObj.PatientId);
+                        }
+
+
+
+                        // enable/disable menu based on multi-studies selection
+                        toggleMenu($(this).hasClass('selected-row') ? $(this) : null);
+
+                    });
+
+                // Handle InteleViewer button
+                if ($viewInteleViewerButton.length) {
+                    $viewInteleViewerButton.click(function(event) {
+                        if ($viewInteleViewerButton.hasClass('disabled')) {
+                            event.preventDefault ? event.preventDefault() : event.returnValue = false;
+                        } else {
+                            event.preventDefault ? event.preventDefault() : event.returnValue = false;
+
+                            // Safari only! Chrome has 'Safari' in its user agent.
+                            if (navigator.userAgent.indexOf('Safari') >= 0 &&
+                                !window.chrome &&
+                                !Cookies.get(window.inteleViewerSafariNoticeCookieName)) {
+                                $('#safari-ir-notice').modal('show');
+                            }
+
+                            $.ajax({
+                                url: baseUrl + '/ajax/inteleviewer/' + studyId,
+                                type: 'GET',
+                                dataType: 'text',
+                                success: function(url) {
+                                    if (typeof url == 'string' && url.indexOf("imss:ivLaunchUrl=") >= 0) {
+                                        window.protocolCheck(url,
+                                            function() {
+                                                window.location
+                                                    .href = '/inteleviewer/install-windows';
+                                            },
+                                            function() {
+                                                // Protocol supported
+                                            });
+                                    } else if (typeof url == 'string' && url.indexOf("ivlaunchurl://") >= 0) {
+                                        window.protocolCheck(url,
+                                            function() {
+                                                window.location
+                                                    .href = '/inteleviewer/install-osx';
+                                            },
+                                            function() {
+                                                // Protocol supported
+                                            });
+                                    } else {
+                                        if (url.indexOf("?xml") >= 0) {
+                                            window.location.href = baseUrl + '/ajax/inteleviewer/' + studyId;
+                                        } else {
+                                            window.location.href = url;
+                                        }
+                                    }
+                                },
+                                error: function(xhr, textStatus, errorThrown) {
+                                    console.log(errorThrown);
+                                }
+                            });
+                        }
+                    });
+                }
+
+                // Get the short study id parameter.
+                var si_param = $(location).attr('href').split('#si=')[1];
+
+                if (typeof si_param !== "undefined" && si_param != null && si_param.trim().length > 0) {
+                    $('tr[data-study-short-id="' + si_param + '"]').click();
+                }
+
+                // Save search filter
+                $('#btn-save-filter')
+                    .click(function () {
+                        if ($('input#filter-name').val() == null)
+                        {
+                            return false;
+                        }
+                        $.ajax({
+                            url: '/ajax/filter/save',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                name: $('input#filter-name').val(),
+                                filter: $('form#study-quick-search').serialize(),
+                                type: 'Study'
+                            }),
+                            success: function(filterId) {
+                                window.location
+                                    .href =
+                                    window.location.pathname + '?' + $.param({ 'filterid': filterId });
+                            },
+                            error: function(xhr, textStatus, errorThrown) {
+                                // Parse error response.
+                                var response = JSON.parse(xhr.responseText);
+                                alert(response.detail);
+                                return false;
+                            }
+                        });
+                    });
+
+                $('#safari-ir-notice')
+                    .on('shown.bs.modal',
+                        function() {
+                            setTimeout(function() {
+                                    $('#safari-ir-notice').modal('hide');
+                                },
+                                5000);
+                        });
+
+                $('.close-no-show')
+                    .click(function() {
+                        Cookies.set(window.inteleViewerSafariNoticeCookieName, true);
+
+                        $('#safari-ir-notice').modal('hide');
+                    });
+
+            });
+
+        var btn = $('#back-to-top');
+
+        $(window).scroll(function () {
+            if ($(window).scrollTop() > 300) {
+                btn.addClass('show');
+            } else {
+                btn.removeClass('show');
+            }
+        });
+
+        btn.on('click', function (e) {
+            e.preventDefault();
+            if ($(window).width() <= 500) {
+
+                $('html, body').animate({ scrollTop: 800 }, '300');
+
+            } else {
+                $('html, body').animate({ scrollTop: 0 }, '300');
+            }
+
+        });
+
+        if ($('#more-actions-dropdown').children().length === 1) {
+            $('#more-actions').hide();
+        }
+
+        $(document).ready(function () {
+            $('.dropdown-submenu a.submenu-item').on("click", function (e) {
+                $(this).next('ul').toggle();
+                e.stopPropagation();
+                e.preventDefault();
+            });
+        });
+
+</script>
+
+
+</body>
+</html>

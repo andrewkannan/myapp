@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 
     // Convert only claim time-off records (negative hours) to leave-like objects
     const timeOffAsLeaves = timeOffRecords
-      .filter(to => to.hours < 0)
+      .filter(to => to.hours <= 0)
       .map(to => ({
         id: to.id,
         userId: to.userId,

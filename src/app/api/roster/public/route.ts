@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     });
 
     const timeOffAsLeaves = timeOffRecords
-      .filter(to => to.hours < 0)
+      .filter(to => to.hours <= 0)
       .map(to => ({
         id: to.id,
         userId: to.userId,

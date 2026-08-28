@@ -106,7 +106,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
       startTime: r.startTime || '',
       endTime: r.endTime || '',
       hours: Math.abs(r.hours),
-      isClaim: r.hours < 0,
+      isClaim: r.hours <= 0,
       status: r.status,
     });
   };
@@ -369,7 +369,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--background)', padding: '0.875rem 1rem', borderRadius: '12px' }}>
                   <div>
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px', fontWeight: 700, letterSpacing: '0.05em' }}>HOURS</span>
-                    <span style={{ fontSize: '1rem', fontWeight: 700, color: r.status === 'CANCELLED' ? '#9ca3af' : (r.hours < 0 ? '#b91c1c' : '#15803d'), textDecoration: r.status === 'CANCELLED' ? 'line-through' : 'none' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 700, color: r.status === 'CANCELLED' ? '#9ca3af' : (r.hours <= 0 ? '#b91c1c' : '#15803d'), textDecoration: r.status === 'CANCELLED' ? 'line-through' : 'none' }}>
                       {r.hours > 0 ? '+' : ''}{r.hours} HRS
                     </span>
                   </div>

@@ -1,0 +1,9 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+async function main() {
+    const locations = await prisma.location.findMany({ include: { stations: true } });
+    console.log(JSON.stringify(locations, null, 2));
+}
+
+main().catch(console.error).finally(() => prisma.$disconnect());

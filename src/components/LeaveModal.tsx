@@ -35,7 +35,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
         if (leave.endTime) setEndTime(leave.endTime);
         if (leave.hours !== undefined) {
           setHours(Math.abs(leave.hours).toString());
-          setIsClaim(leave.hours < 0);
+          setIsClaim(leave.hours <= 0);
         }
         if (leave.studyAccNo) setStudyAccNo(leave.studyAccNo);
       } else {

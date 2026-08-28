@@ -194,8 +194,8 @@ export function TimeOffManager() {
                   {r.reason} {r.studyAccNo && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>#{r.studyAccNo}</span>}
                 </td>
                 <td style={{ color: 'var(--text-muted)' }}>{r.startTime && r.endTime ? `${r.startTime} - ${r.endTime}` : '-'}</td>
-                <td style={{ textAlign: 'right', fontWeight: 'bold', color: r.hours < 0 ? 'var(--danger)' : 'var(--success)' }}>
-                  {r.hours > 0 ? '+' : ''}{r.hours} HRS
+                <td style={{ textAlign: 'right', fontWeight: 'bold', color: r.hours <= 0 ? 'var(--danger)' : 'var(--success)' }}>
+                  {r.hours > 0 ? '+' : ''}{r.hours}h
                 </td>
                 <td>
                   <span className={r.status === 'APPROVED' ? 'badge badge-success' : r.status === 'REJECTED' ? 'badge badge-danger' : 'badge badge-warning'}>

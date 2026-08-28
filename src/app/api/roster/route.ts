@@ -33,9 +33,9 @@ export async function GET(request: Request) {
       where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' }
     });
 
-    // Convert only claim time-off records (negative hours) to leave-like objects
+    // Convert only claim time-off records (negative or zero hours) to leave-like objects
     const timeOffAsLeaves = timeOffRecords
-      .filter(to => to.hours < 0)
+      .filter(to => to.hours <= 0)
       .map(to => ({
         id: to.id,
         userId: to.userId,
