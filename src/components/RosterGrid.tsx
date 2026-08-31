@@ -296,9 +296,9 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 whiteSpace: 'nowrap',
                               }}
                             >
-                              {period === 'AM' && <sup style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>am</sup>}
-                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginRight: '1px' }}>pm</sup>}
                               {shiftUser?.abbreviation || 'Unk'}
+                              {period === 'AM' && <sup style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '0.45rem', marginLeft: '1px' }}>am</sup>}
+                              {period === 'PM' && <sup style={{ color: '#c2410c', fontWeight: 900, fontSize: '0.45rem', marginLeft: '1px' }}>pm</sup>}
                               {shift.remarks && <div style={{ color: 'var(--text-muted)', fontSize: '0.45rem', lineHeight: 1, marginTop: '1px' }}>{shift.remarks}</div>}
                             </span>
                           );
