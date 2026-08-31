@@ -10,6 +10,10 @@ services:
       - JWT_SECRET=super-secret-production-key-change-me
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
+      - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
+      - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
+      - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
     restart: always
     volumes:
       - ./data:/app/data
