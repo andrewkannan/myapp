@@ -1,8 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 
 export default function LeaveModal({ date, leave, users, onClose, onRefresh }: { date: Date, leave?: any, users: any[], onClose: () => void, onRefresh: () => void }) {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'leave' | 'timeoff'>(leave?.type === 'TO' ? 'timeoff' : 'leave');
+
+  const initDateStr = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  const [startDate, setStartDate] = useState(initDateStr);
+  const [endDate, setEndDate] = useState(initDateStr);
 
   // Leave fields
   const [type, setType] = useState('AL');
@@ -24,6 +29,11 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
 
   useEffect(() => {
     if (leave) {
+      const leaveDate = new Date(leave.date);
+      const ldStr = new Date(leaveDate.getTime() - leaveDate.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+      setStartDate(ldStr);
+      setEndDate(ldStr);
+
       if (leave.type === 'TO') {
         setMode('timeoff');
         const r = leave.remarks || '';
@@ -65,23 +75,40 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
       setError('Please select a staff member.');
       return;
     }
+    if (!startDate || !endDate) {
+      setError('Start date and End date are required.');
+      return;
+    }
+    if (new Date(startDate) > new Date(endDate)) {
+      setError('End date cannot be earlier than start date.');
+      return;
+    }
     setLoading(true);
     setError('');
 
     try {
       let res;
-      const dateStr = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
       if (leave && leave.type !== 'TO') {
+        const updateDate = new Date(startDate);
+        const updateDateStr = new Date(updateDate.getTime() - updateDate.getTimezoneOffset() * 60000).toISOString().split('T')[0];
         res = await fetch(`/api/leaves/${leave.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, period, remarks, status })
+          body: JSON.stringify({ type, period, remarks, status, date: updateDateStr })
         });
       } else {
+        const datesArray = [];
+        let current = new Date(startDate);
+        const end = new Date(endDate);
+        while (current <= end) {
+          datesArray.push(new Date(current.getTime() - current.getTimezoneOffset() * 60000).toISOString().split('T')[0]);
+          current.setDate(current.getDate() + 1);
+        }
+
         res = await fetch('/api/leaves', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dates: [dateStr], type, period, remarks, targetUserId, status })
+          body: JSON.stringify({ dates: datesArray, type, period, remarks, targetUserId, status })
         });
       }
 
@@ -178,6 +205,12 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
   const inputStyle = { width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.9rem' };
   const labelStyle = { display: 'block' as const, fontSize: '0.875rem', fontWeight: 600 as const, marginBottom: '0.25rem' };
 
+  const sortedUsers = [...users].sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  const userOptions = sortedUsers.map(u => ({
+    value: u.id,
+    label: `${u.fullName || ''} (${u.abbreviation || ''})`
+  }));
+
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', width: '90%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -205,10 +238,32 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
           <form onSubmit={handleSubmitLeave} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div>
               <label style={labelStyle}>Staff Member</label>
-              <select required disabled={!!leave} value={targetUserId} onChange={e => setTargetUserId(e.target.value)} style={{ ...inputStyle, backgroundColor: leave ? '#f3f4f6' : 'white' }}>
-                <option value="">Select staff...</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.fullName || u.abbreviation}</option>)}
-              </select>
+              <Select 
+                options={userOptions}
+                value={userOptions.find(opt => opt.value === targetUserId) || null}
+                onChange={(option: any) => setTargetUserId(option?.value || '')}
+                isDisabled={!!leave}
+                placeholder="Select staff..."
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    backgroundColor: leave ? '#f3f4f6' : 'white',
+                    borderRadius: '6px',
+                    borderColor: 'var(--border)',
+                  })
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Start Date</label>
+                <input type="date" required value={startDate} onChange={e => setStartDate(e.target.value)} style={inputStyle} disabled={!!leave && leave.type !== 'TO'} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>End Date</label>
+                <input type="date" required value={endDate} onChange={e => setEndDate(e.target.value)} style={inputStyle} disabled={!!leave && leave.type !== 'TO'} />
+              </div>
             </div>
 
             <div>
@@ -222,6 +277,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
                 <option value="NS">Reservist Leave (NS)</option>
                 <option value="HL">Hospitalisation Leave (HL)</option>
                 <option value="UPL">Unpaid Leave (UPL)</option>
+                <option value="BHL">Birthday Leave (BHL)</option>
                 <option value="OFF">Off</option>
               </select>
             </div>
@@ -260,10 +316,21 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
           <form onSubmit={handleSubmitTimeOff} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div>
               <label style={labelStyle}>Staff Member</label>
-              <select required disabled={!!leave} value={targetUserId} onChange={e => setTargetUserId(e.target.value)} style={{ ...inputStyle, backgroundColor: leave ? '#f3f4f6' : 'white' }}>
-                <option value="">Select staff...</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.fullName || u.abbreviation}</option>)}
-              </select>
+              <Select 
+                options={userOptions}
+                value={userOptions.find(opt => opt.value === targetUserId) || null}
+                onChange={(option: any) => setTargetUserId(option?.value || '')}
+                isDisabled={!!leave}
+                placeholder="Select staff..."
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    backgroundColor: leave ? '#f3f4f6' : 'white',
+                    borderRadius: '6px',
+                    borderColor: 'var(--border)',
+                  })
+                }}
+              />
             </div>
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
