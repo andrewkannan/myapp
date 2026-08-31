@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
     // Calculate start and end dates for the month
     const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
     // Fetch sequentially for better SQLite performance
     const locations = await prisma.location.findMany();
