@@ -59,6 +59,27 @@ function getStationColor(stationName: string, locationName: string): string {
   return LOCATION_COLORS[locUpper] || '#F8F8F8';
 }
 
+function getLocationColor(locationName: string) {
+  const locUpper = locationName.toUpperCase();
+  return LOCATION_COLORS[locUpper] || '#F8F8F8';
+}
+
+function getLeaveColors(type: string) {
+  switch (type) {
+    case 'TO': return { text: '#92400e', bg: '#fef3c7' }; // Amber
+    case 'AL': return { text: '#1e40af', bg: '#dbeafe' }; // Blue
+    case 'MC': 
+    case 'HL': return { text: '#991b1b', bg: '#fee2e2' }; // Red
+    case 'UL': return { text: '#9a3412', bg: '#ffedd5' }; // Orange
+    case 'UPL': return { text: '#374151', bg: '#e5e7eb' }; // Gray
+    case 'OFF': return { text: '#166534', bg: '#dcfce7' }; // Green
+    case 'ML':
+    case 'CCL': return { text: '#6b21a8', bg: '#f3e8ff' }; // Purple
+    case 'NS': return { text: '#3f6212', bg: '#ecfccb' }; // Lime/Olive
+    default: return { text: '#1e40af', bg: '#dbeafe' }; // Default blue
+  }
+}
+
 export default function RosterGrid({ data, year, month, currentUser, filterUserIds, activeModalities, onRefresh }: RosterGridProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ date: Date; station: Station | null; status: 'Scheduled' | 'Leave' | 'MC' | 'Off' } | null>(null);
@@ -347,8 +368,8 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                                 opacity: isOther ? 0.15 : 1,
                                 fontSize: '0.6rem',
                                 fontWeight: 700,
-                                color: leave.type === 'TO' ? '#92400e' : '#1e40af',
-                                backgroundColor: leave.type === 'TO' ? '#fef3c7' : '#dbeafe',
+                                color: getLeaveColors(leave.type).text,
+                                backgroundColor: getLeaveColors(leave.type).bg,
                                 padding: '1px 3px',
                                 borderRadius: '3px',
                                 margin: '1px',
@@ -356,7 +377,7 @@ export default function RosterGrid({ data, year, month, currentUser, filterUserI
                               }}
                             >
                               {leaveUser?.abbreviation || 'Unk'}-
-                              <span style={{ color: leave.type === 'TO' ? '#92400e' : 'var(--primary)' }}>
+                              <span style={{ color: getLeaveColors(leave.type).text }}>
                                 {leave.type === 'TO' ? (
                                   leave.remarks === 'Sat Off' ? 'Sat off' :
                                   leave.remarks === 'PM Off' ? 'pm OFF' :
