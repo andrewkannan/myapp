@@ -71,9 +71,13 @@ function getLeaveColors(type: string) {
     case 'MC': 
     case 'HL': return { text: '#991b1b', bg: '#fee2e2' }; // Red
     case 'UL': return { text: '#9a3412', bg: '#ffedd5' }; // Orange
-    case 'BHL': return { text: '#db2777', bg: '#fce7f3' }; // Pink
+    case 'BHL': 
+    case 'BL': return { text: '#db2777', bg: '#fce7f3' }; // Pink
     case 'MGL': return { text: '#be185d', bg: '#fdf2f8' }; // Rose
-    case 'UPL': return { text: '#374151', bg: '#e5e7eb' }; // Gray
+    case 'CL': return { text: '#0f766e', bg: '#ccfbf1' }; // Teal
+    case 'TL': return { text: '#0e7490', bg: '#cffafe' }; // Cyan
+    case 'UPL': 
+    case 'NPL': return { text: '#374151', bg: '#e5e7eb' }; // Gray
     case 'OFF': return { text: '#166534', bg: '#dcfce7' }; // Green
     case 'ML':
     case 'CCL': return { text: '#6b21a8', bg: '#f3e8ff' }; // Purple

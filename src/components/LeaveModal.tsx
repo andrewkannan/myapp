@@ -277,8 +277,11 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
                 <option value="NS">Reservist Leave (NS)</option>
                 <option value="HL">Hospitalisation Leave (HL)</option>
                 <option value="UPL">Unpaid Leave (UPL)</option>
-                <option value="BHL">Birthday Leave (BHL)</option>
+                <option value="BL">Birthday Leave (BL)</option>
                 <option value="MGL">Marriage Leave (MGL)</option>
+                <option value="CL">Compassionate Leave (CL)</option>
+                <option value="TL">Training Leave (TL)</option>
+                <option value="NPL">No Pay Leave (NPL)</option>
                 <option value="OFF">Off</option>
               </select>
             </div>
