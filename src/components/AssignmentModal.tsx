@@ -190,7 +190,8 @@ export default function AssignmentModal({
              ['PENDING', 'APPROVED'].includes(l.status);
     });
 
-    const leaveUserIds = activeLeaves.map(l => l.userId);
+    // Filter out TO (Time Off) so they are still clickable
+    const leaveUserIds = activeLeaves.filter(l => l.type !== 'TO').map(l => l.userId);
     const leaveReasons: Record<string, string> = {};
     activeLeaves.forEach(l => {
       leaveReasons[l.userId] = l.remarks ? `${l.type} - ${l.remarks}` : l.type;

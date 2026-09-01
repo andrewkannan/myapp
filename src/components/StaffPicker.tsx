@@ -65,6 +65,7 @@ export default function StaffPicker({ users, selectedIds, conflictData = {}, lea
           const hasConflict = !!conflictData[user.id];
           const conflictStation = conflictData[user.id];
           const isOnLeave = leaveUserIds.includes(user.id);
+          const hasLeave = !!leaveReasons[user.id];
           const leaveReason = leaveReasons[user.id] || 'On Leave';
 
           return (
@@ -74,7 +75,7 @@ export default function StaffPicker({ users, selectedIds, conflictData = {}, lea
                 if (isOnLeave) { e.preventDefault(); return; }
                 onToggle(user.id);
               }}
-              title={`${user.fullName || user.abbreviation}${isOnLeave ? ` ✈ ${leaveReason}` : hasConflict ? ` ⚠ Already working at ${conflictStation}` : ''}`}
+              title={`${user.fullName || user.abbreviation}${hasLeave ? ` ✈ ${leaveReason}` : hasConflict ? ` ⚠ Already working at ${conflictStation}` : ''}`}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -82,8 +83,8 @@ export default function StaffPicker({ users, selectedIds, conflictData = {}, lea
                 gap: '2px',
                 padding: '0.4rem 0.25rem',
                 borderRadius: '8px',
-                border: `2px solid ${isSelected ? uc.selectedBg : isOnLeave ? '#d1d5db' : hasConflict ? '#F59E0B' : uc.border}`,
-                backgroundColor: isSelected ? uc.selectedBg : isOnLeave ? '#f3f4f6' : hasConflict ? '#FFFBEB' : uc.bg,
+                border: `2px solid ${isSelected ? uc.selectedBg : isOnLeave ? '#d1d5db' : hasConflict ? '#F59E0B' : hasLeave ? '#F59E0B' : uc.border}`,
+                backgroundColor: isSelected ? uc.selectedBg : isOnLeave ? '#f3f4f6' : hasConflict ? '#FFFBEB' : hasLeave ? '#FFFBEB' : uc.bg,
                 cursor: isOnLeave ? 'not-allowed' : 'pointer',
                 opacity: isOnLeave && !isSelected ? 0.6 : 1,
                 transition: 'all 0.15s ease',
