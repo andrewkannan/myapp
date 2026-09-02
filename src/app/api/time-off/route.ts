@@ -43,6 +43,22 @@ export async function POST(request: Request) {
     const finalUserId = isScheduler && targetUserId ? targetUserId : session.id;
     const finalStatus = isScheduler ? 'APPROVED' : 'PENDING';
 
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existing = await prisma.timeOffRecord.findFirst({
+      where: {
+        userId: finalUserId,
+        date: { gte: startOfDay, lte: endOfDay }
+      }
+    });
+
+    if (existing) {
+      return NextResponse.json({ error: 'A Time Off entry already exists for this date. Cannot have duplicates on the same day.' }, { status: 400 });
+    }
+
     const newRecord = await prisma.timeOffRecord.create({
       data: {
         userId: finalUserId,
@@ -74,9 +90,21 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, date, reason, studyAccNo, startTime, endTime, hours, status } = body;
+    const { id, userId, date: bodyDate, date, reason, studyAccNo, startTime, endTime, hours, status } = body;
 
-    if (!id) return NextResponse.json({ error: 'Record ID required' }, { status: 400 });
+    let targetId = id;
+    if (!targetId && userId && bodyDate) {
+      const startOfDay = new Date(bodyDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(bodyDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      const existing = await prisma.timeOffRecord.findFirst({
+        where: { userId, date: { gte: startOfDay, lte: endOfDay } }
+      });
+      if (existing) targetId = existing.id;
+    }
+
+    if (!targetId) return NextResponse.json({ error: 'Record ID or UserId/Date required' }, { status: 400 });
 
     const updateData: any = {};
     if (date) updateData.date = new Date(date);
@@ -88,7 +116,7 @@ export async function PUT(request: Request) {
     if (status !== undefined) updateData.status = status;
 
     const updated = await prisma.timeOffRecord.update({
-      where: { id },
+      where: { id: targetId },
       data: updateData
     });
 
@@ -111,9 +139,45 @@ export async function DELETE(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'Record ID required' }, { status: 400 });
+    const userId = searchParams.get('userId');
+    const dateStr = searchParams.get('date');
 
-    await prisma.timeOffRecord.delete({ where: { id } });
+    if (id) {
+      await prisma.timeOffRecord.delete({ where: { id } });
+    } else if (userId && dateStr) {
+      const startOfDay = new Date(dateStr);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(dateStr);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const records = await prisma.timeOffRecord.findMany({
+        where: { userId, date: { gte: startOfDay, lte: endOfDay } }
+      });
+      
+      for (const r of records) {
+        await prisma.timeOffRecord.delete({ where: { id: r.id } });
+      }
+    } else {
+      return NextResponse.json({ error: 'Record ID or UserId/Date required' }, { status: 400 });
+    }
+
+    // Also delete any derived Leave records
+    if (id || (userId && dateStr)) {
+       let delUserId = userId;
+       let delDateStart = dateStr ? new Date(dateStr) : undefined;
+       
+       if (id && !userId) {
+          // just let the admin route handle leave deletion or we don't do it here
+       }
+       if (delUserId && delDateStart) {
+          delDateStart.setHours(0,0,0,0);
+          const delDateEnd = new Date(delDateStart);
+          delDateEnd.setHours(23,59,59,999);
+          await prisma.leave.deleteMany({
+            where: { userId: delUserId, date: { gte: delDateStart, lte: delDateEnd }, type: 'TO' }
+          });
+       }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

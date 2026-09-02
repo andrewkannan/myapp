@@ -23,7 +23,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [hours, setHours] = useState('');
-  const [isClaim, setIsClaim] = useState(false);
+  const [isClaim, setIsClaim] = useState(true);
 
   const [error, setError] = useState('');
 
@@ -160,7 +160,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
       let method = 'POST';
       if (leave && leave.type === 'TO') {
         method = 'PUT';
-        payload.id = leave.id;
+        payload.userId = leave.userId;
       }
 
       const res = await fetch('/api/time-off', {
@@ -189,7 +189,8 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
     try {
       let res;
       if (leave.type === 'TO') {
-        res = await fetch(`/api/time-off?id=${leave.id}`, { method: 'DELETE' });
+        const dStr = new Date(leave.date).toISOString().split('T')[0];
+        res = await fetch(`/api/time-off?userId=${leave.userId}&date=${dStr}`, { method: 'DELETE' });
       } else {
         res = await fetch(`/api/leaves/${leave.id}`, { method: 'DELETE' });
       }
@@ -338,15 +339,8 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '999px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, border: '1px solid', borderColor: !isClaim ? '#16a34a' : 'var(--border)', backgroundColor: !isClaim ? '#dcfce7' : 'transparent', color: !isClaim ? '#166534' : 'var(--text-muted)' }}>
-                <input type="radio" name="toType" checked={!isClaim} onChange={() => setIsClaim(false)} style={{ display: 'none' }} />
-                + Add
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '999px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, border: '1px solid', borderColor: isClaim ? '#dc2626' : 'var(--border)', backgroundColor: isClaim ? '#fef2f2' : 'transparent', color: isClaim ? '#991b1b' : 'var(--text-muted)' }}>
-                <input type="radio" name="toType" checked={isClaim} onChange={() => setIsClaim(true)} style={{ display: 'none' }} />
-                - Claim
-              </label>
+            <div style={{ display: 'none' }}>
+              <input type="radio" name="toType" checked={true} onChange={() => {}} />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

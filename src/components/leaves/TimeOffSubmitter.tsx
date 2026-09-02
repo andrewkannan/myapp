@@ -190,7 +190,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--foreground)' }}>Entry Type:</span>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--success-text)', fontWeight: 600 }}>
-              <input type="radio" checked={!isClaim} onChange={() => setIsClaim(false)} /> Apply (+)
+              <input type="radio" checked={!isClaim} onChange={() => setIsClaim(false)} /> Apply Overtime (OT) (+)
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--danger-text)', fontWeight: 600 }}>
               <input type="radio" checked={isClaim} onChange={() => setIsClaim(true)} /> Claim (-)
@@ -298,7 +298,7 @@ export function TimeOffSubmitter({ session }: { session: any }) {
                     <label style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>Type</label>
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
                       <label style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
-                        <input type="radio" checked={!editForm.isClaim} onChange={() => setEditForm({...editForm, isClaim: false})} /> Apply(+)
+                        <input type="radio" checked={!editForm.isClaim} onChange={() => setEditForm({...editForm, isClaim: false})} /> Apply Overtime(OT)
                       </label>
                       <label style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
                         <input type="radio" checked={editForm.isClaim} onChange={() => setEditForm({...editForm, isClaim: true})} /> Claim(-)
