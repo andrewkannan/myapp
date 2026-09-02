@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     let whereClause: any = {};
     if (userId) {
       whereClause.userId = userId;
-    } else {
+    } else if (searchParams.get('all') !== 'true') {
       whereClause.status = 'PENDING';
     }
 
