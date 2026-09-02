@@ -33,25 +33,23 @@ export async function GET(request: Request) {
       where: { date: { gte: startDate, lte: endDate }, status: 'APPROVED' }
     });
 
-    // Convert only claim time-off records (negative or zero hours) to leave-like objects
-    const timeOffAsLeaves = timeOffRecords
-      .filter(to => to.hours <= 0)
-      .map(to => ({
-        id: to.id,
-        userId: to.userId,
-        date: to.date,
-        type: 'TO',
-        period: to.startTime && to.endTime ? `${to.startTime}-${to.endTime}` : 'FULL',
-        status: 'APPROVED',
-        remarks: to.reason,
-        startTime: to.startTime,
-        endTime: to.endTime,
-        hours: Math.abs(to.hours),
-        studyAccNo: to.studyAccNo,
-        user: (to as any).user
-      }));
+    const enrichedLeaves = leaves.map(leave => {
+      if (leave.type === 'TO') {
+        const toMatch = timeOffRecords.find(t => t.userId === leave.userId && new Date(t.date).getTime() === new Date(leave.date).getTime() && t.hours <= 0);
+        if (toMatch) {
+          return {
+            ...leave,
+            hours: Math.abs(toMatch.hours),
+            startTime: toMatch.startTime,
+            endTime: toMatch.endTime,
+            studyAccNo: toMatch.studyAccNo
+          };
+        }
+      }
+      return leave;
+    });
 
-    return NextResponse.json({ locations, stations, users, shifts, leaves: [...leaves, ...timeOffAsLeaves], modalities: systemModalities.map(m => m.name) });
+    return NextResponse.json({ locations, stations, users, shifts, leaves: enrichedLeaves, modalities: systemModalities.map(m => m.name) });
   } catch (error) {
     console.error('Error fetching roster:', error);
     return NextResponse.json({ error: 'Failed to fetch roster data' }, { status: 500 });
