@@ -218,7 +218,7 @@ export default function AdminDashboard() {
             <BulkUploader />
           </div>
           <div style={{ display: activeTab === 'emails' ? 'block' : 'none', height: '100%' }}>
-            <EmailManager />
+            <EmailManager isActive={activeTab === 'emails'} />
           </div>
           <div style={{ display: activeTab === 'lists' ? 'block' : 'none', height: '100%' }}>
             <SystemListManager />

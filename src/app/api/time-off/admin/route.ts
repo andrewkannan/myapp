@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { id, status } = body;
 
-    if (!id || !['APPROVED', 'REJECTED'].includes(status)) {
+    if (!id || !['APPROVED', 'REJECTED', 'CANCELLED'].includes(status)) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
     }
 
@@ -80,6 +80,17 @@ export async function PATCH(request: Request) {
             }
           });
         }
+      }
+
+      // If cancelled and it's a claim (negative hours), we must remove the Leave entry we added
+      if (status === 'CANCELLED' && record.hours <= 0) {
+        await tx.leave.deleteMany({
+          where: {
+            userId: record.userId,
+            date: record.date,
+            type: 'TO'
+          }
+        });
       }
 
       await tx.auditLog.create({

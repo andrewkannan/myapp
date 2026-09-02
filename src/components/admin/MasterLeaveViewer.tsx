@@ -230,7 +230,11 @@ export function MasterLeaveViewer() {
                               const isAL = leave.type === 'AL';
                               
                               let bgColor, textColor, border;
-                              if (isAL) {
+                              if (leave.status === 'CANCELLED') {
+                                bgColor = '#F3F4F6';
+                                textColor = '#9CA3AF';
+                                border = '1px dashed #D1D5DB';
+                              } else if (isAL) {
                                 bgColor = isPending ? '#FFFFFF' : (isApproved ? '#DCFCE7' : '#FEF3C7');
                                 textColor = isPending ? '#4B5563' : (isApproved ? '#166534' : '#92400E');
                                 border = isPending ? '1px solid #D1D5DB' : '1px solid transparent';
@@ -248,6 +252,7 @@ export function MasterLeaveViewer() {
                                     backgroundColor: bgColor,
                                     color: textColor,
                                     border: border,
+                                    textDecoration: leave.status === 'CANCELLED' ? 'line-through' : 'none',
                                     padding: '1px 3px',
                                     borderRadius: '4px',
                                     fontSize: '0.6rem',

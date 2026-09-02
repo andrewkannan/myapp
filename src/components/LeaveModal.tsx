@@ -306,6 +306,7 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
                 <option value="APPROVED">{type === 'AL' ? 'Confirmed (Approved)' : 'Approved'}</option>
                 {type === 'AL' && <option value="BALLOT">Ballot</option>}
                 <option value="PENDING">{type === 'AL' ? 'Pending in queue' : 'Pending'}</option>
+                <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
 

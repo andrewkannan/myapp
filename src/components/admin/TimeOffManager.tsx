@@ -39,7 +39,7 @@ export function TimeOffManager() {
     }
   };
 
-  const handleAction = async (id: string, status: 'APPROVED' | 'REJECTED') => {
+  const handleAction = async (id: string, status: 'APPROVED' | 'REJECTED' | 'CANCELLED') => {
     if (!await confirm(`Are you sure you want to ${status.toLowerCase()} this request?`)) return;
     
     const res = await fetch('/api/time-off/admin', {
@@ -198,7 +198,7 @@ export function TimeOffManager() {
                   {r.hours > 0 ? '+' : ''}{r.hours}h
                 </td>
                 <td>
-                  <span className={r.status === 'APPROVED' ? 'badge badge-success' : r.status === 'REJECTED' ? 'badge badge-danger' : 'badge badge-warning'}>
+                  <span className={r.status === 'APPROVED' ? 'badge badge-success' : r.status === 'REJECTED' ? 'badge badge-danger' : r.status === 'CANCELLED' ? 'badge badge-ghost' : 'badge badge-warning'}>
                     {r.status}
                   </span>
                 </td>
@@ -214,6 +214,12 @@ export function TimeOffManager() {
                         style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)' }}
                         onClick={() => handleAction(r.id, 'REJECTED')}>Reject</button>
                     </>
+                  )}
+                  {r.status === 'APPROVED' && (
+                    <button 
+                      className="btn-ghost"
+                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)' }}
+                      onClick={() => handleAction(r.id, 'CANCELLED')}>Cancel</button>
                   )}
                 </td>
               </tr>

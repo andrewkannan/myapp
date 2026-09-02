@@ -183,11 +183,10 @@ export function TimeOffSubmitter({ session }: { session: any }) {
       </div>
 
       {/* Submission Form */}
-      {!isRestrictedRole && (
-        <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 4px 14px var(--shadow-color)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--foreground)' }}>Submit New Entry</h2>
-          
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+      <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.02)', boxShadow: '0 4px 14px var(--shadow-color)' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--foreground)' }}>Submit New Entry</h2>
+        
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--foreground)' }}>Entry Type:</span>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--success-text)', fontWeight: 600 }}>
@@ -251,7 +250,6 @@ export function TimeOffSubmitter({ session }: { session: any }) {
           </div>
         </form>
       </div>
-      )}
 
       {/* Ledger List (Mobile Friendly) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

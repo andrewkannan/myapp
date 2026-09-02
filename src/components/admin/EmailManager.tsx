@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, Send, CheckSquare, Square, Search } from 'lucide-react';
+import { Mail, Send, CheckSquare, Square, Search, RefreshCw } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 
-export function EmailManager() {
+export function EmailManager({ isActive = true }: { isActive?: boolean }) {
   const { toast } = useToast();
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -19,8 +19,12 @@ export function EmailManager() {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    fetchUsers();
-    
+    if (isActive) {
+      fetchUsers();
+    }
+  }, [isActive]);
+
+  useEffect(() => {
     // Load saved template from localStorage if exists
     const savedSubject = localStorage.getItem('onboarding_subject_v4');
     const savedUrl = localStorage.getItem('onboarding_appUrl_v4');
@@ -256,7 +260,19 @@ export function EmailManager() {
         {/* Right Column: Staff Selection */}
         <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>2. Select Staff Recipients</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>2. Select Staff Recipients</h3>
+              <button 
+                onClick={fetchUsers} 
+                disabled={loading}
+                className="btn-ghost" 
+                style={{ fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem' }}
+                title="Refresh staff list"
+              >
+                <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> 
+                Refresh
+              </button>
+            </div>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input 
