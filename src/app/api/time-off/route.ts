@@ -72,6 +72,19 @@ export async function POST(request: Request) {
       }
     });
 
+    if (finalStatus === 'APPROVED' && hours <= 0) {
+      await prisma.leave.create({
+        data: {
+          userId: finalUserId,
+          date: new Date(date),
+          period: 'FULL',
+          type: 'TO',
+          status: 'APPROVED',
+          remarks: reason || 'Time Off Claim'
+        }
+      });
+    }
+
     return NextResponse.json(newRecord, { status: 201 });
   } catch (error: any) {
     console.error('Failed to create time off record:', error);
@@ -119,6 +132,35 @@ export async function PUT(request: Request) {
       where: { id: targetId },
       data: updateData
     });
+
+    // Sync with Leaves for Roster display
+    if (updated.hours <= 0) {
+      if (updated.status === 'APPROVED') {
+        const existing = await prisma.leave.findFirst({
+          where: { userId: updated.userId, date: updated.date, type: 'TO' }
+        });
+        if (!existing) {
+          await prisma.leave.create({
+            data: {
+              userId: updated.userId,
+              date: updated.date,
+              period: 'FULL',
+              type: 'TO',
+              status: 'APPROVED',
+              remarks: updated.reason || 'Time Off Claim'
+            }
+          });
+        }
+      } else if (updated.status === 'CANCELLED') {
+        const startOfDay = new Date(updated.date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(updated.date);
+        endOfDay.setHours(23, 59, 59, 999);
+        await prisma.leave.deleteMany({
+          where: { userId: updated.userId, date: { gte: startOfDay, lte: endOfDay }, type: 'TO' }
+        });
+      }
+    }
 
     return NextResponse.json(updated);
   } catch (error: any) {

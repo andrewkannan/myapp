@@ -12,11 +12,14 @@ export async function PUT(request: Request, context: any) {
     }
 
     const body = await request.json();
-    const { type, period, remarks, status } = body;
+    const { type, period, remarks, status, date } = body;
+
+    const updateData: any = { type, period, remarks, status };
+    if (date) updateData.date = new Date(date);
 
     const leave = await prisma.leave.update({
       where: { id: params.id },
-      data: { type, period, remarks, status }
+      data: updateData
     });
 
     await prisma.auditLog.create({

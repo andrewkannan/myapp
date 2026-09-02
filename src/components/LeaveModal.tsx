@@ -259,11 +259,11 @@ export default function LeaveModal({ date, leave, users, onClose, onRefresh }: {
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Start Date</label>
-                <input type="date" required value={startDate} onChange={e => setStartDate(e.target.value)} style={inputStyle} disabled={!!leave && leave.type !== 'TO'} />
+                <input type="date" required value={startDate} onChange={e => setStartDate(e.target.value)} style={inputStyle} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>End Date</label>
-                <input type="date" required value={endDate} onChange={e => setEndDate(e.target.value)} style={inputStyle} disabled={!!leave && leave.type !== 'TO'} />
+                <input type="date" required value={endDate} onChange={e => setEndDate(e.target.value)} style={inputStyle} disabled={!!leave} title="End date can only be set when adding new leave" />
               </div>
             </div>
 

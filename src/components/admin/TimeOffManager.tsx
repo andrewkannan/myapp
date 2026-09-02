@@ -88,6 +88,62 @@ export function TimeOffManager() {
     }
   };
 
+  const [editingRecord, setEditingRecord] = useState<any>(null);
+
+  const startEdit = (r: any) => {
+    setEditingRecord({
+      ...r,
+      date: new Date(r.date).toISOString().split('T')[0],
+      isClaim: r.hours <= 0,
+      hours: Math.abs(r.hours).toString()
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editingRecord) return;
+    setSubmitting(true);
+    let finalHours = parseFloat(editingRecord.hours);
+    if (editingRecord.isClaim) finalHours = -Math.abs(finalHours);
+    else finalHours = Math.abs(finalHours);
+
+    try {
+      const res = await fetch('/api/time-off', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingRecord.id,
+          date: editingRecord.date,
+          reason: editingRecord.reason,
+          studyAccNo: editingRecord.studyAccNo || null,
+          startTime: editingRecord.startTime || null,
+          endTime: editingRecord.endTime || null,
+          hours: finalHours,
+          status: editingRecord.status,
+        })
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      toast('Record updated', 'success');
+      setEditingRecord(null);
+      fetchRecords();
+    } catch (err: any) {
+      toast(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!await confirm('Are you sure you want to delete this record?')) return;
+    try {
+      const res = await fetch(`/api/time-off?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      toast('Record deleted', 'success');
+      fetchRecords();
+    } catch (err: any) {
+      toast(err.message, 'error');
+    }
+  };
+
   if (loading && records.length === 0) return <div className="skeleton" style={{ height: '400px', width: '100%' }}></div>;
 
   const inputStyle: React.CSSProperties = { padding: '0.4rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.8rem', width: '100%' };
@@ -202,25 +258,33 @@ export function TimeOffManager() {
                     {r.status}
                   </span>
                 </td>
-                <td style={{ textAlign: 'right', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <td style={{ textAlign: 'right', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
                   {r.status === 'PENDING' && (
                     <>
                       <button 
                         className="btn-ghost"
-                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--success-text)' }}
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--success-text)', fontWeight: 600 }}
                         onClick={() => handleAction(r.id, 'APPROVED')}>Approve</button>
                       <button 
                         className="btn-ghost"
-                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)' }}
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)', fontWeight: 600 }}
                         onClick={() => handleAction(r.id, 'REJECTED')}>Reject</button>
                     </>
                   )}
                   {r.status === 'APPROVED' && (
                     <button 
                       className="btn-ghost"
-                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)' }}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--warning-text)', fontWeight: 600 }}
                       onClick={() => handleAction(r.id, 'CANCELLED')}>Cancel</button>
                   )}
+                  <button 
+                    className="btn-ghost"
+                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--primary)' }}
+                    onClick={() => startEdit(r)}>Edit</button>
+                  <button 
+                    className="btn-ghost"
+                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--danger-text)' }}
+                    onClick={() => handleDelete(r.id)}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -238,6 +302,63 @@ export function TimeOffManager() {
           </tbody>
         </table>
       </div>
+      {editingRecord && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', width: '90%', maxWidth: '440px' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: 700 }}>Edit Record</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Date</label>
+                <input type="date" style={inputStyle} value={editingRecord.date} onChange={e => setEditingRecord({...editingRecord, date: e.target.value})} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Reason</label>
+                <input type="text" style={inputStyle} value={editingRecord.reason} onChange={e => setEditingRecord({...editingRecord, reason: e.target.value})} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Study Acc</label>
+                <input type="text" style={inputStyle} value={editingRecord.studyAccNo || ''} onChange={e => setEditingRecord({...editingRecord, studyAccNo: e.target.value})} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Start</label>
+                <input type="text" style={inputStyle} value={editingRecord.startTime || ''} onChange={e => setEditingRecord({...editingRecord, startTime: e.target.value})} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>End</label>
+                <input type="text" style={inputStyle} value={editingRecord.endTime || ''} onChange={e => setEditingRecord({...editingRecord, endTime: e.target.value})} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Hours</label>
+                <input type="number" step="0.25" style={inputStyle} value={editingRecord.hours} onChange={e => setEditingRecord({...editingRecord, hours: e.target.value})} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Type</label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                    <input type="radio" checked={!editingRecord.isClaim} onChange={() => setEditingRecord({...editingRecord, isClaim: false})} /> OT(+)
+                  </label>
+                  <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                    <input type="radio" checked={editingRecord.isClaim} onChange={() => setEditingRecord({...editingRecord, isClaim: true})} /> Claim(-)
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Status</label>
+                <select style={inputStyle} value={editingRecord.status} onChange={e => setEditingRecord({...editingRecord, status: e.target.value})}>
+                  <option value="APPROVED">APPROVED</option>
+                  <option value="PENDING">PENDING</option>
+                  <option value="REJECTED">REJECTED</option>
+                  <option value="CANCELLED">CANCELLED</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button className="btn btn-ghost" onClick={() => setEditingRecord(null)}>Cancel</button>
+              <button className="btn btn-primary" onClick={saveEdit} disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
