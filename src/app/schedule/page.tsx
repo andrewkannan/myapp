@@ -343,6 +343,11 @@ export default function MobileSchedulePage() {
                                   );
                                 })()}
                               </div>
+                              {shift.remarks && (
+                                <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                                  &quot;{shift.remarks}&quot;
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
