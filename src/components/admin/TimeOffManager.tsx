@@ -10,6 +10,7 @@ export function TimeOffManager() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'PENDING' | 'ALL'>('PENDING');
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({ userId: '', date: '', reason: '', studyAccNo: '', startTime: '', endTime: '', hours: '' });
@@ -146,6 +147,14 @@ export function TimeOffManager() {
 
   if (loading && records.length === 0) return <div className="skeleton" style={{ height: '400px', width: '100%' }}></div>;
 
+  const filteredRecords = records.filter(r => {
+    if (!searchQuery) return true;
+    const searchLower = searchQuery.toLowerCase();
+    const staffMatch = (r.user?.fullName || '').toLowerCase().includes(searchLower) || (r.user?.abbreviation || '').toLowerCase().includes(searchLower);
+    const reasonMatch = (r.reason || '').toLowerCase().includes(searchLower);
+    return staffMatch || reasonMatch;
+  });
+
   const inputStyle: React.CSSProperties = { padding: '0.4rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.8rem', width: '100%' };
 
   return (
@@ -155,7 +164,14 @@ export function TimeOffManager() {
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.25rem 0' }}>Time-Off & Overtime Approvals</h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>Review and approve staff time-off claims and logged overtime.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            placeholder="Search staff or reason..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ padding: '0.4rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.85rem', width: '200px' }}
+          />
           <button
             className="btn btn-primary"
             style={{ padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem' }}
@@ -242,7 +258,7 @@ export function TimeOffManager() {
             </tr>
           </thead>
           <tbody>
-            {records.map(r => (
+            {filteredRecords.map(r => (
               <tr key={r.id}>
                 <td style={{ fontWeight: 600 }}>{r.user?.fullName || r.user?.abbreviation}</td>
                 <td>{new Date(r.date).toLocaleDateString('en-GB')}</td>
@@ -288,7 +304,7 @@ export function TimeOffManager() {
                 </td>
               </tr>
             ))}
-            {records.length === 0 && !loading && !error && (
+            {filteredRecords.length === 0 && !loading && !error && (
               <tr>
                 <td colSpan={7}>
                   <div className="empty-state">
